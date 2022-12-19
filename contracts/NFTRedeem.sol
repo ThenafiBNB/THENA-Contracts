@@ -29,10 +29,10 @@ contract NFTRedeem is Ownable {
         _unlocked = 1;
     }
 
-    constructor(address _WBNB, IERC721 _NFT) {
+    constructor(address _WBNB, IERC721 _NFT, uint _redeemAmount) {
         WBNB = _WBNB;
         NFT = _NFT;
-        redeemAmount = 1 * 1e18;
+        redeemAmount = _redeemAmount * 1e18;
         redeemActive = false;
     }
 
@@ -85,7 +85,6 @@ contract NFTRedeem is Ownable {
     function withdrawERC721(uint[] memory tokenIds,address to) external onlyOwner {
         uint i;
         for(i=0; i < tokenIds.length; i++){
-            require(NFT.ownerOf(tokenIds[i]) == msg.sender,"This NTF does not belong to address");
             NFT.transferFrom(address(this), to, tokenIds[i]);
         }
     }

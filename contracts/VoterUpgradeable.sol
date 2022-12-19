@@ -12,14 +12,19 @@ import './interfaces/IPair.sol';
 import './interfaces/IPairFactory.sol';
 import './interfaces/IVoter.sol';
 import './interfaces/IVotingEscrow.sol';
-import "hardhat/console.sol";
-contract Voter is IVoter {
 
-    address public immutable _ve; // the ve token that governs these contracts
-    address public immutable factory; // the PairFactory
-    address internal immutable base;
-    address public immutable gaugefactory;
-    address public immutable bribefactory;
+
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+
+contract VoterUpgradeable is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+    
+    address public _ve; // the ve token that governs these contracts
+    address public factory; // the PairFactory
+    address internal base;
+    address public gaugefactory;
+    address public bribefactory;
+    address public wrapped_bribe_factory;
     uint internal constant DURATION = 7 days; // rewards are released over 7 days
     address public minter;
     address public governor; // should be set to an IGovernor
@@ -54,33 +59,24 @@ contract Voter is IVoter {
     event Detach(address indexed owner, address indexed gauge, uint tokenId);
     event Whitelisted(address indexed whitelister, address indexed token);
 
-    constructor(address __ve, address _factory, address  _gauges, address _bribes) {
+    constructor() {}
+
+    function initialize(address __ve, address _factory, address  _gauges, address _bribes, address w_bribe) initializer  public {
+        __Ownable_init();
+        __ReentrancyGuard_init();
         _ve = __ve;
         factory = _factory;
         base = IVotingEscrow(__ve).token();
         gaugefactory = _gauges;
         bribefactory = _bribes;
+        wrapped_bribe_factory = w_bribe;
         minter = msg.sender;
         governor = msg.sender;
         emergencyCouncil = msg.sender;
     }
 
-    // simple re-entrancy check
-    uint internal _unlocked = 1;
-    modifier lock() {
-        require(_unlocked == 1);
-        _unlocked = 2;
-        _;
-        _unlocked = 1;
-    }
 
-    modifier onlyNewEpoch(uint _tokenId) {
-        // ensure new epoch since last vote 
-        require((block.timestamp / DURATION) * DURATION > lastVoted[_tokenId], "TOKEN_ALREADY_VOTED_THIS_EPOCH");
-        _;
-    }
-
-    function initialize(address[] memory _tokens, address _minter) external {
+    function _initialize(address[] memory _tokens, address _minter) external {
         require(msg.sender == minter);
         for (uint i = 0; i < _tokens.length; i++) {
             _whitelist(_tokens[i]);
@@ -98,7 +94,7 @@ contract Voter is IVoter {
         emergencyCouncil = _council;
     }
 
-    function reset(uint _tokenId) external {
+    function reset(uint _tokenId) external nonReentrant {
         require(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, _tokenId));
         lastVoted[_tokenId] = block.timestamp;
         _reset(_tokenId);
@@ -183,10 +179,7 @@ contract Voter is IVoter {
         usedWeights[_tokenId] = uint256(_usedWeight);
     }
 
-
-    function vote(uint tokenId, address[] calldata _poolVote, uint256[] calldata _weights) external {
-        
-        console.log(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, tokenId));
+    function vote(uint tokenId, address[] calldata _poolVote, uint256[] calldata _weights) external nonReentrant {
         require(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, tokenId));
         require(_poolVote.length == _weights.length);
         lastVoted[tokenId] = block.timestamp;
@@ -374,7 +367,7 @@ contract Voter is IVoter {
         }
     }
 
-    function distribute(address _gauge) public lock {
+    function distribute(address _gauge) public nonReentrant {
         
         IMinter(minter).update_period();
         

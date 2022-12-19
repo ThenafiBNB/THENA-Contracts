@@ -16,6 +16,9 @@ import '../interfaces/IVoter.sol';
 import '../interfaces/IVotingEscrow.sol';
 import '../interfaces/IRewardsDistributor.sol';
 
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
+import "hardhat/console.sol";
 
 interface IPairAPI {
     struct pairInfo {
@@ -63,7 +66,7 @@ interface IPairAPI {
     function pair_factory() external view returns(address);
 }
 
-contract veNFTAPI {
+contract veNFTAPI is Initializable {
 
     struct pairVotes {
         address pair;
@@ -104,9 +107,7 @@ contract veNFTAPI {
 
         string symbol;
     }
-
-
-    
+   
     uint256 constant public MAX_RESULTS = 1000;
     uint256 constant public MAX_PAIRS = 30;
 
@@ -123,8 +124,12 @@ contract veNFTAPI {
     address public owner;
     event Owner(address oldOwner, address newOwner);
 
+    struct AllPairRewards {
+        Reward[] rewards;
+    }
+    constructor() {}
 
-    constructor(address _voter, address _rewarddistro, address _pairApi, address _pairFactory) {
+    function initialize(address _voter, address _rewarddistro, address _pairApi, address _pairFactory) initializer public {
         owner = msg.sender;
 
         pairAPI = _pairApi;
@@ -141,6 +146,7 @@ contract veNFTAPI {
     }
 
 
+
     function getAllNFT(uint256 _amounts, uint256 _offset) external view returns(veNFT[] memory _veNFT){
 
         require(_amounts <= MAX_RESULTS, 'too many nfts');
@@ -153,16 +159,16 @@ contract veNFTAPI {
             _owner = ve.ownerOf(i);
             // if id_i has owner read data
             if(_owner != address(0)){
-                _veNFT[i-_offset] = _getNFTFromId(i, owner);
+                _veNFT[i-_offset] = _getNFTFromId(i, _owner);
             }
         }
     }
 
-    function getNFTFrom(uint256 id) external view returns(veNFT memory){
+    function getNFTFromId(uint256 id) external view returns(veNFT memory){
         return _getNFTFromId(id,ve.ownerOf(id));
     }
 
-    function getNFTFrom(address _user) external view returns(veNFT[] memory venft){
+    function getNFTFromAddress(address _user) external view returns(veNFT[] memory venft){
 
         uint256 i=0;
         uint256 _id;
@@ -223,9 +229,9 @@ contract veNFTAPI {
     }
 
     
-    function allPairRewards(uint256 _amount, uint256 _offset, uint256 id) external view returns(Reward[] memory rewards){
+    function allPairRewards(uint256 _amount, uint256 _offset, uint256 id) external view returns(AllPairRewards[] memory rewards){
         
-        rewards = new Reward[](MAX_RESULTS);
+        rewards = new AllPairRewards[](MAX_PAIRS);
 
         uint256 totalPairs = pairFactory.allPairsLength();
         
@@ -236,7 +242,7 @@ contract veNFTAPI {
                 break;
             }
             _pair = pairFactory.allPairs(i);
-            rewards = _pairReward(_pair, id);
+            rewards[i].rewards = _pairReward(_pair, id);
         }
     }
 
@@ -248,24 +254,25 @@ contract veNFTAPI {
     function _pairReward(address _pair, uint256 id) internal view returns(Reward[] memory _reward){
 
         IPairAPI.pairInfo memory _pairApi = IPairAPI(pairAPI).getPair(_pair, address(0));
-
-        address wrappedBribe = _pairApi.wrapped_bribe;
-        uint256 totBribeTokens = IBribeFull(wrappedBribe).rewardsListLength();
-        uint bribeAmount;
-
         if(_pair == address(0)){
-            //return;
+            return _reward;
         }
+        
+        address wrappedBribe = _pairApi.wrapped_bribe;
+        
+        uint256 totBribeTokens = (wrappedBribe == address(0)) ? 0 : IBribeFull(wrappedBribe).rewardsListLength();
+        uint bribeAmount;
+        
+        _reward = new Reward[](2 + totBribeTokens);
+
         address _gauge = (voter.gauges(_pair));
         if(_gauge == address(0)){
-            //return; 
+            return _reward; 
         }
 
         (,,,,, address t0, address t1) = IPair(_pair).metadata();
-        uint256 _feeToken0 = IBribeFull(_pair).earned(t0, id);
-        uint256 _feeToken1 = IBribeFull(_pair).earned(t1, id);
-
-        _reward = new Reward[](2 + bribeAmount);
+        uint256 _feeToken0 = IBribeFull(_pairApi.fee).earned(t0, id);
+        uint256 _feeToken1 = IBribeFull(_pairApi.fee).earned(t1, id);
 
         if(_feeToken0 > 0){
             _reward[0] = Reward({
@@ -280,6 +287,7 @@ contract veNFTAPI {
             });
         }
 
+        
         if(_feeToken1 > 0){
             _reward[1] = Reward({
                 id: id,
@@ -292,6 +300,7 @@ contract veNFTAPI {
                 bribe: address(0)
             });
         }
+
 
         if(wrappedBribe == address(0)){
             return _reward;
@@ -326,6 +335,38 @@ contract veNFTAPI {
         owner = _owner;
         emit Owner(msg.sender, _owner);
     }
+
+    
+    function setVoter(address _voter) external  {
+        require(msg.sender == owner);
+
+        voter = IVoter(_voter);
+    }
+
+
+    function setRewardDistro(address _rewarddistro) external {
+        require(msg.sender == owner);
+        
+        rewardDisitributor = IRewardsDistributor(_rewarddistro);
+        require(rewardDisitributor.voting_escrow() == voter._ve(), 've!=ve');
+
+        ve = IVotingEscrow( rewardDisitributor.voting_escrow() );
+        underlyingToken = IVotingEscrow(ve).token();
+    }
+    
+    function setPairAPI(address _pairApi) external {
+        require(msg.sender == owner);
+        
+        pairAPI = _pairApi;
+    }
+
+
+    function setPairFactory(address _pairFactory) external {
+        require(msg.sender == owner);
+        
+        pairFactory = IPairFactory(_pairFactory);
+    }
+
 
 
 

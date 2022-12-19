@@ -172,6 +172,8 @@ contract Pair is IPair {
         uint256 _stakingNftFee =  amount * PairFactory(factory).stakingNFTFee() / 10000;
         PairFees(fees).processStakingFees(_stakingNftFee, true);
         _safeTransfer(token0, fees, amount); // transfer the fees out to PairFees
+
+        
         // remove staking fees from lpfees
         amount -= _stakingNftFee;
         uint256 _ratio = amount * 1e18 / totalSupply; // 1e18 adjustment is removed during claim
@@ -565,8 +567,7 @@ contract Pair is IPair {
 
     function _safeTransfer(address token,address to,uint256 value) internal {
         require(token.code.length > 0);
-        (bool success, bytes memory data) =
-        token.call(abi.encodeWithSelector(IERC20.transfer.selector, to, value));
+        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(IERC20.transfer.selector, to, value));
         require(success && (data.length == 0 || abi.decode(data, (bool))));
     }
 

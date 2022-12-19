@@ -127,8 +127,8 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
                              METADATA STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    string constant public name = "veNFT";
-    string constant public symbol = "veNFT";
+    string constant public name = "vested Thena";
+    string constant public symbol = "veTHE";
     string constant public version = "1.0.0";
     uint8 constant public decimals = 18;
 

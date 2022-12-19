@@ -5,6 +5,7 @@ pragma solidity 0.8.13;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./libraries/SignedSafeMath.sol";
 
@@ -74,6 +75,32 @@ contract MasterChef is Ownable {
             accRewardPerShare: 0
         });
     }
+
+    /// @notice add keepers
+    function addKeeper(address[] memory _keepers) external onlyOwner {
+        uint256 i = 0;
+        uint256 len = _keepers.length;
+
+        for(i; i < len; i++){
+            address _keeper = _keepers[i];
+            if(!isKeeper[_keeper]){
+                isKeeper[_keeper] = true;
+            }
+        }
+    }
+
+    /// @notice remove keepers
+    function removeKeeper(address[] memory _keepers) external onlyOwner {
+        uint256 i = 0;
+        uint256 len = _keepers.length;
+
+        for(i; i < len; i++){
+            address _keeper = _keepers[i];
+            if(isKeeper[_keeper]){
+                isKeeper[_keeper] = false;
+            }
+        }
+    }  
 
 
     /// @notice Sets the reward per second to be distributed. Can only be called by the owner.
@@ -165,20 +192,15 @@ contract MasterChef is Ownable {
 
         // Effects
         user.amount = user.amount.add(tokenIds.length);
-        user.rewardDebt = user.rewardDebt.add(
-            int256(
-                tokenIds.length.mul(pool.accRewardPerShare) / ACC_WBNB_PRECISION
-            )
-        );
+        user.rewardDebt = user.rewardDebt.add( int256(tokenIds.length.mul(pool.accRewardPerShare) / ACC_WBNB_PRECISION) );
 
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            require(
-                NFT.ownerOf(tokenIds[i]) == msg.sender,
-                "This NTF does not belong to address"
-            );
+            require(NFT.ownerOf(tokenIds[i]) == msg.sender, "This NTF does not belong to address");
+
             user.tokenIndices[tokenIds[i]] = user.tokenIds.length;
             user.tokenIds.push(tokenIds[i]);
             tokenOwner[tokenIds[i]] = msg.sender;
+
             NFT.transferFrom(msg.sender, address(this), tokenIds[i]);
         }
 
@@ -238,44 +260,7 @@ contract MasterChef is Ownable {
         emit Harvest(msg.sender, _pendingReward);
     }
 
-    /// @notice Withdraw NFT tokens from MCV2 and harvest proceeds for transaction sender to `to`.
-    /// @param tokenIds nft token ids to withdraw.
-    function withdrawAndHarvest(uint256[] calldata tokenIds) public {
-        PoolInfo memory pool = updatePool();
-        UserInfo storage user = userInfo[msg.sender];
-        int256 accumulatedReward = int256(
-            user.amount.mul(pool.accRewardPerShare) / ACC_WBNB_PRECISION
-        );
-        uint256 _pendingReward = accumulatedReward
-            .sub(user.rewardDebt)
-            .toUInt256();
-
-        // Effects
-        user.rewardDebt = accumulatedReward.sub(
-            int256(
-                tokenIds.length.mul(pool.accRewardPerShare) / ACC_WBNB_PRECISION
-            )
-        );
-        user.amount = user.amount.sub(tokenIds.length);
-
-        // Interactions
-        WBNB.safeTransfer(msg.sender, _pendingReward);
-
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            require(
-                tokenOwner[tokenIds[i]] == msg.sender,
-                "Nft Staking System: user must be the owner of the staked nft"
-            );
-            NFT.transferFrom(address(this), msg.sender, tokenIds[i]);
-            uint256 lastTokenId = user.tokenIds[user.tokenIds.length - 1];
-            user.tokenIds[user.tokenIndices[tokenIds[i]]] = lastTokenId;
-            user.tokenIndices[lastTokenId] = user.tokenIndices[tokenIds[i]];
-            user.tokenIds.pop();
-            delete user.tokenIndices[tokenIds[i]];
-            delete tokenOwner[tokenIds[i]];
-        }
-
-        emit Withdraw(msg.sender, tokenIds.length, msg.sender);
-        emit Harvest(msg.sender, _pendingReward);
+    function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
     }
 }

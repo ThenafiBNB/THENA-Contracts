@@ -365,11 +365,7 @@ contract Router is IRouter {
         _swap(amounts, routes, to);
     }
 
-    function swapExactETHForTokens(uint amountOutMin, route[] calldata routes, address to, uint deadline)
-    external
-    payable
-    ensure(deadline)
-    returns (uint[] memory amounts)
+    function swapExactETHForTokens(uint amountOutMin, route[] calldata routes, address to, uint deadline) external payable ensure(deadline) returns (uint[] memory amounts)
     {
         require(routes[0].from == address(weth), 'Router: INVALID_PATH');
         amounts = getAmountsOut(msg.value, routes);

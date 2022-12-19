@@ -14,6 +14,7 @@ import '../interfaces/IPairFactory.sol';
 import '../interfaces/IVoter.sol';
 import '../interfaces/IVotingEscrow.sol';
 
+import "hardhat/console.sol";
 
 contract PairAPI {
 
@@ -112,7 +113,7 @@ contract PairAPI {
 
     function getAllPair(address _user, uint _amounts, uint _offset) external view returns(pairInfo[] memory Pairs){
 
-
+        
         require(_amounts <= MAX_PAIRS, 'too many pair');
 
         Pairs = new pairInfo[](_amounts);
@@ -158,7 +159,7 @@ contract PairAPI {
             accountGaugeLPAmount = _gauge.balanceOf(_account);
             earned = _gauge.earned(underlyingToken, _account);
             gaugeTotalSupply = _gauge.totalSupply();
-            emissions = _gauge.rewardRate(_pair);
+            emissions = _gauge.rewardRate(underlyingToken);
         }
         
         // Pair General Info
@@ -213,11 +214,15 @@ contract PairAPI {
         _pairEpoch = new pairBribeEpoch[](_amounts);
 
         address _gauge = voter.gauges(_pair);
+        console.log(_gauge);
+
         IBribeFull bribe  = IBribeFull(voter.external_bribes(_gauge));
         address _wbribe = wBribeFactory.oldBribeToNew( voter.external_bribes(address(_gauge)) );
 
+        console.log(_wbribe);
+
         // check bribe and checkpoints exists
-        if(address(0) == address(bribe)){
+        if(address(0) == address(bribe) || address(0) == _wbribe){
             return _pairEpoch;
         }
         uint256 supplyNumCheckpoints = bribe.supplyNumCheckpoints();
@@ -295,6 +300,13 @@ contract PairAPI {
         require(_voter != address(0), 'zeroAddr');
         address _oldVoter = address(voter);
         voter = IVoter(_voter);
+        
+        require(wBribeFactory.voter() == address(voter), '!= voters');
+
+        // update variable depending on voter
+        pairFactory = IPairFactory(voter.factory());
+        underlyingToken = IVotingEscrow(voter._ve()).token();
+
         emit Voter(_oldVoter, _voter);
     }
 
@@ -302,9 +314,13 @@ contract PairAPI {
     function setWrappedBribeFactory(address _wBribeFactorywBribeFactory) external {
         require(msg.sender == owner, 'not owner');
         require(_wBribeFactorywBribeFactory != address(0), 'zeroAddr');
+        
         address _oldwBribeFactory = address(wBribeFactory);
         wBribeFactory = IWrappedBribeFactory(_wBribeFactorywBribeFactory);
-        emit Voter(_oldwBribeFactory, _wBribeFactorywBribeFactory);
+        
+        require(wBribeFactory.voter() == address(voter), '!= voters');
+
+        emit WBF(_oldwBribeFactory, _wBribeFactorywBribeFactory);
     }
 
 

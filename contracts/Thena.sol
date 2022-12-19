@@ -33,16 +33,7 @@ contract Thena is IThena {
     }
 
 
-    // Initial mint: total 50M
-    /* 
-        Team	                18%	  9,000,000.00 
-        Ecosystem grant	        25%	  12,500,000.00 
-        veTHE Airdrop for users	38%	  19,000,000.00 
-        veTHE Protocol airdrop 	15%	  7,500,000.00 
-        Initial LP	            4%	  2,000,000.00 
-        Total	                100%  50,000,000.00 
-    */
-    
+    // Initial mint: total 50M    
     function initialMint(address _recipient) external {
         require(msg.sender == minter && !initialMinted);
         initialMinted = true;
