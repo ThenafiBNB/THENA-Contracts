@@ -42,12 +42,12 @@ contract StakingNFTFeeConverter  {
     event ClaimFeeError(address indexed _pair, uint256 timestamp);
     event SwapError(address indexed _tokenIn, uint256 _balanceIn, uint256 timestamp);  
     
-    modifier onlyOwner {
+    modifier onlyOwner() {
         require(msg.sender == owner, 'not allowed');
         _;
     }
 
-    modifier keeper {
+    modifier keeper() {
         require(isKeeper[msg.sender] == true || msg.sender == owner, 'not keeper');
         _;
     }

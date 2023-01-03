@@ -95,6 +95,7 @@ contract VoterUpgradeable is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradea
     }
 
     function reset(uint _tokenId) external nonReentrant {
+        require((block.timestamp / DURATION) * DURATION > lastVoted[_tokenId], "Next epoch");
         require(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, _tokenId));
         lastVoted[_tokenId] = block.timestamp;
         _reset(_tokenId);
@@ -180,6 +181,7 @@ contract VoterUpgradeable is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradea
     }
 
     function vote(uint tokenId, address[] calldata _poolVote, uint256[] calldata _weights) external nonReentrant {
+        require((block.timestamp / DURATION) * DURATION > lastVoted[tokenId], "Next epoch");
         require(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, tokenId));
         require(_poolVote.length == _weights.length);
         lastVoted[tokenId] = block.timestamp;

@@ -391,17 +391,6 @@ contract Router is IRouter {
         _safeTransferETH(to, amounts[amounts.length - 1]);
     }
 
-    function UNSAFE_swapExactTokensForTokens(
-        uint[] memory amounts,
-        route[] calldata routes,
-        address to,
-        uint deadline
-    ) external ensure(deadline) returns (uint[] memory) {
-        _safeTransferFrom(routes[0].from, msg.sender, pairFor(routes[0].from, routes[0].to, routes[0].stable), amounts[0]);
-        _swap(amounts, routes, to);
-        return amounts;
-    }
-
     function _safeTransferETH(address to, uint value) internal {
         (bool success,) = to.call{value:value}(new bytes(0));
         require(success, 'TransferHelper: ETH_TRANSFER_FAILED');

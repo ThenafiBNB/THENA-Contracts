@@ -157,7 +157,7 @@ contract Minter is IMinter {
             uint _teamEmissions = weekly * teamRate / PRECISION;
             uint _required = weekly;
 
-            uint _gauge = weekly - _rebase - _teamEmissions;
+            uint _voterAmount = weekly - _rebase - _teamEmissions;
 
             uint _balanceOf = _thena.balanceOf(address(this));
             if (_balanceOf < _required) {
@@ -170,8 +170,8 @@ contract Minter is IMinter {
             _rewards_distributor.checkpoint_token(); // checkpoint token balance that was just minted in rewards distributor
             _rewards_distributor.checkpoint_total_supply(); // checkpoint supply
 
-            _thena.approve(address(_voter), _gauge);
-            //_voter.notifyRewardAmount(_gauge);
+            _thena.approve(address(_voter), _voterAmount);
+            _voter.notifyRewardAmount(_voterAmount);
 
             emit Mint(msg.sender, weekly, circulating_supply(), circulating_emission());
         }
@@ -185,10 +185,6 @@ contract Minter is IMinter {
 
     function period() external view returns(uint){
         return(block.timestamp / WEEK) * WEEK;
-    }
-
-    function totsupply() public view returns(uint){
-        return _thena.totalSupply();
     }
 
 }

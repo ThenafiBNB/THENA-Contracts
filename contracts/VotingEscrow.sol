@@ -127,7 +127,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
                              METADATA STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    string constant public name = "vested Thena";
+    string constant public name = "veThena";
     string constant public symbol = "veTHE";
     string constant public version = "1.0.0";
     uint8 constant public decimals = 18;
@@ -1098,6 +1098,9 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         uint end = _locked.end;
         uint value = uint(int256(_locked.amount));
         require(value > 0); // dev: need non-zero value
+        
+        // reset supply, _deposit_for increase it
+        supply = supply - value;
 
         uint i;
         uint totalWeight = 0;
@@ -1126,8 +1129,6 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         }     
 
     }
-
-
 
     /*///////////////////////////////////////////////////////////////
                             DAO VOTING STORAGE
@@ -1390,6 +1391,9 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         bytes32 r,
         bytes32 s
     ) public {
+        require(delegatee != msg.sender);
+        require(delegatee != address(0));
+        
         bytes32 domainSeparator = keccak256(
             abi.encode(
                 DOMAIN_TYPEHASH,

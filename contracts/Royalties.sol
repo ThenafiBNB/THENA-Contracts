@@ -15,7 +15,7 @@ interface IThenian {
     function reservedAmount() external view returns(uint);
 }
 
-contract AirdropClaim is ReentrancyGuard {
+contract Royalties is ReentrancyGuard {
 
     using SafeERC20 for IERC20;
 
@@ -116,9 +116,6 @@ contract AirdropClaim is ReentrancyGuard {
         return _reward;
     }
     
-
-
-
     /* 
         OWNER FUNCTIONS
     */
@@ -138,11 +135,6 @@ contract AirdropClaim is ReentrancyGuard {
         owner = _owner;
     }
     
-    /*function _init(uint _startTimestamp) external onlyOwner {
-        require(init == false);
-        init = true;
-        startTimestamp = _startTimestamp;
-    }*/
 
     receive() external payable {}
 

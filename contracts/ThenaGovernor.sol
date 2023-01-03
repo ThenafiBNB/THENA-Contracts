@@ -3,20 +3,14 @@ pragma solidity 0.8.13;
 
 import {IGovernor} from "@openzeppelin/contracts/governance/IGovernor.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
-
 import {L2Governor} from "./governance/L2Governor.sol";
 import {L2GovernorCountingSimple} from "./governance/L2GovernorCountingSimple.sol";
 import {L2GovernorVotes} from "./governance/L2GovernorVotes.sol";
 import {L2GovernorVotesQuorumFraction} from "./governance/L2GovernorVotesQuorumFraction.sol";
 
-contract ThenaGovernor is
-    L2Governor,
-    L2GovernorCountingSimple,
-    L2GovernorVotes,
-    L2GovernorVotesQuorumFraction
-{
+contract ThenaGovernor is L2Governor, L2GovernorCountingSimple, L2GovernorVotes, L2GovernorVotesQuorumFraction {
     address public team;
-    uint256 public constant MAX_PROPOSAL_NUMERATOR = 50; // max 5%
+    uint256 public constant MAX_PROPOSAL_NUMERATOR = 100; // max 10%
     uint256 public constant PROPOSAL_DENOMINATOR = 1000;
     uint256 public proposalNumerator = 2; // start at 0.02%
 
@@ -47,14 +41,7 @@ contract ThenaGovernor is
         proposalNumerator = numerator;
     }
 
-    function proposalThreshold()
-        public
-        view
-        override(L2Governor)
-        returns (uint256)
-    {
-        return
-            (token.getPastTotalSupply(block.timestamp) * proposalNumerator) /
-            PROPOSAL_DENOMINATOR;
+    function proposalThreshold() public view override(L2Governor) returns (uint256){
+        return (token.getPastTotalSupply(block.timestamp) * proposalNumerator) / PROPOSAL_DENOMINATOR;
     }
 }
