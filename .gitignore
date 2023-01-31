@@ -7,13 +7,11 @@ cache/
 
 # JS
 node_modules/
-package-lock.json
 pvkey.js
 
 # Hardhat files
 cache_hardhat/
 artifacts/
-
 tasks/
 
 # Hardhat plugin files
