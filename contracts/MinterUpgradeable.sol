@@ -51,7 +51,7 @@ contract MinterUpgradeable is IMinter, OwnableUpgradeable {
         _initializer = msg.sender;
         team = msg.sender;
 
-        teamRate = 30; // 300 bps = 3%
+        teamRate = 40; // 300 bps = 3%
 
         EMISSION = 990;
         TAIL_EMISSION = 2;
@@ -124,7 +124,7 @@ contract MinterUpgradeable is IMinter, OwnableUpgradeable {
 
     // calculate circulating supply as total token supply - locked supply
     function circulating_supply() public view returns (uint) {
-        return _thena.totalSupply() - _ve.supply();
+        return _thena.totalSupply() - _thena.balanceOf(address(_ve));
     }
 
     // emission calculation is 1% of available supply to mint adjusted by circulating / total supply
@@ -144,7 +144,7 @@ contract MinterUpgradeable is IMinter, OwnableUpgradeable {
 
     // calculate inflation and adjust ve balances accordingly
     function calculate_rebate(uint _weeklyMint) public view returns (uint) {
-        uint _veTotal = _ve.supply();
+        uint _veTotal = _thena.balanceOf(address(_ve));
         uint _thenaTotal = _thena.totalSupply();
         
         uint lockedShare = (_veTotal) * PRECISION  / _thenaTotal;

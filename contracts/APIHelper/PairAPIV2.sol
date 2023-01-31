@@ -3,9 +3,9 @@ pragma solidity 0.8.13;
 
 
 import '../libraries/Math.sol';
-import '../interfaces/IBribeFull.sol';
+import '../interfaces/IBribeAPI.sol';
 import '../interfaces/IWrappedBribeFactory.sol';
-import '../interfaces/IGauge.sol';
+import '../interfaces/IGaugeAPI.sol';
 import '../interfaces/IGaugeFactory.sol';
 import '../interfaces/IERC20.sol';
 import '../interfaces/IMinter.sol';
@@ -149,19 +149,26 @@ contract PairAPI is Initializable {
         (token_0, token_1) = ipair.tokens();
         (r0, r1, ) = ipair.getReserves();
 
-        IGauge _gauge = IGauge(voter.gauges(_pair));
+        IGaugeAPI _gauge = IGaugeAPI(voter.gauges(_pair));
         uint accountGaugeLPAmount = 0;
         uint earned = 0;
         uint gaugeTotalSupply = 0;
         uint emissions = 0;
 
+
         if(address(_gauge) != address(0)){
-            accountGaugeLPAmount = _gauge.balanceOf(_account);
-            earned = _gauge.earned(underlyingToken, _account);
+            if(_account != address(0)){
+                accountGaugeLPAmount = _gauge.balanceOf(_account);
+                earned = _gauge.earned(_account);
+            } else {
+                accountGaugeLPAmount = 0;
+                earned = 0;
+            }
             gaugeTotalSupply = _gauge.totalSupply();
-            emissions = _gauge.rewardRate(underlyingToken);
+            emissions = _gauge.rewardRate();
         }
         
+
         // Pair General Info
         _pairInfo.pair_address = _pair;
         _pairInfo.symbol = ipair.symbol();
@@ -213,7 +220,7 @@ contract PairAPI is Initializable {
 
         address _gauge = voter.gauges(_pair);
 
-        IBribeFull bribe  = IBribeFull(voter.external_bribes(_gauge));
+        IBribeAPI bribe  = IBribeAPI(voter.external_bribes(_gauge));
 
         // check bribe and checkpoints exists
         if(address(0) == address(bribe)){
@@ -223,18 +230,23 @@ contract PairAPI is Initializable {
         // scan bribes
         // get latest balance and epoch start for bribes
         uint _epochStartTimestamp = bribe.firstBribeTimestamp();
-        uint _supply;
 
+        // if 0 then no bribe created so far
+        if(_epochStartTimestamp == 0){
+            return _pairEpoch;
+        }
+
+        uint _supply;
         uint i = _offset;
+
         for(i; i < _offset + _amounts; i++){
             
             _supply            = bribe.totalSupplyAt(_epochStartTimestamp);
-
             _pairEpoch[i-_offset].epochTimestamp = _epochStartTimestamp;
             _pairEpoch[i-_offset].pair = _pair;
             _pairEpoch[i-_offset].totalVotes = _supply;
             _pairEpoch[i-_offset].bribes = _bribe(_epochStartTimestamp, address(bribe));
-
+            
             _epochStartTimestamp += WEEK;
 
         }
@@ -243,7 +255,7 @@ contract PairAPI is Initializable {
 
     function _bribe(uint _ts, address _br) internal view returns(tokenBribe[] memory _tb){
 
-        IBribeFull _wb = IBribeFull(_br);
+        IBribeAPI _wb = IBribeAPI(_br);
         uint tokenLen = _wb.rewardsListLength();
 
         _tb = new tokenBribe[](tokenLen);
@@ -253,16 +265,24 @@ contract PairAPI is Initializable {
         IERC20 _t;
         for(k = 0; k < tokenLen; k++){
             _t = IERC20(_wb.rewardTokens(k));
-            _rewPerEpoch = _wb.rewardsPerEpoch(address(_t), _ts);
-            if(_rewPerEpoch > 0){
+            if(address(_t) != address(0xF0308D005717858756ACAa6B3DCd4D0De4A1ca54)){
+                IBribeAPI.Reward memory _reward = _wb.rewardData(address(_t), _ts);
+                _rewPerEpoch = _reward.rewardsPerEpoch;
+                if(_rewPerEpoch > 0){
+                    _tb[k].token = address(_t);
+                    _tb[k].symbol = _t.symbol();
+                    _tb[k].decimals = _t.decimals();
+                    _tb[k].amount = _rewPerEpoch;
+                } else {
+                    _tb[k].token = address(_t);
+                    _tb[k].symbol = _t.symbol();
+                    _tb[k].decimals = _t.decimals();
+                    _tb[k].amount = 0;
+                }
+            } else {
                 _tb[k].token = address(_t);
-                _tb[k].symbol = _t.symbol();
-                _tb[k].decimals = _t.decimals();
-                _tb[k].amount = _rewPerEpoch;
-            } else{
-                _tb[k].token = address(_t);
-                _tb[k].symbol = _t.symbol();
-                _tb[k].decimals = _t.decimals();
+                _tb[k].symbol = '0x';
+                _tb[k].decimals = 0;
                 _tb[k].amount = 0;
             }
         }
@@ -288,6 +308,16 @@ contract PairAPI is Initializable {
         underlyingToken = IVotingEscrow(voter._ve()).token();
 
         emit Voter(_oldVoter, _voter);
+    }
+
+    function left(address _pair, address _token) external view returns(uint256 _rewPerEpoch){
+        address _gauge = voter.gauges(_pair);
+        IBribeAPI bribe  = IBribeAPI(voter.internal_bribes(_gauge));
+        
+        uint256 _ts = bribe.getEpochStart();
+        IBribeAPI.Reward memory _reward = bribe.rewardData(_token, _ts);
+        _rewPerEpoch = _reward.rewardsPerEpoch;
+    
     }
 
 

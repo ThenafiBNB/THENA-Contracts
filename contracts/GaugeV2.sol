@@ -207,6 +207,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         getReward();
     }
 
+ 
     ///@notice User harvest function
     function getReward() public nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];

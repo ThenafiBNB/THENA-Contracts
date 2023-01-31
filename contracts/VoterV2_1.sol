@@ -18,7 +18,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 
-contract VoterV2 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract VoterV2_1 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     address public _ve; // the ve token that governs these contracts
     address public factory; // the PairFactory
@@ -432,10 +432,75 @@ contract VoterV2 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         gaugefactory = _gaugeFactory;
     }
 
-    function setPairFacotry(address _factory) external {
+    function setPairFactory(address _factory) external {
         require(msg.sender == emergencyCouncil);
         factory = _factory;
     }
 
+    function killGaugeTotally(address _gauge) external {
+        require(msg.sender == emergencyCouncil, "not emergency council");
+        require(isAlive[_gauge], "gauge already dead");
+        isAlive[_gauge] = false;
+        claimable[_gauge] = 0;
+        address _pool = poolForGauge[_gauge];
+        internal_bribes[_gauge] = address(0);
+        external_bribes[_gauge] = address(0);
+        gauges[_pool] = address(0);
+        poolForGauge[_gauge] = address(0);
+        isGauge[_gauge] = false;
+        isAlive[_gauge] = false;
+        claimable[_gauge] = 0;
+        emit GaugeKilled(_gauge);
+    }
 
+    function whitelist(address[] memory _token) public {
+        require(msg.sender == governor);
+        uint256 i = 0;
+        for(i = 0; i < _token.length; i++){
+            _whitelist(_token[i]);
+        }
+    }
+
+    function initGauges(address[] memory _gauges, address[] memory _pools) public {
+        require(msg.sender == emergencyCouncil);
+        uint256 i = 0;
+        for(i; i < _pools.length; i++){
+            address _pool = _pools[i];
+            address _gauge = _gauges[i];
+            address tokenA;
+            address tokenB;
+            (tokenA, tokenB) = IPair(_pool).tokens();
+
+            string memory _type =  string.concat("Thena LP Fees: ", IERC20(_pool).symbol() );
+            address _internal_bribe = IBribeFactory(bribefactory).createBribe(owner(), tokenA, tokenB, _type);
+            _type = string.concat("Thena Bribes: ", IERC20(_pool).symbol() );
+            address _external_bribe = IBribeFactory(bribefactory).createBribe(owner(), tokenA, tokenB, _type);
+            IERC20(base).approve(_gauge, type(uint).max);
+            internal_bribes[_gauge] = _internal_bribe;
+            external_bribes[_gauge] = _external_bribe;
+            gauges[_pool] = _gauge;
+            poolForGauge[_gauge] = _pool;
+            isGauge[_gauge] = true;
+            isAlive[_gauge] = true;
+            _updateFor(_gauge);
+            pools.push(_pool);
+            emit GaugeCreated(_gauge, msg.sender, _internal_bribe, _external_bribe, _pool);
+        }
+    }
+
+    function increaseGaugeApprovals(address _gauge) external {
+        require(msg.sender == emergencyCouncil);
+        require(isGauge[_gauge] = true);
+        IERC20(base).approve(_gauge, 0);
+        IERC20(base).approve(_gauge, type(uint).max);
+    }
+
+    function setNewBribe(address _gauge, address _internal, address _external) external {
+        require(msg.sender == emergencyCouncil);
+        require(isGauge[_gauge] = true);
+        internal_bribes[_gauge] = _internal;
+        external_bribes[_gauge] = _external;
+    }
+
+    
 }

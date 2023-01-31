@@ -53,7 +53,7 @@ contract RewardsDistributor is IRewardsDistributor {
         address _token = IVotingEscrow(_voting_escrow).token();
         token = _token;
         voting_escrow = _voting_escrow;
-        depositor = msg.sender;
+        depositor = msg.sender; //0x86069feb223ee303085a1a505892c9d4bdbee996
         owner = msg.sender;
         require(IERC20(_token).approve(_voting_escrow, type(uint).max));
     }
@@ -338,4 +338,13 @@ contract RewardsDistributor is IRewardsDistributor {
         require(msg.sender == owner);
         owner = _owner;
     }
+
+    function withdrawERC20(address _token) external {
+        require(msg.sender == owner);
+        require(_token != address(0));
+        uint256 _balance = IERC20(_token).balanceOf(address(this));
+        IERC20(_token).transfer(msg.sender, _balance);
+    }
+
+
 }

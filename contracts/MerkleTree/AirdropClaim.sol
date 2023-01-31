@@ -59,6 +59,7 @@ contract AirdropClaim is ReentrancyGuard {
     }
 
     event Deposit(uint256 amount);
+    event Withdraw(uint256 amount);
 
     constructor(address _token, address _ve) {
         owner = msg.sender;
@@ -75,6 +76,13 @@ contract AirdropClaim is ReentrancyGuard {
         emit Deposit(amount);
     }
 
+    function withdraw(uint256 amount, address _token, address _to) external {
+        require(depositors[msg.sender] == true || msg.sender == owner);
+        IERC20(_token).safeTransfer(_to, amount);
+        totalAirdrop -= amount;
+
+        emit Withdraw(amount);
+    }
     
 
     /// @notice set user infromation for the claim
@@ -205,7 +213,7 @@ contract AirdropClaim is ReentrancyGuard {
     function _init() external onlyOwner {
         require(init == false);
         init = true;
-        startTimestamp = block.timestamp;
+        startTimestamp = 1672927200;//block.timestamp;
     }
 
 }

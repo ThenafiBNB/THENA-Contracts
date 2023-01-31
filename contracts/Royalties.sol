@@ -9,6 +9,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./interfaces/IVotingEscrow.sol";
 import "./interfaces/IWETH.sol";
 
+import 'hardhat/console.sol';
+
 interface IThenian {
     function originalMinters(address) external view returns(uint);
     function totalSupply() external view returns(uint);
@@ -100,17 +102,18 @@ contract Royalties is ReentrancyGuard {
     function claimable(address user) public view returns(uint) {
         require(user != address(0));
         //Total fees * Thenian.originalMinters[msg.sender] / (Thenian.totalSupply - Thenian.reservedAmount)
-        uint256 cp = userCheckpoint[msg.sender];
+        uint256 cp = userCheckpoint[user];
         if(cp >= epoch){
             return 0;
         }
+
         uint i;
         uint256 _reward = 0;
-        for(i == cp; i < epoch; i++){
+        for(i = cp; i < epoch; i++){
             uint256 _resAmnt = reservedAmounts[i];
             uint256 _tot = totalSupply[i];
             uint256 _fee = feesPerEpoch[i]; 
-            uint256 weight = thenian.originalMinters(msg.sender);
+            uint256 weight = thenian.originalMinters(user);
             _reward += _fee * weight / (_tot - _resAmnt);
         }  
         return _reward;

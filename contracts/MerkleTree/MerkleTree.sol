@@ -6,6 +6,8 @@ pragma solidity >=0.8.0;
 //import { ERC20 } from "./SolmateERC20.sol"; // Solmate: ERC20
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol"; // OZ: MerkleProof
 
+import 'hardhat/console.sol';
+
 interface IAirdropClaim {
     function setUserInfo(address _who, address _to, uint256 _amount) external returns(bool status);
 }
@@ -18,6 +20,10 @@ interface IAirdropClaim {
 /*
     Based off Solmate [thanks]. Merkle contract to claim Thena Airdrop.
 */
+interface IMerkle {
+    function hasClaimed(address _user) external returns(bool);
+}
+
 
 contract MerkleTree {
 
@@ -31,6 +37,10 @@ contract MerkleTree {
 
     /// @notice owner of the contract
     address public owner;
+
+    /// @notice old merle to check hasClaimed
+    address public oldMerkle_1;
+    address public oldMerkle_2;
 
     /// @notice init flag
     bool public init;
@@ -67,6 +77,9 @@ contract MerkleTree {
     constructor(address _airdropClaim) {
         airdropClaim = _airdropClaim;
         owner = msg.sender;
+        merkleRoot = 0x24b08395d461e7570850b6fc496b5c283511769a7a0acd769201fe7f9d22b998;
+        oldMerkle_1 = 0xFD502Fa14acf1828684090cC08d3c59B6bf74b11;
+        oldMerkle_2 = 0x4259b99c7C6121d0cCe4C9b7C5d8BcE731143Cd7;
     }
 
     /// ============ Events ============
@@ -97,10 +110,15 @@ contract MerkleTree {
             _userToCheck = ownersToFnft[msg.sender];
         }
 
+        
         // Throw if address has already claimed tokens
         if (hasClaimed[msg.sender]) revert AlreadyClaimed(_userToCheck);   
-        
 
+        if(IMerkle(oldMerkle_1).hasClaimed(msg.sender) == true || IMerkle(oldMerkle_2).hasClaimed(msg.sender) == true){
+            hasClaimed[msg.sender] = true;
+            return;
+        }
+ 
         // Verify merkle proof, or revert if not in tree
         bytes32 leaf = keccak256(abi.encodePacked(_userToCheck, amount));
         bool isValidLeaf = MerkleProof.verify(proof, merkleRoot, leaf);
@@ -137,6 +155,13 @@ contract MerkleTree {
     function setOwner(address _owner) external onlyOwner  {
         require(_owner != address(0));
         owner = _owner;
+    }
+
+    function setUserClaimed(address[] memory users) external onlyOwner {
+        uint i=0;
+        for(i=0; i < users.length; i++){
+            hasClaimed[users[i]] = true;
+        }
     }
 
 

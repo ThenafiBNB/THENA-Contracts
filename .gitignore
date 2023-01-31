@@ -1,0 +1,23 @@
+# for verify
+args.js 
+.env
+
+# Foundry
+cache/
+
+# JS
+node_modules/
+package-lock.json
+pvkey.js
+
+# Hardhat files
+cache_hardhat/
+artifacts/
+
+tasks/
+
+# Hardhat plugin files
+typechain-types/
+
+abi
+build

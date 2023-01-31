@@ -4,9 +4,9 @@ pragma solidity 0.8.13;
 
 
 import '../libraries/Math.sol';
-import '../interfaces/IBribeFull.sol';
+import '../interfaces/IBribeAPI.sol';
 import '../interfaces/IWrappedBribeFactory.sol';
-import '../interfaces/IGauge.sol';
+import '../interfaces/IGaugeAPI.sol';
 import '../interfaces/IGaugeFactory.sol';
 import '../interfaces/IERC20.sol';
 import '../interfaces/IMinter.sol';
@@ -112,6 +112,8 @@ contract veNFTAPI is Initializable {
 
     IVoter public voter;
     address public underlyingToken;
+    
+    mapping(address => bool) public notReward;
 
     IVotingEscrow public ve;
     IRewardsDistributor public rewardDisitributor;
@@ -142,6 +144,7 @@ contract veNFTAPI is Initializable {
         underlyingToken = IVotingEscrow(ve).token();
 
         pairFactory = IPairFactory( _pairFactory );
+        notReward[address(0xF0308D005717858756ACAa6B3DCd4D0De4A1ca54)] = true;
 
     }
 
@@ -253,26 +256,34 @@ contract veNFTAPI is Initializable {
 
     function _pairReward(address _pair, uint256 id) internal view returns(Reward[] memory _reward){
 
-        IPairAPI.pairInfo memory _pairApi = IPairAPI(pairAPI).getPair(_pair, address(0));
         if(_pair == address(0)){
             return _reward;
         }
+
         
+        IPairAPI.pairInfo memory _pairApi = IPairAPI(pairAPI).getPair(_pair, address(0));
+        
+       
         address wrappedBribe = _pairApi.bribe;
         
-        uint256 totBribeTokens = (wrappedBribe == address(0)) ? 0 : IBribeFull(wrappedBribe).rewardsListLength();
-        uint bribeAmount;
+        uint256 totBribeTokens = (wrappedBribe == address(0)) ? 0 : IBribeAPI(wrappedBribe).rewardsListLength();
         
+        uint bribeAmount;
+
         _reward = new Reward[](2 + totBribeTokens);
 
         address _gauge = (voter.gauges(_pair));
+        
         if(_gauge == address(0)){
             return _reward; 
         }
+       
 
         (,,,,, address t0, address t1) = IPair(_pair).metadata();
-        uint256 _feeToken0 = IBribeFull(_pairApi.fee).earned(t0, id);
-        uint256 _feeToken1 = IBribeFull(_pairApi.fee).earned(t1, id);
+        uint256 _feeToken0 = IBribeAPI(_pairApi.fee).earned(id, t0);
+        uint256 _feeToken1 = IBribeAPI(_pairApi.fee).earned(id, t1);
+
+        
 
         if(_feeToken0 > 0){
             _reward[0] = Reward({
@@ -301,26 +312,29 @@ contract veNFTAPI is Initializable {
             });
         }
 
-
+        //wrapped bribe point to Bribes.sol (ext bribe)
         if(wrappedBribe == address(0)){
             return _reward;
         }
 
         uint k = 0;
-        address _token;
+        address _token;      
+
         for(k; k < totBribeTokens; k++){
-            _token = IBribeFull(wrappedBribe).rewardTokens(k);
-            bribeAmount = IBribeFull(wrappedBribe).earned(_token, id);
-            _reward[2 + k] = Reward({
-                id: id,
-                pair: _pair,
-                amount: bribeAmount,
-                token: _token,
-                symbol: IERC20(_token).symbol(),
-                decimals: IERC20(_token).decimals(),
-                fee: address(0),
-                bribe: wrappedBribe
-            });
+            _token = IBribeAPI(wrappedBribe).rewardTokens(k);
+            bribeAmount = IBribeAPI(wrappedBribe).earned(id, _token);
+            if(!notReward[_token]){
+                _reward[2 + k] = Reward({
+                    id: id,
+                    pair: _pair,
+                    amount: bribeAmount,
+                    token: _token,
+                    symbol: IERC20(_token).symbol(),
+                    decimals: IERC20(_token).decimals(),
+                    fee: address(0),
+                    bribe: wrappedBribe
+                });
+            }
         }   
 
         return _reward;

@@ -20,7 +20,7 @@ contract BribeFactoryV2 is OwnableUpgradeable {
     }
 
     function createBribe(address _owner,address _token0,address _token1, string memory _type) external returns (address) {
-        require(msg.sender == voter, 'only voter');
+        require(msg.sender == voter || msg.sender == owner(), 'only voter');
         Bribe lastBribe = new Bribe(_owner,voter,address(this), _type);
         lastBribe.addReward(_token0);
         lastBribe.addReward(_token1);

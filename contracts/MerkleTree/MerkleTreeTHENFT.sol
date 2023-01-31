@@ -110,7 +110,6 @@ contract MerkleTreeTHENFT {
     /// @param _merkleRoot merkle root
     function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
         require(_merkleRoot != bytes32(0), 'root 0');
-        require(init == false);
         merkleRoot = _merkleRoot;
     }
 

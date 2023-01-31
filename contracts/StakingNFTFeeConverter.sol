@@ -124,15 +124,15 @@ contract StakingNFTFeeConverter  {
                 try IRouter01(router).swapExactTokensForTokens(_balance, 1, _routes, address(this), block.timestamp){}
                 catch{
                     emit SwapError(_token, _balance, block.timestamp);
-                    console.log("SwapError: ", _token);
-                    console.log("SwapError: ", _balance);
                 }             
             } 
         }
 
         _balance = IERC20(wbnb).balanceOf(address(this));
-        _safeTransfer(wbnb, masterchef, _balance);
-        IMasterchef(masterchef).setDistributionRate(_balance);
+        if(_balance > 0){
+            _safeTransfer(wbnb, masterchef, _balance);
+            IMasterchef(masterchef).setDistributionRate(_balance);
+        }
         lastRewardtime = block.timestamp;
         
         emit StakingReward(block.timestamp, _balance);
