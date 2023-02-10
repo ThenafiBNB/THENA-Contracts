@@ -6,7 +6,7 @@ require("@nomiclabs/hardhat-etherscan");
 
 require("@nomiclabs/hardhat-web3");
 
-const { PRIVATEKEY, APIKEY } = require("./pvkey.js")
+const { PRIVATEKEY, APIKEY } = require("./pvkey.js");
 
 module.exports = {
   // latest Solidity version
@@ -37,16 +37,16 @@ module.exports = {
       chainId: 97,
       accounts: PRIVATEKEY
     },
-   
+
 
     hardhat: {
       forking: {
-          url: "https://bsc-dataseed1.binance.org",
-          chainId: 56,
+        url: "https://bsc-dataseed1.binance.org",
+        chainId: 56,
       },
       //accounts: []
     }
-  
+
   },
 
   etherscan: {
@@ -59,4 +59,4 @@ module.exports = {
     timeout: 100000000
   }
 
-}
+};

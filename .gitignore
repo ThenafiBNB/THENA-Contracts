@@ -11,7 +11,7 @@ pvkey.js
 
 # Hardhat files
 cache_hardhat/
-artifacts/
+# artifacts/
 tasks/
 
 # Hardhat plugin files
