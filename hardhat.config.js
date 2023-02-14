@@ -1,12 +1,8 @@
 require("@nomiclabs/hardhat-waffle");
-
 require('@openzeppelin/hardhat-upgrades');
-
 require("@nomiclabs/hardhat-etherscan");
-
 require("@nomiclabs/hardhat-web3");
-
-const { PRIVATEKEY, APIKEY } = require("./pvkey.js");
+require("dotenv").config({ path: ".env" });
 
 module.exports = {
   // latest Solidity version
@@ -23,21 +19,25 @@ module.exports = {
       },
     ]
   },
-
+  defaultNetwork: "ftmTestnet",
   networks: {
-
     bsc: {
       url: "https://bsc-dataseed1.binance.org",
       chainId: 56,
-      accounts: PRIVATEKEY
+      accounts: [process.env.PRIVATEKEY]
     },
 
     bscTestnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
-      accounts: PRIVATEKEY
+      accounts: [process.env.PRIVATEKEY]
     },
 
+    ftmTestnet: {
+      url: "https://rpc.ankr.com/fantom_testnet",
+      chainId: 4002,
+      accounts: [process.env.PRIVATEKEY]
+    },
 
     hardhat: {
       forking: {
@@ -48,13 +48,12 @@ module.exports = {
     }
 
   },
-
-  etherscan: {
-    // Your API key for Etherscan
-    // Obtain one at https://etherscan.io/
-    apiKey: APIKEY
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts",
   },
-
   mocha: {
     timeout: 100000000
   }
