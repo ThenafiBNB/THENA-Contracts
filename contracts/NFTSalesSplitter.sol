@@ -45,11 +45,15 @@ contract NFTSalesSplitter is OwnableUpgradeable  {
 
     constructor() {}
 
-    function initialize() initializer  public {
+    function initialize(address _wbnb, address _stakingConverter, address _royalties) initializer  public {
         __Ownable_init();
-        wbnb = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
-        stakingConverter = address(0x14cBeee51410c4e3B8269B534933404AEE416A96);
-        royalties = address(0xbe3B34b69b9d7a4A919A7b7da1ae34061e46c49D);
+        // wbnb = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+        // stakingConverter = address(0x14cBeee51410c4e3B8269B534933404AEE416A96);
+        // royalties = address(0xbe3B34b69b9d7a4A919A7b7da1ae34061e46c49D);
+        wbnb = _wbnb;
+        stakingConverter = _stakingConverter;
+        royalties = _royalties;
+    
         converterFee = 333;
         royaltiesFee = 667;
 

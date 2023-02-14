@@ -29,6 +29,11 @@
       "address": "0x4A77F20f3C6890d4b929F1C3979B982363f3c3bF",
       "txHash": "0x639e29130a3a3e356fb26a41d0da293022eaf38a4f5b1d1c0ac268cec2d57b36",
       "kind": "transparent"
+    },
+    {
+      "address": "0x352545190dF45d5a054924C51d76F2B1d25171E0",
+      "txHash": "0x43a86eb9d10ec8f648c2aa84a55487004b6126980e86fd591c04761d6dff0ec2",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -815,6 +820,134 @@
           },
           "t_mapping(t_uint256,t_uint256)": {
             "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "594b70e2bcdf55d783dfadc5d99899d06d02463b61f8c1e59ed102bf770bdbb4": {
+      "address": "0xEd62d8EFc0DcDaBb8b7E02712FdcB280508a35b5",
+      "txHash": "0xe87261b91b0790644ad0934e98e034fe1460daf2e1ef3546c1546ea5c3b601a4",
+      "layout": {
+        "solcVersion": "0.8.13",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "converterFee",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_uint256",
+            "contract": "NFTSalesSplitter",
+            "src": "contracts/NFTSalesSplitter.sol:26"
+          },
+          {
+            "label": "royaltiesFee",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_uint256",
+            "contract": "NFTSalesSplitter",
+            "src": "contracts/NFTSalesSplitter.sol:27"
+          },
+          {
+            "label": "wbnb",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_address",
+            "contract": "NFTSalesSplitter",
+            "src": "contracts/NFTSalesSplitter.sol:30"
+          },
+          {
+            "label": "stakingConverter",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_address",
+            "contract": "NFTSalesSplitter",
+            "src": "contracts/NFTSalesSplitter.sol:32"
+          },
+          {
+            "label": "royalties",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_address",
+            "contract": "NFTSalesSplitter",
+            "src": "contracts/NFTSalesSplitter.sol:33"
+          },
+          {
+            "label": "splitter",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "NFTSalesSplitter",
+            "src": "contracts/NFTSalesSplitter.sol:36"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
             "numberOfBytes": "32"
           },
           "t_uint256": {

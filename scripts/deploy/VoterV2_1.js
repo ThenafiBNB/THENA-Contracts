@@ -10,6 +10,9 @@ async function main() {
       process.env.GAUGEFACTORYV2,
       process.env.BRIBEFACTORYV2,
     ]);
+
+    // More
+    // _initialize
 }
 
 main()

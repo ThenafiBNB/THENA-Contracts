@@ -1,16 +1,20 @@
 // // scripts/upgrade-box.js
 const { ethers, upgrades } = require("hardhat");
-const { deployContract, contractAt, writeTmpAddresses } = require("../shared/helpers");
+const { deployContract, contractAt, writeTmpAddresses, sendTxn } = require("../shared/helpers");
 require("dotenv").config();
 
 async function main() {
-  await deployContract("MasterChef",
+  let contract = await deployContract("MasterChef",
     [
       process.env.WFTM,
-      "điền address VoteV2_1",
-      process.env.BRIBEFACTORYV2,
-      "Thena Bribes: vAMM-BUSD/THE"
+      process.env.THENIAN,
     ]);
+
+  await sendTxn(contract.addKeeper([process.env.PUBLICKEY]), "MasterChef.addKeeper");
+  await sendTxn(contract.setDistributionRate(ethers.utils.parseUnits("1000000000", 18)), "MasterChef.setDistributionRate");
+  // more
+  // hoặc dùng hàm setRewardPerSecond
+
 }
 
 main()
