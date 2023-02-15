@@ -3,7 +3,9 @@ const { ethers, upgrades } = require("hardhat");
 const { deployProxyContract } = require("../../shared/helpers");
 
 async function main() {
-    await deployProxyContract("RewardAPI", [process.env.VOTERV2_1]);
+    const tokenAddress = ""
+
+    await deployProxyContract("AirdropClaim", [tokenAddress, process.env.VOTINGESCROW]);
 }
 
 main()

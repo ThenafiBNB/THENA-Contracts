@@ -3,7 +3,8 @@ const { ethers, upgrades } = require("hardhat");
 const { deployProxyContract } = require("../../shared/helpers");
 
 async function main() {
-    await deployProxyContract("RewardAPI", [process.env.VOTERV2_1]);
+    const airdropClaim = "" // AirdropClaim.js
+    await deployProxyContract("MerkleTree", [airdropClaim]);
 }
 
 main()
