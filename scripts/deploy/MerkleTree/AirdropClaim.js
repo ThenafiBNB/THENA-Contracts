@@ -1,11 +1,11 @@
 // // scripts/upgrade-box.js
 const { ethers, upgrades } = require("hardhat");
-const { deployProxyContract } = require("../../shared/helpers");
+const { deployContract } = require("../../shared/helpers");
 
 async function main() {
-    const tokenAddress = ""
+    const tokenAddress = process.env.THE
 
-    await deployProxyContract("AirdropClaim", [tokenAddress, process.env.VOTINGESCROW]);
+    await deployContract("AirdropClaim", [tokenAddress, process.env.VOTINGESCROW]);
 }
 
 main()

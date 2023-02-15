@@ -1,10 +1,10 @@
 // // scripts/upgrade-box.js
 const { ethers, upgrades } = require("hardhat");
-const { deployProxyContract } = require("../../shared/helpers");
+const { deployContract } = require("../../shared/helpers");
 
 async function main() {
-    const airdropClaim = "" // AirdropClaim.js
-    await deployProxyContract("MerkleTree", [airdropClaim]);
+    const airdropClaim = process.env.USERAIRDROPCLAIM // AirdropClaim.js
+    await deployContract("MerkleTree", [airdropClaim]);
 }
 
 main()

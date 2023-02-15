@@ -1,10 +1,10 @@
 // // scripts/upgrade-box.js
 const { ethers, upgrades } = require("hardhat");
-const { deployProxyContract } = require("../../shared/helpers");
+const { deployContract } = require("../../shared/helpers");
 
 async function main() {
-    const airdropClaim = "" // AirdropClaimTheNFT.js
-    await deployProxyContract("MerkleTree", [airdropClaim]);
+    const airdropClaim = "0x491D87b3C30655009037Fe4dA76Db3dAb726B614" // AirdropClaimTheNFT.js
+    await deployContract("MerkleTree", [airdropClaim]);
 }
 
 main()
