@@ -3,7 +3,12 @@ const { ethers, upgrades } = require("hardhat");
 const { deployProxyContract } = require("../shared/helpers");
 
 async function main() {
-  let contract = await deployProxyContract("MinterUpgradeable", [process.env.VOTERV2_1, process.env.VOTINGESCROW, process.env.REWARDSDISTRIBUTOR], "deploy MinterUpgradeable");
+  await deployProxyContract("MinterUpgradeable",
+    [
+      process.env.VOTERV2_1,
+      process.env.VOTINGESCROW,
+      process.env.REWARDSDISTRIBUTOR
+    ], "deploy MinterUpgradeable");
 
   // More
   // _initialize

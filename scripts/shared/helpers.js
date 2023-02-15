@@ -148,6 +148,22 @@ async function deployProxyContract(name, args, label, options) {
   return contract;
 }
 
+async function upgradeContractProxy(name, address) {
+  let contractFactory = await hre.ethers.getContractFactory(name);
+
+  let info = name;
+  let upgradeContract;
+  if (contractFactory) {
+    upgradeContract = await hre.upgrades.upgradeProxy(address, contractFactory);
+    console.info(`Upgrade ${info} Proxy SUCCESS = ${upgradeContract.address}`);
+  } else {
+    upgradeContract = await contractFactory.attach(address);;
+    console.info(`Upgrade ${info} Proxy FAIL = ${upgradeContract.address}`);
+  }
+  console.info(`========================`);
+  return await contractFactory.attach(address);
+}
+
 async function contractAt(name, address, provider) {
   let contractFactory = await hre.ethers.getContractFactory(name);
   if (provider) {
@@ -219,6 +235,7 @@ module.exports = {
   deployContract,
   deployProxyContract,
   contractAt,
+  upgradeContractProxy,
   writeTmpAddresses,
   readTmpAddresses,
   callWithRetries,
