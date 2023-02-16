@@ -6,7 +6,7 @@ require("dotenv").config();
 async function main() {
   await deployContract("Router",
     [
-      process.env.PAIRFACTORY,
+      process.env.PAIRFACTORYUPGRADEABLE,
       process.env.WFTM
     ], "deploy Router");
 }
