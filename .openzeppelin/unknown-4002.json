@@ -39,6 +39,21 @@
       "address": "0x8D77766DAe8627b29Ba7E1eA34F4A2CB223E2523",
       "txHash": "0x7423866cf16851c00f5a293eb058fc83c498becd8ff69d7a5d5276a4083a6763",
       "kind": "transparent"
+    },
+    {
+      "address": "0xeECAFbeae3C10565a00Ab8338af46684808e0580",
+      "txHash": "0xcfb7c2b93e229eb1d2a3c6fad42ef1b3020bc8f21e2394336ca184ed01e4d012",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xF9A7aa088D85AD96818c53053eDa04B8dd6Da5f8",
+      "txHash": "0x5ca80c1932e03ddcc1eb78355c63eca956546a01e7b287169ee35cb34c5a564e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x03095fF0104D28a4410b7073B32A83Ef540164BD",
+      "txHash": "0x4447f709f263393b3354741ca138ebbf5968a2b621846bcdec3e26a62de6ed28",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -1285,6 +1300,98 @@
           },
           "t_uint256": {
             "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "676485aaf1a1abc9273768614e00801c04d38e9dbea4d1a033db23cba5c914c4": {
+      "address": "0xBa96ac7290DBbbf15c226198C4efA3e7Bba4348C",
+      "txHash": "0xa9e11d6b8e7eae6cf902bee50f7c479f9671cfdd5aff2d908a6d60ef742128d1",
+      "layout": {
+        "solcVersion": "0.8.13",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "pairFactory",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IPairFactory)40672",
+            "contract": "RewardAPI",
+            "src": "contracts/APIHelper/RewardAPI.sol:25"
+          },
+          {
+            "label": "voter",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IVoter)41198",
+            "contract": "RewardAPI",
+            "src": "contracts/APIHelper/RewardAPI.sol:26"
+          },
+          {
+            "label": "underlyingToken",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "RewardAPI",
+            "src": "contracts/APIHelper/RewardAPI.sol:27"
+          },
+          {
+            "label": "owner",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_address",
+            "contract": "RewardAPI",
+            "src": "contracts/APIHelper/RewardAPI.sol:28"
+          },
+          {
+            "label": "notReward",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "RewardAPI",
+            "src": "contracts/APIHelper/RewardAPI.sol:30"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IPairFactory)40672": {
+            "label": "contract IPairFactory",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IVoter)41198": {
+            "label": "contract IVoter",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
             "numberOfBytes": "32"
           },
           "t_uint8": {
