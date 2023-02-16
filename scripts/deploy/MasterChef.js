@@ -11,7 +11,7 @@ async function main() {
     ]);
 
   await sendTxn(contract.addKeeper([process.env.PUBLICKEY]), "MasterChef.addKeeper");
-  await sendTxn(contract.setDistributionRate(ethers.utils.parseUnits("1000000000", 18)), "MasterChef.setDistributionRate");
+  await sendTxn(contract.setDistributionRate(ethers.utils.parseUnits("10", 18)), "MasterChef.setDistributionRate");
   // more
   // hoặc dùng hàm setRewardPerSecond
 

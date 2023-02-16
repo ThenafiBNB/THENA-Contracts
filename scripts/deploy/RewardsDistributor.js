@@ -4,9 +4,9 @@ const { deployContract, contractAt, writeTmpAddresses } = require("../shared/hel
 require("dotenv").config();
 
 async function main() {
-    let contract =  await deployContract("RewardsDistributor",[
-      process.env.VOTINGESCROW
-    ],"deploy RewardsDistributor");
+  await deployContract("RewardsDistributor", [
+    process.env.VOTINGESCROW
+  ], "deploy RewardsDistributor");
 }
 
 main()

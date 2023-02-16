@@ -54,6 +54,26 @@
       "address": "0x03095fF0104D28a4410b7073B32A83Ef540164BD",
       "txHash": "0x4447f709f263393b3354741ca138ebbf5968a2b621846bcdec3e26a62de6ed28",
       "kind": "transparent"
+    },
+    {
+      "address": "0x1Cf7695318fB4161207eBB7376e644Bd53284d38",
+      "txHash": "0xf0572e4b31045ea9243a8d0cd51d1c5dfabc23b25bbb37c79a811c7dee9f6ea0",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xA068BF8fD46A083463F6736cA158E0e8dd519856",
+      "txHash": "0x58c9235aca9f25604e3acd2e8d54ea104058c5caefac9fac2635c82330cea8f0",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xDF6b59C8Ff1B97C6F28D0Dda7a80d2E4A0Be8dE3",
+      "txHash": "0xbc9d6bf9fecc4dcfda5b132ba2d145dcc25765f118344c03ffbb5b1562835fa2",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xb5E4c6D6BeeB8d114D0B8a747ae27A187B07D020",
+      "txHash": "0x74549af564b564d568d6325ec540041960742d5a5414af2efeccf2cf46e9a09f",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -1393,6 +1413,98 @@
           "t_mapping(t_address,t_bool)": {
             "label": "mapping(address => bool)",
             "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "3f0758aef90c2dc4ba2ea25c1a790e8943bb4243ef9971c6429012afda39b441": {
+      "address": "0x4aA1B76a0a6181594B7b56842bC1ad1d213E561F",
+      "txHash": "0x03bc679987a9dd40d8183c4ac0160d6861b12c2980a0abb9c2037012dd4a5880",
+      "layout": {
+        "solcVersion": "0.8.13",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "pairFactory",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IPairFactory)41295",
+            "contract": "PairAPI",
+            "src": "contracts/APIHelper/PairAPIV2.sol:86"
+          },
+          {
+            "label": "voter",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IVoter)41821",
+            "contract": "PairAPI",
+            "src": "contracts/APIHelper/PairAPIV2.sol:87"
+          },
+          {
+            "label": "wBribeFactory",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IWrappedBribeFactory)42046",
+            "contract": "PairAPI",
+            "src": "contracts/APIHelper/PairAPIV2.sol:88"
+          },
+          {
+            "label": "underlyingToken",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_address",
+            "contract": "PairAPI",
+            "src": "contracts/APIHelper/PairAPIV2.sol:90"
+          },
+          {
+            "label": "owner",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_address",
+            "contract": "PairAPI",
+            "src": "contracts/APIHelper/PairAPIV2.sol:92"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IPairFactory)41295": {
+            "label": "contract IPairFactory",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IVoter)41821": {
+            "label": "contract IVoter",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IWrappedBribeFactory)42046": {
+            "label": "contract IWrappedBribeFactory",
+            "numberOfBytes": "20"
           },
           "t_uint8": {
             "label": "uint8",
