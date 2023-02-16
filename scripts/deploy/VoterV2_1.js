@@ -13,15 +13,10 @@ async function main() {
   //   ]);
 
   //upgrade contract
-  const contract = await upgradeContractProxy("VoterV2_1", process.env.VOTERV2_1);
-  await sendTxn(contract.setVotingEscrow(process.env.VOTINGESCROW), "VoterV2_1.setVotingEscrow");
-  await sendTxn(contract._initialize(
-    [
-      process.env.WFTM,
-      process.env.THE,
-    ],
-    process.env.VOTERV2_1),
-    "VoterV2_1._initialize");
+  const contract = await contractAt("VoterV2_1", process.env.VOTERV2_1);
+  console.log(await contract.bribefactory());
+  // await sendTxn(contract.whitelist(process.env.USDT), "VoterV2_1.whitelist");
+  // await sendTxn(contract.vote(1, ["0xeFF810955BF332a094b9A1B17e3a8bc468407457"], [100]), "VoterV2_1.whitelist");
 }
 
 main()
