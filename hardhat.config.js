@@ -4,9 +4,9 @@ require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-web3");
 require("dotenv").config({ path: ".env" });
 
-// const tdly = require("@tenderly/hardhat-tenderly");
+const tdly = require("@tenderly/hardhat-tenderly");
 
-// tdly.setup({ automaticVerifications: true });
+tdly.setup({ automaticVerifications: false });
 
 module.exports = {
   // latest Solidity version

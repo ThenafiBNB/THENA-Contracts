@@ -14,9 +14,9 @@ async function main() {
 
   //upgrade contract
   const contract = await contractAt("VoterV2_1", process.env.VOTERV2_1);
-  console.log(await contract.bribefactory());
   // await sendTxn(contract.whitelist(process.env.USDT), "VoterV2_1.whitelist");
-  // await sendTxn(contract.vote(1, ["0xeFF810955BF332a094b9A1B17e3a8bc468407457"], [100]), "VoterV2_1.whitelist");
+  await sendTxn(contract.setMinter(process.env.PUBLICKEY), "VoterV2_1.setMinter");
+  // await sendTxn(contract.vote(1, ["0xeFF810955BF332a094b9A1B17e3a8bc468407457", "0x33094b36d872897440dd93768375843b1Ac64Dfb"], [70, 30], { gasLimit: 6000000 }), "VoterV2_1.whitelist");
 }
 
 main()

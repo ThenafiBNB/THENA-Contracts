@@ -16,7 +16,8 @@ async function main() {
   // More
   // setPair
   let contract = await contractAt("StakingNFTFeeConverter", process.env.STAKINGCONVERTER);
-  await sendTxn(contract.setRouter(process.env.ROUTERV2), "StakingNFTFeeConverter.setRouter");
+  // await sendTxn(contract.setRouter(process.env.ROUTERV2), "StakingNFTFeeConverter.setRouter");
+  await sendTxn(contract.setMasterchef(process.env.MASTERCHEF), "StakingNFTFeeConverter.setMasterchef");
 }
 
 main()
