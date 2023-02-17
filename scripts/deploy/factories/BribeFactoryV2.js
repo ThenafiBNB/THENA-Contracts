@@ -3,7 +3,7 @@ const { ethers, upgrades } = require("hardhat");
 const { deployProxyContract, contractAt } = require("../../shared/helpers");
 
 async function main() {
-  await deployProxyContract("BribeFactoryV2", []);
+  await deployProxyContract("BribeFactoryV2", [process.env.PUBLICKEY]);
 
   //set lai votev2_1
   const contract = await contractAt("BribeFactoryV2", process.env.BRIBEFACTORYV2);

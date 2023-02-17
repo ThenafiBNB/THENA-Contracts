@@ -1,6 +1,6 @@
 // // scripts/upgrade-box.js
 const { ethers, upgrades } = require("hardhat");
-const { deployContract, deployProxyContract } = require("../shared/helpers");
+const { deployContract, deployProxyContract, sendTxn } = require("../shared/helpers");
 
 async function main() {
     const theContract = await deployContract("Thena", []);
@@ -35,7 +35,6 @@ async function main() {
             theContract.address,
             veArtProxyUpgradeableContract.address
         ]);
-    await sendTxn(veContract.isApprovedOrOwner("0x595622cBd0Fc4727DF476a1172AdA30A9dDf8F43", 1), "VoterV2_1.isApprovedOrOwner");
 
     // RewardsDistributor
     const rewardsDistributorContract = await deployContract("RewardsDistributor", [
@@ -45,22 +44,18 @@ async function main() {
     // 
     const gaugeFactoryContract = await deployProxyContract("GaugeFactoryV2", []);
 
-    const bribeFactoryContract = await deployProxyContract("BribeFactoryV2", []);
-    //set lai votev2_1
-
-
+    const bribeFactoryContract = await deployProxyContract("BribeFactoryV2", [process.env.PUBLICKEY]);
     // VoterV2_1
     const voterContract = await deployProxyContract("VoterV2_1",
-        [
-            veContract.address,
-            pairFactoryContract.address,
-            gaugeFactoryContract.address,
-            bribeFactoryContract.address,
-        ]);
-    await sendTxn(voterContract.whitelist(process.env.USDT), "VoterV2_1.whitelist");
+    [
+        veContract.address,
+        pairFactoryContract.address,
+        gaugeFactoryContract.address,
+        bribeFactoryContract.address,
+    ]);
+    // await sendTxn(voterContract.whitelist(process.env.USDT), "VoterV2_1.whitelist");
     await sendTxn(voterContract.setMinter(process.env.PUBLICKEY), "VoterV2_1.setMinter");
-    let tx = await bribeFactoryContract.setVoter(voterContract.address);
-    await tx.wait();
+    await sendTxn(bribeFactoryContract.setVoter(voterContract.address), "BribeFactoryV2.setVoter");
 
     // MinterUpgradeable
     await deployProxyContract("MinterUpgradeable",
@@ -104,7 +99,7 @@ async function main() {
 
     const airdropClaimNftContract = await deployContract("AirdropClaimTheNFT", [theContract.address, veContract.address]);
     
-    await deployContract("MerkleTree", [airdropClaimNftContract.address]);
+    await deployContract("MerkleTreeTHENFT", [airdropClaimNftContract.address]);
 
 }
 
