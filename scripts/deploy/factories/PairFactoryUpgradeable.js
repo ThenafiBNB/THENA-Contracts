@@ -1,10 +1,13 @@
 // // scripts/upgrade-box.js
 const { ethers, upgrades } = require("hardhat");
-const { deployProxyContract } = require("../../shared/helpers");
+const { deployProxyContract, sendTxn, contractAt } = require("../../shared/helpers");
 require("dotenv").config();
 
 async function main() {
-  await deployProxyContract("PairFactoryUpgradeable", []);
+  // let contract = await deployProxyContract("PairFactoryUpgradeable", []);
+
+  const contract = await contractAt("PairFactoryUpgradeable", process.env.PAIRFACTORYUPGRADEABLE);
+  await sendTxn(contract.setDibs(process.env.PUBLICKEY), "PairFactoryUpgradeable.setDibs");
 }
 
 main()

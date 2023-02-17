@@ -3,7 +3,7 @@ const { ethers, upgrades } = require("hardhat");
 const { deployProxyContract, contractAt, sendTxn } = require("../shared/helpers");
 
 async function main() {
-    const pairFactory = await contractAt("PairFactory", process.env.PAIRFACTORY)
+    const pairFactory = await contractAt("PairFactory", process.env.PAIRFACTORYUPGRADEABLE)
     let txn = await sendTxn(pairFactory.createPair(process.env.THE, process.env.USDT, false, {gasLimit: 6000000}), "pairFactory.createPair");
     console.log(txn);
 }
