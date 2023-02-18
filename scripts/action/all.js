@@ -72,7 +72,8 @@ async function main() {
 
     // Set minter and whitelist for Voter contract
     await sendTxn(voterContract._initialize([
-        process.env.THE,
+        theContract.address,
+        process.env.WFTM,
         process.env.USDT,
         process.env.BTC,
         process.env.ETH,
