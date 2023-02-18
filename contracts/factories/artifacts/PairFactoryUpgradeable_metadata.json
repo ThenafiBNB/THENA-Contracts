@@ -1,0 +1,684 @@
+{
+	"compiler": {
+		"version": "0.8.13+commit.abaa5c0e"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint8",
+						"name": "version",
+						"type": "uint8"
+					}
+				],
+				"name": "Initialized",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "previousOwner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "token0",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "token1",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "bool",
+						"name": "stable",
+						"type": "bool"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "pair",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "PairCreated",
+				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "MAX_FEE",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "MAX_REFERRAL_FEE",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "acceptFeeManager",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "allPairs",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "allPairsLength",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "tokenA",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "tokenB",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "stable",
+						"type": "bool"
+					}
+				],
+				"name": "createPair",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "pair",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "dibs",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "feeManager",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bool",
+						"name": "_stable",
+						"type": "bool"
+					}
+				],
+				"name": "getFee",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getInitializable",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"name": "getPair",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "initialize",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "isPair",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "isPaused",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "pairCodeHash",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "pairs",
+				"outputs": [
+					{
+						"internalType": "address[]",
+						"name": "",
+						"type": "address[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "pendingFeeManager",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "renounceOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_dibs",
+						"type": "address"
+					}
+				],
+				"name": "setDibs",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bool",
+						"name": "_stable",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_fee",
+						"type": "uint256"
+					}
+				],
+				"name": "setFee",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_feeManager",
+						"type": "address"
+					}
+				],
+				"name": "setFeeManager",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bool",
+						"name": "_state",
+						"type": "bool"
+					}
+				],
+				"name": "setPause",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_refFee",
+						"type": "uint256"
+					}
+				],
+				"name": "setReferralFee",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_feehandler",
+						"type": "address"
+					}
+				],
+				"name": "setStakingFeeAddress",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_newFee",
+						"type": "uint256"
+					}
+				],
+				"name": "setStakingFees",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "stableFee",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "stakingFeeHandler",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "stakingNFTFee",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "volatileFee",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {
+				"owner()": {
+					"details": "Returns the address of the current owner."
+				},
+				"renounceOwnership()": {
+					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+				},
+				"transferOwnership(address)": {
+					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+				}
+			},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/factories/PairFactoryUpgradeable.sol": "PairFactoryUpgradeable"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": {
+			"keccak256": "0x247c62047745915c0af6b955470a72d1696ebad4352d7d3011aef1a2463cd888",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://d7fc8396619de513c96b6e00301b88dd790e83542aab918425633a5f7297a15a",
+				"dweb:/ipfs/QmXbP4kiZyp7guuS7xe8KaybnwkRPGrBc2Kbi3vhcTfpxb"
+			]
+		},
+		"@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": {
+			"keccak256": "0x037c334add4b033ad3493038c25be1682d78c00992e1acb0e2795caff3925271",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://8a313cf42389440e2706837c91370323b85971c06afd6d056d21e2bc86459618",
+				"dweb:/ipfs/QmT8XUrUvQ9aZaPKrqgRU2JVGWnaxBcUYJA7Q7K5KcLBSZ"
+			]
+		},
+		"@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": {
+			"keccak256": "0x2edcb41c121abc510932e8d83ff8b82cf9cdde35e7c297622f5c29ef0af25183",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://72460c66cd1c3b1c11b863e0d8df0a1c56f37743019e468dc312c754f43e3b06",
+				"dweb:/ipfs/QmPExYKiNb9PUsgktQBupPaM33kzDHxaYoVeJdLhv8s879"
+			]
+		},
+		"@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": {
+			"keccak256": "0x963ea7f0b48b032eef72fe3a7582edf78408d6f834115b9feadd673a4d5bd149",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://d6520943ea55fdf5f0bafb39ed909f64de17051bc954ff3e88c9e5621412c79c",
+				"dweb:/ipfs/QmWZ4rAKTQbNG2HxGs46AcTXShsVytKeLs7CUCdCSv5N7a"
+			]
+		},
+		"contracts/Pair.sol": {
+			"keccak256": "0x7bda3cca26efe5e2338a31b1f52dde7a139c52551307e58e302e35be70e86fd7",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6293e6bf3754c73e407891d6af4678cf9b7472c24827b7021290cd2f0c8f14bd",
+				"dweb:/ipfs/QmeWVkbz7dpCUp3e8emQnEm8op1bdGi9umitbn8xpRVfSj"
+			]
+		},
+		"contracts/PairFees.sol": {
+			"keccak256": "0x2b1f0280d426456687af768b21d88d18751b527f236784f536556a1f2d243c81",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://406fe47db87e6e8bdb1670aa7969e8191980ef9dfca923a8fcbae5d5f447876e",
+				"dweb:/ipfs/QmdfN3x7vC5uiT9Pc6etUrinXqPB9ksusraNLUmrh9SV2q"
+			]
+		},
+		"contracts/factories/PairFactory.sol": {
+			"keccak256": "0x762e839e9c33d4c1fb2da9c1ff397a11b3172c12d457443e49f8c4768efcbbf0",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://cf6a4a267eb7e70065a2e58b180e27c78c97875bb7fc3b0a484fd965da3076c7",
+				"dweb:/ipfs/QmVxnHwEUHpZJPpYdgxfmvjE3RHPEwnCpAAygeMgtCbqGC"
+			]
+		},
+		"contracts/factories/PairFactoryUpgradeable.sol": {
+			"keccak256": "0xbf45a92bfd22b0b1d81c35c10a63625edc79564d02fa3e8aa9d20853f4e27999",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c3bcaba223687ca334bc94d3b63fb05ef174aff0779501469114a1ccd3b56406",
+				"dweb:/ipfs/Qma9iMPzcbgP1rZy8jcaLgTLun7aqEsLAjyz6MHxRXWc5p"
+			]
+		},
+		"contracts/interfaces/IDibs.sol": {
+			"keccak256": "0x1a8368dcc0778a7ce06e276d3065c125829b932272dfd2db31e39cbc94d607eb",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://ca56e6538192eb9a0465871c7dc20c60ffdc8b139ff64865eaedffcd4bef5f23",
+				"dweb:/ipfs/QmaF15vAFbrHb3Wsx6Jvnjbj2FXD8SygMLTx6TCpbNnRJb"
+			]
+		},
+		"contracts/interfaces/IERC20.sol": {
+			"keccak256": "0xe76d25c9fba7f49068a1c2cc605620fabb41d4c56acd48065615d7388d451cd2",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c5877ab326850eadeca2062dc27eb3f94404879ec2ad3a0187ac390164866763",
+				"dweb:/ipfs/QmT4DVbEkvBdCZezE4Ynb6AXfnbnWpptJhcvxtxBBujqaE"
+			]
+		},
+		"contracts/interfaces/IPair.sol": {
+			"keccak256": "0xfa03edd27b8c9f26e2f5737a7fb149eac91e396a680dbe505a6edd26ae144b36",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://352739576ff3f97e4ebfed1698344e29d3b0734f2434745cd7616a6fe366e08a",
+				"dweb:/ipfs/QmSMEjPnBRwenCGBJgsULU3WpmA7eKjh2NzTeYypJUTvBy"
+			]
+		},
+		"contracts/interfaces/IPairCallee.sol": {
+			"keccak256": "0x453dff1c05ea520e4244a30cf93c72e3c13dfe389909fc835db02b9a4bf9b68c",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://d749c9b11135c7393f4305829c4af4e3ce9b5538776424390660e73acbda9322",
+				"dweb:/ipfs/QmWLRQqhy9UschWavNCfifrhJWLY84KVS3LApPwUPGDTqN"
+			]
+		},
+		"contracts/interfaces/IPairFactory.sol": {
+			"keccak256": "0x57ec9c16f2e52f68f0ffd9cd7b5b8db5b45bdb7e1e3bf944bc3eaf9fb4f79ba0",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://5a903023aaf7e8d0e6813d912822fcc2977c3fa26e1257b409cf59d32cd6623d",
+				"dweb:/ipfs/QmXMDSk4y4P79MJVKUnsHeeUYJuFBm5iRxNzeRyo8KGhmp"
+			]
+		},
+		"contracts/libraries/Math.sol": {
+			"keccak256": "0x836d5c494cc49e47766d667116af608a640241407a5a83fab84bda56c1d79825",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://91862f9b84fbc83ce0317c0d050c731dba9bc0366a5a23602ef2c2d90cdde315",
+				"dweb:/ipfs/QmaivMZG9AzCaf1Fy1Vfsj7G6XvSxcpu7PZW2MjYohrkN4"
+			]
+		}
+	},
+	"version": 1
+}

@@ -1,0 +1,823 @@
+{
+	"compiler": {
+		"version": "0.8.13+commit.abaa5c0e"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint8",
+						"name": "version",
+						"type": "uint8"
+					}
+				],
+				"name": "Initialized",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "oldOwner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "Owner",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "oldVoter",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "newVoter",
+						"type": "address"
+					}
+				],
+				"name": "Voter",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "oldWBF",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "newWBF",
+						"type": "address"
+					}
+				],
+				"name": "WBF",
+				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "MAX_EPOCHS",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "MAX_PAIRS",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "MAX_REWARDS",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "WEEK",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_user",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_amounts",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_offset",
+						"type": "uint256"
+					}
+				],
+				"name": "getAllPair",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "pair_address",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "symbol",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "decimals",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "stable",
+								"type": "bool"
+							},
+							{
+								"internalType": "uint256",
+								"name": "total_supply",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "token0",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "token0_symbol",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "token0_decimals",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "reserve0",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "claimable0",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "token1",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "token1_symbol",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "token1_decimals",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "reserve1",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "claimable1",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "gauge",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "gauge_total_supply",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "fee",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "bribe",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "emissions",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "emissions_token",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "emissions_token_decimals",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "account_lp_balance",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "account_token0_balance",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "account_token1_balance",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "account_gauge_balance",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "account_gauge_earned",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct PairAPI.pairInfo[]",
+						"name": "Pairs",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_pair",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_account",
+						"type": "address"
+					}
+				],
+				"name": "getPair",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "pair_address",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "symbol",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "decimals",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "stable",
+								"type": "bool"
+							},
+							{
+								"internalType": "uint256",
+								"name": "total_supply",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "token0",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "token0_symbol",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "token0_decimals",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "reserve0",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "claimable0",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "token1",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "token1_symbol",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "token1_decimals",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "reserve1",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "claimable1",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "gauge",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "gauge_total_supply",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "fee",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "bribe",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "emissions",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "emissions_token",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "emissions_token_decimals",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "account_lp_balance",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "account_token0_balance",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "account_token1_balance",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "account_gauge_balance",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "account_gauge_earned",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct PairAPI.pairInfo",
+						"name": "_pairInfo",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_amounts",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_offset",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "_pair",
+						"type": "address"
+					}
+				],
+				"name": "getPairBribe",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "epochTimestamp",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "totalVotes",
+								"type": "uint256"
+							},
+							{
+								"internalType": "address",
+								"name": "pair",
+								"type": "address"
+							},
+							{
+								"components": [
+									{
+										"internalType": "address",
+										"name": "token",
+										"type": "address"
+									},
+									{
+										"internalType": "uint8",
+										"name": "decimals",
+										"type": "uint8"
+									},
+									{
+										"internalType": "uint256",
+										"name": "amount",
+										"type": "uint256"
+									},
+									{
+										"internalType": "string",
+										"name": "symbol",
+										"type": "string"
+									}
+								],
+								"internalType": "struct PairAPI.tokenBribe[]",
+								"name": "bribes",
+								"type": "tuple[]"
+							}
+						],
+						"internalType": "struct PairAPI.pairBribeEpoch[]",
+						"name": "_pairEpoch",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_voter",
+						"type": "address"
+					}
+				],
+				"name": "initialize",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_pair",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_token",
+						"type": "address"
+					}
+				],
+				"name": "left",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "_rewPerEpoch",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "pairFactory",
+				"outputs": [
+					{
+						"internalType": "contract IPairFactory",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					}
+				],
+				"name": "setOwner",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_voter",
+						"type": "address"
+					}
+				],
+				"name": "setVoter",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "underlyingToken",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "voter",
+				"outputs": [
+					{
+						"internalType": "contract IVoter",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "wBribeFactory",
+				"outputs": [
+					{
+						"internalType": "contract IWrappedBribeFactory",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/APIHelper/PairAPIV2.sol": "PairAPI"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol": {
+			"keccak256": "0x037c334add4b033ad3493038c25be1682d78c00992e1acb0e2795caff3925271",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://8a313cf42389440e2706837c91370323b85971c06afd6d056d21e2bc86459618",
+				"dweb:/ipfs/QmT8XUrUvQ9aZaPKrqgRU2JVGWnaxBcUYJA7Q7K5KcLBSZ"
+			]
+		},
+		"@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": {
+			"keccak256": "0x2edcb41c121abc510932e8d83ff8b82cf9cdde35e7c297622f5c29ef0af25183",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://72460c66cd1c3b1c11b863e0d8df0a1c56f37743019e468dc312c754f43e3b06",
+				"dweb:/ipfs/QmPExYKiNb9PUsgktQBupPaM33kzDHxaYoVeJdLhv8s879"
+			]
+		},
+		"contracts/APIHelper/PairAPIV2.sol": {
+			"keccak256": "0x07de86089b413a640bcf447cc7b46b0dc91dca97147e38fff5afb3d9da16ec81",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://b86cde157fc78a87c871684507da46ee7714342934c58ce547fb129a2482f4fb",
+				"dweb:/ipfs/QmYTZGtjudaG5K9rMcjqWsYuZ2wQA9hEEZmwGyJSNhoBpu"
+			]
+		},
+		"contracts/interfaces/IBribeAPI.sol": {
+			"keccak256": "0x1402dc9d6c2b7085eac32a4f5d887b13fb5719bec45258435d18e269193c7d87",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://a14629f0073a97ea793981dea03f8b8d0572d9a507cd4cfb75657b1e2a24489c",
+				"dweb:/ipfs/Qme9HG4bqPhoNaDXXqAnr1GqYpi7dwpcp37Uo54yZ9xfis"
+			]
+		},
+		"contracts/interfaces/IERC20.sol": {
+			"keccak256": "0xe76d25c9fba7f49068a1c2cc605620fabb41d4c56acd48065615d7388d451cd2",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c5877ab326850eadeca2062dc27eb3f94404879ec2ad3a0187ac390164866763",
+				"dweb:/ipfs/QmT4DVbEkvBdCZezE4Ynb6AXfnbnWpptJhcvxtxBBujqaE"
+			]
+		},
+		"contracts/interfaces/IGaugeAPI.sol": {
+			"keccak256": "0x7d365714849b5490c58e685090dbfac8006a980ae6cabe5ac936474be2f76835",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://e41b9b49a8c123a60225a51b4d62f0e30da23106b6aabcb771f8be2c75bc4b78",
+				"dweb:/ipfs/QmQycSQbjsxMULRETGYzTxm1MUDfDzppjSMrBzRvBmWFjm"
+			]
+		},
+		"contracts/interfaces/IGaugeFactory.sol": {
+			"keccak256": "0x8c19e62ab42bfc0f035df39605a1d95fbc48ed8a5a78691d5d52da01d94a8c66",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://8d2a56fa8e98dea59ee40af60115b9625765ccec6d683b2a7994511d09cb71be",
+				"dweb:/ipfs/QmVbMw76rW8ejdY3nSWeEYJuomA9XymhuMtWnCMz7fzd3y"
+			]
+		},
+		"contracts/interfaces/IMinter.sol": {
+			"keccak256": "0x9e7b0fd907f011c4f185d5fb5d987a3e4e2f6b6440bb097c2b129e6c5fa96677",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://d2ae0130954c4848d51fc4d0ff62e2bbae8020494999b28d6255e5273fa4e56f",
+				"dweb:/ipfs/QmcgvqQdshu4FLuZFKujFArJh5JTsDvPULqV3xBQuE4dSB"
+			]
+		},
+		"contracts/interfaces/IPair.sol": {
+			"keccak256": "0xfa03edd27b8c9f26e2f5737a7fb149eac91e396a680dbe505a6edd26ae144b36",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://352739576ff3f97e4ebfed1698344e29d3b0734f2434745cd7616a6fe366e08a",
+				"dweb:/ipfs/QmSMEjPnBRwenCGBJgsULU3WpmA7eKjh2NzTeYypJUTvBy"
+			]
+		},
+		"contracts/interfaces/IPairFactory.sol": {
+			"keccak256": "0x57ec9c16f2e52f68f0ffd9cd7b5b8db5b45bdb7e1e3bf944bc3eaf9fb4f79ba0",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://5a903023aaf7e8d0e6813d912822fcc2977c3fa26e1257b409cf59d32cd6623d",
+				"dweb:/ipfs/QmXMDSk4y4P79MJVKUnsHeeUYJuFBm5iRxNzeRyo8KGhmp"
+			]
+		},
+		"contracts/interfaces/IVoter.sol": {
+			"keccak256": "0x06db0545765a69a232d2d185d72c44258520a25b8d1a85997c69a35ae62ecb61",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://2b67d112ca5cc5c2ff75ad50c8418685d5bd4c538e90d73887888a8f36a7b47a",
+				"dweb:/ipfs/QmUq6DJ9PTggz7fb8XwqdJS5nH7AKrceugKXmpLqRf15jf"
+			]
+		},
+		"contracts/interfaces/IVotingEscrow.sol": {
+			"keccak256": "0xb1c6bc37244f000ad6a12c8499c5d0fd648c58ca8dcaf7d7370c5692be66e848",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://7c313dbf907c10045a915b158e257ce959755226174fc75485153e45eda2f51a",
+				"dweb:/ipfs/QmQ86tPbmkq5qWjpJuBzT7qiQVevj14H9Qmh4NxH47xnmk"
+			]
+		},
+		"contracts/interfaces/IWrappedBribeFactory.sol": {
+			"keccak256": "0x33aea9555920d3da66221b015780ce2f81da633b9f25c178a187f1ea8c702f1c",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://1a58b431fc8e29fcec7d50db712d1b18ca8e067b0a7bc30660d25a2dfeb151ad",
+				"dweb:/ipfs/QmUUQJzVnbXoKBMd6LQXwsdAS1d8mYVvcTKHJPghXs3qHF"
+			]
+		},
+		"contracts/libraries/Math.sol": {
+			"keccak256": "0x836d5c494cc49e47766d667116af608a640241407a5a83fab84bda56c1d79825",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://91862f9b84fbc83ce0317c0d050c731dba9bc0366a5a23602ef2c2d90cdde315",
+				"dweb:/ipfs/QmaivMZG9AzCaf1Fy1Vfsj7G6XvSxcpu7PZW2MjYohrkN4"
+			]
+		},
+		"hardhat/console.sol": {
+			"keccak256": "0x60b0215121bf25612a6739fb2f1ec35f31ee82e4a8216c032c8243d904ab3aa9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6e29880d33dd479bb046ba306993d26ccb779a4b1d94a046cb3567f22948bb4d",
+				"dweb:/ipfs/QmfTY1qzPt5C63Wc7y6JqfZr5899NRvXYdCpyLzR5FXQic"
+			]
+		}
+	},
+	"version": 1
+}
