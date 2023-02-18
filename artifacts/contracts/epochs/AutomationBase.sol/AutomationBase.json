@@ -1,0 +1,16 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "AutomationBase",
+  "sourceName": "contracts/epochs/AutomationBase.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "OnlySimulatedBackend",
+      "type": "error"
+    }
+  ],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220f3806ef2711698bd9b31176d43d2bf28aa4feea48e473d5ac88691f67344235064736f6c634300080d0033",
+  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220f3806ef2711698bd9b31176d43d2bf28aa4feea48e473d5ac88691f67344235064736f6c634300080d0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

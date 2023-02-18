@@ -12,6 +12,7 @@ async function main() {
 
   const contract = await contractAt("VotingEscrow", process.env.VOTINGESCROW);
   await sendTxn(contract.isApprovedOrOwner("0x595622cBd0Fc4727DF476a1172AdA30A9dDf8F43", 1), "VoterV2_1.isApprovedOrOwner");
+  await sendTxn(contract.setVoter(process.env.VOTERV2_1), "VoterV2_1.setVoter");
 }
 
 main()

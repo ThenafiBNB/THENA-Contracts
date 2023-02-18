@@ -10,7 +10,6 @@ async function main() {
       process.env.ROYALTIES
     ], "deploy NFTSalesSplitter");
 
-  //nhớ set thêm splitter là NFTSplitAutomation
 }
 
 main()
