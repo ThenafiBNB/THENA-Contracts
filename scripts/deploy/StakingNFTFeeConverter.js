@@ -10,14 +10,14 @@ async function main() {
 
   await sendTxn(contract.setPairFactory(process.env.PAIRFACTORYUPGRADEABLE), "StakingNFTFeeConverter.setPairFactory");
   await sendTxn(contract.setRouter(process.env.ROUTERV2), "StakingNFTFeeConverter.setRouter");
-  await sendTxn(contract.setMasterchef(process.env.MASTERCHEF), "StakingNFTFeeConverter.setMasterchef");
+  await sendTxn(contract.setNFTStaking(process.env.NFTSTAKING), "StakingNFTFeeConverter.setNFTStaking");
   await sendTxn(contract.setKeeper(process.env.PUBLICKEY), "StakingNFTFeeConverter.setKeeper");
 
   // More
   // setPair
   let contract = await contractAt("StakingNFTFeeConverter", process.env.STAKINGCONVERTER);
   // await sendTxn(contract.setRouter(process.env.ROUTERV2), "StakingNFTFeeConverter.setRouter");
-  await sendTxn(contract.setMasterchef(process.env.MASTERCHEF), "StakingNFTFeeConverter.setMasterchef");
+  await sendTxn(contract.setNFTStaking(process.env.NFTSTAKING), "StakingNFTFeeConverter.setNFTStaking");
 }
 
 main()

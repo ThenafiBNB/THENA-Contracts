@@ -41,7 +41,7 @@
           "type": "bool"
         }
       ],
-      "name": "createGaugeV2",
+      "name": "createGaugeV3",
       "outputs": [
         {
           "internalType": "address",

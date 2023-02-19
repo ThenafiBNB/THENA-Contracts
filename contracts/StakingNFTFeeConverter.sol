@@ -4,9 +4,7 @@ pragma solidity 0.8.13;
 import './libraries/Math.sol';
 import './interfaces/IERC20.sol';
 import './interfaces/IRouter01.sol';
-import './interfaces/IMasterchef.sol';
-
-import "hardhat/console.sol";
+import './interfaces/INFTStaking.sol';
 
 interface IPair {
     //pair.sol
@@ -22,7 +20,7 @@ contract StakingNFTFeeConverter  {
 
     uint256 public lastRewardtime;
 
-    address public masterchef;
+    address public NFTStaking;
     address public wbnb;
     address public owner;
     address public router;
@@ -94,11 +92,11 @@ contract StakingNFTFeeConverter  {
     }
 
 
-    ///@notice set Masterchef distriubtion given this.balance 
+    ///@notice set NFTStaking distriubtion given this.balance 
     function setDistribution() external keeper {
         uint _balance = IERC20(wbnb).balanceOf(address(this));
-        _safeTransfer(wbnb, masterchef, _balance);
-        IMasterchef(masterchef).setDistributionRate(_balance);
+        _safeTransfer(wbnb, NFTStaking, _balance);
+        INFTStaking(NFTStaking).setDistributionRate(_balance);
         lastRewardtime = block.timestamp;
         emit StakingReward(block.timestamp, _balance);
     }
@@ -130,8 +128,8 @@ contract StakingNFTFeeConverter  {
 
         _balance = IERC20(wbnb).balanceOf(address(this));
         if(_balance > 0){
-            _safeTransfer(wbnb, masterchef, _balance);
-            IMasterchef(masterchef).setDistributionRate(_balance);
+            _safeTransfer(wbnb, NFTStaking, _balance);
+            INFTStaking(NFTStaking).setDistributionRate(_balance);
         }
         lastRewardtime = block.timestamp;
         
@@ -275,9 +273,9 @@ contract StakingNFTFeeConverter  {
         router = _router;
     }
 
-    function setMasterchef(address _masterchef) external onlyOwner {
-        require(_masterchef != address(0), 'addr 0');
-        masterchef = _masterchef;
+    function setNFTStaking(address _NFTStaking) external onlyOwner {
+        require(_NFTStaking != address(0), 'addr 0');
+        NFTStaking = _NFTStaking;
     }
 
     function setPairFactory(address _pairFactory) external onlyOwner {

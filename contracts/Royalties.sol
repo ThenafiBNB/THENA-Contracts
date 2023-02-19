@@ -9,8 +9,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./interfaces/IVotingEscrow.sol";
 import "./interfaces/IWETH.sol";
 
-import 'hardhat/console.sol';
-
 interface IThenian {
     function originalMinters(address) external view returns(uint);
     function totalSupply() external view returns(uint);

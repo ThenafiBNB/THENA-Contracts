@@ -4,18 +4,18 @@ const { deployContract, contractAt, writeTmpAddresses, sendTxn } = require("../s
 require("dotenv").config();
 
 async function main() {
-  // let contract = await deployContract("MasterChef",
+  // let contract = await deployContract("NFTStaking",
   //   [
   //     process.env.WFTM,
   //     process.env.THENIAN,
   //   ]);
 
-  let contract = await contractAt("MasterChef", process.env.MASTERCHEF);
+  let contract = await contractAt("NFTStaking", process.env.NFTSTAKING);
 
-  await sendTxn(contract.addKeeper([process.env.PUBLICKEY]), "MasterChef.addKeeper");
+  // await sendTxn(contract.addKeeper([process.env.PUBLICKEY]), "NFTStaking.addKeeper");
   // QUAN TRỌNG CẦN staking fee convert
-  await sendTxn(contract.addKeeper([process.env.STAKINGCONVERTER]), "MasterChef.addKeeper");
-  await sendTxn(contract.setDistributionRate(ethers.utils.parseUnits("10", 18)), "MasterChef.setDistributionRate");
+  await sendTxn(contract.addKeeper([process.env.STAKINGCONVERTER]), "NFTStaking.addKeeper");
+  // await sendTxn(contract.setDistributionRate(ethers.utils.parseUnits("10", 18)), "NFTStaking.setDistributionRate");
   // console.log(await contract.isKeeper(process.env.PUBLICKEY));
   // more
   // hoặc dùng hàm setRewardPerSecond

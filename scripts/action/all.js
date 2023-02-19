@@ -3,13 +3,16 @@ const { ethers, upgrades } = require("hardhat");
 const { deployContract, deployProxyContract, sendTxn } = require("../shared/helpers");
 
 async function main() {
-    //Thena(THE)
-    const theContract = await deployContract("Thena", []);
+    //StarBugToken(SBT)
+    const currentBlock = await ethers.provider.getBlockNumber();
+    const timestamp = (await ethers.provider.getBlock(currentBlock)).timestamp;
+    const theContract = await deployContract("StarBugToken", []);
     await sendTxn(theContract.mint(process.env.PUBLICKEY, ethers.utils.parseUnits("1000000000", 18)), "theContract.mint");
 
     //Mint theNFT
-    const thenianContract = await deployContract("Thenian", [3000, ethers.utils.parseUnits("25", 17), 1669993200]);
-    await sendTxn(thenianContract.reserveNFTs(process.env.PUBLICKEY, 15), "thenianContract.reserveNFTs");
+    const thenianContract = await deployContract("Thenian", [3000, ethers.utils.parseUnits("25", 15), timestamp - 2*24*60*60 -1, process.env.PUBLICKEY]);
+    await sendTxn(thenianContract.reserveNFTs(process.env.PUBLICKEY, 5), "thenianContract.reserveNFTs");
+    await sendTxn(thenianContract.mintPublic(5, {value: ethers.utils.parseUnits("125", 15), gasLimit: "3000000"}), "thenianContract.mintPublic");
 
     // Multicall
     await deployContract("Multicall2", []);
@@ -42,13 +45,13 @@ async function main() {
     ], "deploy RewardsDistributor");
 
     // Gauge Factory
-    const gaugeFactoryContract = await deployProxyContract("GaugeFactoryV2", []);
+    const gaugeFactoryContract = await deployProxyContract("GaugeFactoryV3", []);
 
     // Bribe Factory
-    const bribeFactoryContract = await deployProxyContract("BribeFactoryV2", [process.env.PUBLICKEY]);
+    const bribeFactoryContract = await deployProxyContract("BribeFactoryV3", [process.env.PUBLICKEY]);
 
     // VoterV2_1
-    const voterContract = await deployProxyContract("VoterV2_1",
+    const voterContract = await deployProxyContract("VoterV3",
         [
             veContract.address,
             pairFactoryContract.address,
@@ -57,10 +60,10 @@ async function main() {
         ]);
 
     // set voter for Bribe factory
-    await sendTxn(bribeFactoryContract.setVoter(voterContract.address), "BribeFactoryV2.setVoter");
+    await sendTxn(bribeFactoryContract.setVoter(voterContract.address), "BribeFactoryV3.setVoter");
 
     // Set Voter for VE contract
-    await sendTxn(veContract.setVoter(voterContract.address), "VoterV2_1.setVoter");
+    await sendTxn(veContract.setVoter(voterContract.address), "VoterV3.setVoter");
 
     // MinterUpgradeable
     const minterContract = await deployProxyContract("MinterUpgradeable",
@@ -79,7 +82,7 @@ async function main() {
         process.env.ETH,
         process.env.BUSD,
         process.env.USDC,
-    ], minterContract.address), "VoterV2_1._initialize");
+    ], minterContract.address), "VoterV3._initialize");
 
     await sendTxn(rewardsDistributorContract.setDepositor(minterContract.address), "rewardsDistributorContract.setDepositor");
 
@@ -102,18 +105,18 @@ async function main() {
     await sendTxn(stakingNFTFeeConvertercontract.setRouter(routerContract.address), "StakingNFTFeeConverter.setRouter");
     await sendTxn(stakingNFTFeeConvertercontract.setKeeper(process.env.PUBLICKEY), "StakingNFTFeeConverter.setKeeper");
 
-    // MasterChef
-    const masterChefContract = await deployContract("MasterChef",
+    // NFTStaking
+    const NFTStakingContract = await deployContract("NFTStaking",
         [
             process.env.WFTM,
             thenianContract.address,
         ]);
 
-    await sendTxn(masterChefContract.addKeeper([process.env.PUBLICKEY, stakingNFTFeeConvertercontract.address]), "MasterChef.addKeeper");
-    await sendTxn(masterChefContract.setDistributionRate(ethers.utils.parseUnits("10", 18)), "MasterChef.setDistributionRate");
+    await sendTxn(NFTStakingContract.addKeeper([process.env.PUBLICKEY, stakingNFTFeeConvertercontract.address]), "NFTStaking.addKeeper");
+    await sendTxn(NFTStakingContract.setDistributionRate(ethers.utils.parseUnits("10", 18)), "NFTStaking.setDistributionRate");
 
-    // Set masterchef for staking nft contract
-    await sendTxn(stakingNFTFeeConvertercontract.setMasterchef(masterChefContract.address), "StakingNFTFeeConverter.setMasterchef");
+    // Set NFTStaking for staking nft contract
+    await sendTxn(stakingNFTFeeConvertercontract.setNFTStaking(NFTStakingContract.address), "StakingNFTFeeConverter.setNFTStaking");
 
     // Royalties
     const royaltyContract = await deployContract("Royalties",

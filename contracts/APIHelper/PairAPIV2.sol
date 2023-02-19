@@ -13,14 +13,9 @@ import '../interfaces/IPair.sol';
 import '../interfaces/IPairFactory.sol';
 import '../interfaces/IVoter.sol';
 import '../interfaces/IVotingEscrow.sol';
-
-
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import "hardhat/console.sol";
-
 contract PairAPI is Initializable {
-
 
     struct pairInfo {
         // pair info

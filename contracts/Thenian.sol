@@ -24,7 +24,7 @@ contract Thenian is ERC721Enumerable, Ownable {
     uint256 public MAX_RESERVE = 150;
     uint256 public reservedAmount;
     bytes32 public root;
-    address public multiSig = 0x7d70ee3774325C51e021Af1f7987C214d2CAA184;
+    address public contractReceiver;
 
     mapping(address => bool) public firstMint;
     mapping(address => uint256) public secondMint;
@@ -33,16 +33,22 @@ contract Thenian is ERC721Enumerable, Ownable {
     constructor(
         uint256 _maxSupply,
         uint256 _nftPrice,
-        uint256 _startTimestamp
+        uint256 _startTimestamp,
+        address _contractReceiver
     ) ERC721("Thenian", "theNFT") {
         MAX_SUPPLY = _maxSupply;
         NFT_PRICE = _nftPrice;
         SALE_START_TIMESTAMP = _startTimestamp;
+        contractReceiver = _contractReceiver;
     }
 
     function withdraw() external onlyOwner {
-        (bool withdrawMultiSig, ) = multiSig.call{value: address(this).balance}("");
-        require(withdrawMultiSig, "Withdraw Failed.");
+        (bool withdrawState, ) = contractReceiver.call{value: address(this).balance}("");
+        require(withdrawState, "Withdraw Failed.");
+    }
+
+    function setContractReceiver(address _contractReceiver) external onlyOwner {
+        contractReceiver = _contractReceiver;
     }
 
     function setRoot(bytes32 _root) external onlyOwner {
