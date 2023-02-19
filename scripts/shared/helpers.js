@@ -121,6 +121,7 @@ async function deployContract(name, args, label, options) {
   if (label === undefined) console.info(`Completed ${info} at txHash: ${tx.transactionHash}`);
   else console.info(`Completed ${label} at txHash: ${tx.transactionHash}`);
   console.info(`========================`);
+  await sleep(1000);
   return contract;
 }
 
@@ -145,6 +146,7 @@ async function deployProxyContract(name, args, label, options) {
   if (label === undefined) console.info(`Completed ${info} at txHash: ${tx.transactionHash}`);
   else console.info(`Completed ${label} at txHash: ${tx.transactionHash}`);
   console.info(`========================`);
+  await sleep(1000);
   return contract;
 }
 

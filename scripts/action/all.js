@@ -94,13 +94,13 @@ async function main() {
     //Deploy NFTSALESSPLITTER
 
     // Staking NFT
-    let stakingNFTcontract = await deployContract("StakingNFTFeeConverter", [
+    let stakingNFTFeeConvertercontract = await deployContract("StakingNFTFeeConverter", [
         process.env.WFTM,
     ], "deploy StakingNFTFeeConverter");
 
-    await sendTxn(stakingNFTcontract.setPairFactory(pairFactoryContract.address), "StakingNFTFeeConverter.setPairFactory");
-    await sendTxn(stakingNFTcontract.setRouter(routerContract.address), "StakingNFTFeeConverter.setRouter");
-    await sendTxn(stakingNFTcontract.setKeeper(process.env.PUBLICKEY), "StakingNFTFeeConverter.setKeeper");
+    await sendTxn(stakingNFTFeeConvertercontract.setPairFactory(pairFactoryContract.address), "StakingNFTFeeConverter.setPairFactory");
+    await sendTxn(stakingNFTFeeConvertercontract.setRouter(routerContract.address), "StakingNFTFeeConverter.setRouter");
+    await sendTxn(stakingNFTFeeConvertercontract.setKeeper(process.env.PUBLICKEY), "StakingNFTFeeConverter.setKeeper");
 
     // MasterChef
     const masterChefContract = await deployContract("MasterChef",
@@ -109,11 +109,11 @@ async function main() {
             thenianContract.address,
         ]);
 
-    await sendTxn(masterChefContract.addKeeper([process.env.PUBLICKEY]), "MasterChef.addKeeper");
+    await sendTxn(masterChefContract.addKeeper([process.env.PUBLICKEY, stakingNFTFeeConvertercontract.address]), "MasterChef.addKeeper");
     await sendTxn(masterChefContract.setDistributionRate(ethers.utils.parseUnits("10", 18)), "MasterChef.setDistributionRate");
 
     // Set masterchef for staking nft contract
-    await sendTxn(stakingNFTcontract.setMasterchef(masterChefContract.address), "StakingNFTFeeConverter.setMasterchef");
+    await sendTxn(stakingNFTFeeConvertercontract.setMasterchef(masterChefContract.address), "StakingNFTFeeConverter.setMasterchef");
 
     // Royalties
     const royaltyContract = await deployContract("Royalties",
@@ -128,12 +128,15 @@ async function main() {
     const nftSalesSplitterContract = await deployProxyContract("NFTSalesSplitter",
         [
             process.env.WFTM,
-            stakingNFTcontract.address,
+            stakingNFTFeeConvertercontract.address,
             royaltyContract.address
         ], "deploy NFTSalesSplitter");
 
     // set keeper for staking NFT
-    await sendTxn(stakingNFTcontract.setKeeper(nftSalesSplitterContract.address), "StakingNFTFeeConverter.setKeeper");
+    await sendTxn(stakingNFTFeeConvertercontract.setKeeper(nftSalesSplitterContract.address), "StakingNFTFeeConverter.setKeeper");
+    
+    // set depositor for royalContract
+    await sendTxn(royaltyContract.setDepositor(nftSalesSplitterContract.address), "Royalties.setDepositor");
 
     // airdrop
     const airdropClaimContract = await deployContract("AirdropClaim", [theContract.address, veContract.address]);
