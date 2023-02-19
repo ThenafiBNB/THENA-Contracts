@@ -319,6 +319,156 @@
       "address": "0x1Be997E39ba4aA12be976bD013517246969AC6b1",
       "txHash": "0xd9cd069abff050e503eade11c74b22df6e1854c0f3159b573d4725eae7479def",
       "kind": "transparent"
+    },
+    {
+      "address": "0x18d1321EF7Ca0cF8779AfA521bE571eE21Ae9438",
+      "txHash": "0x91ce6d15338dd51becc8a362010bdbc0fa02171490b347b313ca6cace1a8cd10",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x8Adf88348d3e75682f67Fa0698bdd370db5B6823",
+      "txHash": "0xa380887a7faf7cc370acdf616d071b45c6d37eb66f31c8285397357e6d43fb5c",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xf7a6F9504B4E7aF48c1299174e7DCA1a21AdFdF8",
+      "txHash": "0x8a90e13887dc8e923ded86469f4eba48d9875fecfe26fafbdfab0e1426b2e6c8",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7c8ad1cA0B56FB0CdD6E66573f10e95C607e7367",
+      "txHash": "0xb800128bdc08fba372e19fea26ec2f5ae375ca7b072094dbf70ee9dbdc966eb6",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9098887Af07616dF36E6F730F062849FC1d51Cca",
+      "txHash": "0x879317b3ecfaa8b6e549944561652efcc11a5bd568029783ef02dcbf5ac06d3e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xcFC5477CE2eac6b33327F0554Db5DdF1F8D962f0",
+      "txHash": "0x9c540efec445fb696fda6c944a85a3f68a7fbd94a61021f6a7182218b620c9bc",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x688D4Fee868CEF3be2B87ECbc2F2F1df69c6209b",
+      "txHash": "0xe0f8cc417a101a55e9cb091ee1abe398d5eb7d370a961e29b32fffb785b6e00f",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x2A2c49e72bDB8a818f943CBc59eDeB59A35175ab",
+      "txHash": "0xb551c7678c0f4c956c84aa73b8be68e1c779fd2781c29d0a614c41b7f7cc8b5c",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x00a1ed7c37c0172CEC3561a7516285165F3c9D76",
+      "txHash": "0xd5c3bffeee9a0d5fe4cd9e93a249582c043e04d2d4b8c4663cda4e3bbb0443a7",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xD1D49717f2727DaF99Afdf5f5BAdb916ee0700B2",
+      "txHash": "0xa12628278009012abfdbcaf089d22fdddc6e007d0614637d2eb718e8825464f8",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x3E833E7d8815aEd81b4458ba660a3409247f283a",
+      "txHash": "0x53e8ebe450898a5042d9b68e5bcac6ca23931df31290a1fc96cbaf56a2f0e1ac",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xC7AF934fD0B2f8Ce05d0b9F0B67b07F3012D6777",
+      "txHash": "0x11583b927c8693ecbd77583ed164b71336e7e6b8f7e2c9d47d8ed46ded24c8fb",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xbD55446CA830F488f4b88fF2E3e1c9D5335DFE22",
+      "txHash": "0x5470ed6354ad05b04c0b2ebe5c45ac037ae3781df7e6bdd42c333daba20fb8ec",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x76c58075773C1797e3c63766C983e4C91Ff10c62",
+      "txHash": "0xd746f3af6429f7f23ea158282c2cd96b804e0e027d29becf6033ab98c1869211",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xe46C6117B8Da7ab23fD2454E63FeF7061eA2cf49",
+      "txHash": "0x09e694374214ae7aa8ce1f4a2693e02a202eaac02c7da736933f453fec9bf888",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x62E35AF43868EbD47752FBb22A4E3aFC6a75fd11",
+      "txHash": "0x5f750f24340b76448bfd4e28a3ec0620b71c1dfd307fb6df4e7c21ba303ba3ce",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xed505bE4B9AFC7fF26C2863D6971C876A8D1Bf00",
+      "txHash": "0xc5ae18d12f7329f85e0ced370656d99fa2af65604ed9cee1ed958911af746fb3",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x812D8520df6e870310a53C25600e522D3d15fD75",
+      "txHash": "0x526c93bf2555b948ae5e684a0fcc1cd75bc4fcece004d9034b519f9671dc532a",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xa48b8aF6A8822A8589865D3c791252016d777B3A",
+      "txHash": "0x228e54e652a532ee8c3a45bff0e229f4850dfe9dbca78ac976c702fb9e5112de",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9bEFB48FFa8b6cc95E127914816884a50442fa66",
+      "txHash": "0x0c9a218aec8928aedb5135f1abb09478faff4f3a88c6064c530a692a2ffe8395",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x376efDE91f5E58FC04Bac23D4DC4E105688D7735",
+      "txHash": "0xe3cfe45c87f5cde88a80fe068bb72b4ae7e27eee56cfc2e0116c5fd977a61907",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x0a7973060b3A60571012F3a4717F0108c0AA1208",
+      "txHash": "0x0762f02ae07bf794c08ec4c60bdebc6f9a8741a467a9ac486352920a24fa5153",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc29C3261A3e56eEf7CC24389371d35d7D9A81300",
+      "txHash": "0xd48136707eaff2f64bf9740ac65a1d75c30a3ffcfbcf34fa96a2ac74c2a81055",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xd1CC409786Bc03EB015a706FB5b100e8b6bFDAbf",
+      "txHash": "0xcfdb6ca28ebae25325b7a14970a70d8c84e0c1b525898a8d88219335d4cae529",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x52420DD6e20E6f19cE583bE4acF51A1bb07eFC4E",
+      "txHash": "0xb47e07ea3f2ca3b0f7cc6ab27abe8acf5ecff2a86bc3f63371dc07244ab87991",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xFAb4a561526C1cF28687B3D1FCF754DB0F647A4a",
+      "txHash": "0xed3b4c7ac9af6312c57b6a6921055aded0025ff37942742aed56923054d97173",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x6b690f618C9e75394164D316e6B677e7C4047FaB",
+      "txHash": "0x845f832488c9cdc873a71a25e4497ce1419db0ef96c018b039477710539b4e39",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x31Ba44C10b531D0524fD28b45243f95B6C65aFA5",
+      "txHash": "0x7761eb11bd93b35ca80a9108418f8a1fc501b784c2e8caef2be7ecdf95aaa684",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9F47241A5c6065D6F0d6af2B17f50098A93d7A37",
+      "txHash": "0x84e62ca930fc6fef6f8bf3c90f609d67cfe3254bd080009a2626620b2065d5b8",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4932e32E97d066A313EbC0E4a76F18bb2F0c7832",
+      "txHash": "0xe8a185f29184a4e5c62be91590de71cc36941974a69bf59c0e7f433b1ac316b1",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -3266,6 +3416,746 @@
           "t_contract(IVotingEscrow)2085": {
             "label": "contract IVotingEscrow",
             "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "c94a2b0c2e201065af5812bd4908956e4a01d084788e5693478a97265ff0f3fd": {
+      "address": "0x121f4327382913D9434a1B35a868ec020eD6e439",
+      "txHash": "0xb3bf4806b02fd0ce282f27cca13d5fc9708d00237489b2e33f201764ba95dd12",
+      "layout": {
+        "solcVersion": "0.8.13",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:80"
+          },
+          {
+            "label": "_ve",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:20"
+          },
+          {
+            "label": "factory",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:21"
+          },
+          {
+            "label": "base",
+            "offset": 0,
+            "slot": "153",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:22"
+          },
+          {
+            "label": "gaugefactory",
+            "offset": 0,
+            "slot": "154",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:23"
+          },
+          {
+            "label": "bribefactory",
+            "offset": 0,
+            "slot": "155",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:24"
+          },
+          {
+            "label": "minter",
+            "offset": 0,
+            "slot": "156",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:26"
+          },
+          {
+            "label": "governor",
+            "offset": 0,
+            "slot": "157",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:27"
+          },
+          {
+            "label": "emergencyCouncil",
+            "offset": 0,
+            "slot": "158",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:28"
+          },
+          {
+            "label": "index",
+            "offset": 0,
+            "slot": "159",
+            "type": "t_uint256",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:30"
+          },
+          {
+            "label": "supplyIndex",
+            "offset": 0,
+            "slot": "160",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:31"
+          },
+          {
+            "label": "claimable",
+            "offset": 0,
+            "slot": "161",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:32"
+          },
+          {
+            "label": "totalWeight",
+            "offset": 0,
+            "slot": "162",
+            "type": "t_uint256",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:34"
+          },
+          {
+            "label": "pools",
+            "offset": 0,
+            "slot": "163",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:36"
+          },
+          {
+            "label": "gauges",
+            "offset": 0,
+            "slot": "164",
+            "type": "t_mapping(t_address,t_address)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:37"
+          },
+          {
+            "label": "gaugesDistributionTimestmap",
+            "offset": 0,
+            "slot": "165",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:38"
+          },
+          {
+            "label": "poolForGauge",
+            "offset": 0,
+            "slot": "166",
+            "type": "t_mapping(t_address,t_address)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:39"
+          },
+          {
+            "label": "internal_bribes",
+            "offset": 0,
+            "slot": "167",
+            "type": "t_mapping(t_address,t_address)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:40"
+          },
+          {
+            "label": "external_bribes",
+            "offset": 0,
+            "slot": "168",
+            "type": "t_mapping(t_address,t_address)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:41"
+          },
+          {
+            "label": "weights",
+            "offset": 0,
+            "slot": "169",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:42"
+          },
+          {
+            "label": "votes",
+            "offset": 0,
+            "slot": "170",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:43"
+          },
+          {
+            "label": "poolVote",
+            "offset": 0,
+            "slot": "171",
+            "type": "t_mapping(t_uint256,t_array(t_address)dyn_storage)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:44"
+          },
+          {
+            "label": "usedWeights",
+            "offset": 0,
+            "slot": "172",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:45"
+          },
+          {
+            "label": "lastVoted",
+            "offset": 0,
+            "slot": "173",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:46"
+          },
+          {
+            "label": "isGauge",
+            "offset": 0,
+            "slot": "174",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:47"
+          },
+          {
+            "label": "isWhitelisted",
+            "offset": 0,
+            "slot": "175",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:48"
+          },
+          {
+            "label": "isAlive",
+            "offset": 0,
+            "slot": "176",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:49"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_array(t_address)dyn_storage)": {
+            "label": "mapping(uint256 => address[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(uint256 => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "308bfdc2d7633dd48779f1747340a3a184f19b056a35b8f9acaf0c01aa09e36a": {
+      "address": "0x97E9565679B0211fCF33e5Fe17feFb25bDecfb1b",
+      "txHash": "0x6725ff30514922ca6a5c65f5bb24d4297bc9d092dd4c85dd48ecd1447d3f664e",
+      "layout": {
+        "solcVersion": "0.8.13",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "last_gauge",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "GaugeFactoryV3",
+            "src": "contracts/factories/GaugeFactoryV3.sol:14"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "6de1f18d9baca43f9653870428c7cbb3ff1b9635ab1158d53523c30e38ed4bb7": {
+      "address": "0x7E7fE63FCA6856C525335b9cb738557021e8Cd5D",
+      "txHash": "0xc6bb746c887423e6ac691e2335f913c019d5e17facb8c13258bd03596fb8f7a4",
+      "layout": {
+        "solcVersion": "0.8.13",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:80"
+          },
+          {
+            "label": "_ve",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:20"
+          },
+          {
+            "label": "factory",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:21"
+          },
+          {
+            "label": "base",
+            "offset": 0,
+            "slot": "153",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:22"
+          },
+          {
+            "label": "gaugefactory",
+            "offset": 0,
+            "slot": "154",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:23"
+          },
+          {
+            "label": "bribefactory",
+            "offset": 0,
+            "slot": "155",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:24"
+          },
+          {
+            "label": "minter",
+            "offset": 0,
+            "slot": "156",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:26"
+          },
+          {
+            "label": "governor",
+            "offset": 0,
+            "slot": "157",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:27"
+          },
+          {
+            "label": "emergencyCouncil",
+            "offset": 0,
+            "slot": "158",
+            "type": "t_address",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:28"
+          },
+          {
+            "label": "index",
+            "offset": 0,
+            "slot": "159",
+            "type": "t_uint256",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:30"
+          },
+          {
+            "label": "supplyIndex",
+            "offset": 0,
+            "slot": "160",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:31"
+          },
+          {
+            "label": "claimable",
+            "offset": 0,
+            "slot": "161",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:32"
+          },
+          {
+            "label": "totalWeight",
+            "offset": 0,
+            "slot": "162",
+            "type": "t_uint256",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:34"
+          },
+          {
+            "label": "pools",
+            "offset": 0,
+            "slot": "163",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:36"
+          },
+          {
+            "label": "gauges",
+            "offset": 0,
+            "slot": "164",
+            "type": "t_mapping(t_address,t_address)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:37"
+          },
+          {
+            "label": "gaugesDistributionTimestmap",
+            "offset": 0,
+            "slot": "165",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:38"
+          },
+          {
+            "label": "poolForGauge",
+            "offset": 0,
+            "slot": "166",
+            "type": "t_mapping(t_address,t_address)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:39"
+          },
+          {
+            "label": "internal_bribes",
+            "offset": 0,
+            "slot": "167",
+            "type": "t_mapping(t_address,t_address)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:40"
+          },
+          {
+            "label": "external_bribes",
+            "offset": 0,
+            "slot": "168",
+            "type": "t_mapping(t_address,t_address)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:41"
+          },
+          {
+            "label": "weights",
+            "offset": 0,
+            "slot": "169",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:42"
+          },
+          {
+            "label": "votes",
+            "offset": 0,
+            "slot": "170",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:43"
+          },
+          {
+            "label": "poolVote",
+            "offset": 0,
+            "slot": "171",
+            "type": "t_mapping(t_uint256,t_array(t_address)dyn_storage)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:44"
+          },
+          {
+            "label": "usedWeights",
+            "offset": 0,
+            "slot": "172",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:45"
+          },
+          {
+            "label": "lastVoted",
+            "offset": 0,
+            "slot": "173",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:46"
+          },
+          {
+            "label": "isGauge",
+            "offset": 0,
+            "slot": "174",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:47"
+          },
+          {
+            "label": "isWhitelisted",
+            "offset": 0,
+            "slot": "175",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:48"
+          },
+          {
+            "label": "isAlive",
+            "offset": 0,
+            "slot": "176",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "VoterV3",
+            "src": "contracts/VoterV3.sol:49"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_array(t_address)dyn_storage)": {
+            "label": "mapping(uint256 => address[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(uint256 => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
           },
           "t_uint256": {
             "label": "uint256",

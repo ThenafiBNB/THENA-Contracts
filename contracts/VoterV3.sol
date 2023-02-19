@@ -5,7 +5,7 @@ import "./libraries/Math.sol";
 import "./interfaces/IBribe.sol";
 import "./interfaces/IBribeFactory.sol";
 import "./interfaces/IGauge.sol";
-import "./interfaces/IGaugeFactory.sol";
+import "./interfaces/IGaugeFactoryV3.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IMinter.sol";
 import "./interfaces/IPair.sol";
@@ -155,11 +155,11 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
                 weights[_pool] -= _votes;
                 votes[_tokenId][_pool] -= _votes;
                 if (_votes > 0) {
-                    IBribe(internal_bribes[gauges[_pool]])._withdraw(
+                    IBribe(internal_bribes[gauges[_pool]]).withdraw(
                         uint256(_votes),
                         _tokenId
                     );
-                    IBribe(external_bribes[gauges[_pool]])._withdraw(
+                    IBribe(external_bribes[gauges[_pool]]).withdraw(
                         uint256(_votes),
                         _tokenId
                     );
@@ -220,11 +220,11 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
                 weights[_pool] += _poolWeight;
                 votes[_tokenId][_pool] += _poolWeight;
-                IBribe(internal_bribes[_gauge])._deposit(
+                IBribe(internal_bribes[_gauge]).deposit(
                     uint256(_poolWeight),
                     _tokenId
                 );
-                IBribe(external_bribes[_gauge])._deposit(
+                IBribe(external_bribes[_gauge]).deposit(
                     uint256(_poolWeight),
                     _tokenId
                 );
@@ -309,7 +309,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
             _type
         );
 
-        address _gauge = IGaugeFactory(gaugefactory).createGaugeV2(
+        address _gauge = IGaugeFactory(gaugefactory).createGaugeV3(
             base,
             _ve,
             _pool,

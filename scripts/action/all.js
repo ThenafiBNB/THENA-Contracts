@@ -97,7 +97,7 @@ async function main() {
     //Deploy NFTSALESSPLITTER
 
     // Staking NFT
-    let stakingNFTFeeConvertercontract = await deployContract("StakingNFTFeeConverter", [
+    const stakingNFTFeeConvertercontract = await deployContract("StakingNFTFeeConverter", [
         process.env.WFTM,
     ], "deploy StakingNFTFeeConverter");
 

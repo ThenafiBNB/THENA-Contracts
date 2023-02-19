@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import "../interfaces/IGaugeFactoryV2.sol";
+import "../interfaces/IGaugeFactoryV3.sol";
 import "../GaugeV3.sol";
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";

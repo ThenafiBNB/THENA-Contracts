@@ -7,7 +7,7 @@ import '../libraries/Math.sol';
 import '../interfaces/IBribeAPI.sol';
 import '../interfaces/IWrappedBribeFactory.sol';
 import '../interfaces/IGaugeAPI.sol';
-import '../interfaces/IGaugeFactory.sol';
+import '../interfaces/IGaugeFactoryV3.sol';
 import '../interfaces/IERC20.sol';
 import '../interfaces/IMinter.sol';
 import '../interfaces/IPair.sol';
