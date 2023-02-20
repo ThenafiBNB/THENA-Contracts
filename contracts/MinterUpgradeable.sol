@@ -43,6 +43,10 @@ contract MinterUpgradeable is IMinter, OwnableUpgradeable {
         uint256 circulating_emission
     );
 
+    /*  ╔══════════════════════════════╗
+        ║          INITIALIZER         ║
+        ╚══════════════════════════════╝ */
+
     function initialize(
         address __voter, // the voting & distribution system
         address __ve, // the ve(3,3) system that will be locked into

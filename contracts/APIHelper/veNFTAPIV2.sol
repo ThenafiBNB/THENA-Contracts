@@ -141,48 +141,47 @@ contract veNFTAPI is Initializable {
         notReward[address(0xF0308D005717858756ACAa6B3DCd4D0De4A1ca54)] = true;
     }
 
-    function getAllNFT(uint256 _amounts, uint256 _offset)
-        external
-        view
-        returns (veNFT[] memory _veNFT)
-    {
-        require(_amounts <= MAX_RESULTS, "too many nfts");
-        _veNFT = new veNFT[](_amounts);
+    /*  ╔══════════════════════════════╗
+        ║       ADMIN UTILITIES        ║
+        ╚══════════════════════════════╝ */
 
-        uint256 i = _offset;
-        address _owner;
-
-        for (i; i < _offset + _amounts; i++) {
-            _owner = ve.ownerOf(i);
-            // if id_i has owner read data
-            if (_owner != address(0)) {
-                _veNFT[i - _offset] = _getNFTFromId(i, _owner);
-            }
-        }
+    function setOwner(address _owner) external {
+        require(msg.sender == owner, "not owner");
+        require(_owner != address(0), "zeroAddr");
+        owner = _owner;
+        emit Owner(msg.sender, _owner);
     }
 
-    function getNFTFromId(uint256 id) external view returns (veNFT memory) {
-        return _getNFTFromId(id, ve.ownerOf(id));
+    function setVoter(address _voter) external {
+        require(msg.sender == owner);
+
+        voter = IVoter(_voter);
     }
 
-    function getNFTFromAddress(address _user)
-        external
-        view
-        returns (veNFT[] memory venft)
-    {
-        uint256 i = 0;
-        uint256 _id;
-        uint256 totNFTs = ve.balanceOf(_user);
+    function setRewardDistro(address _rewarddistro) external {
+        require(msg.sender == owner);
 
-        venft = new veNFT[](totNFTs);
+        rewardDisitributor = IRewardsDistributor(_rewarddistro);
+        require(rewardDisitributor.voting_escrow() == voter._ve(), "ve!=ve");
 
-        for (i; i < totNFTs; i++) {
-            _id = ve.tokenOfOwnerByIndex(_user, i);
-            if (_id != 0) {
-                venft[i] = _getNFTFromId(_id, _user);
-            }
-        }
+        ve = IVotingEscrow(rewardDisitributor.voting_escrow());
+        underlyingToken = IVotingEscrow(ve).token();
     }
+
+    function setPairAPI(address _pairApi) external {
+        require(msg.sender == owner);
+
+        pairAPI = _pairApi;
+    }
+
+    function setPairFactory(address _pairFactory) external {
+        require(msg.sender == owner);
+        pairFactory = IPairFactory(_pairFactory);
+    }
+
+    /*  ╔══════════════════════════════╗
+        ║     INTERNAL UTILITIES       ║
+        ╚══════════════════════════════╝ */
 
     function _getNFTFromId(uint256 id, address _owner)
         internal
@@ -227,34 +226,6 @@ contract veNFTAPI is Initializable {
         venft.tokenDecimals = IERC20(ve.token()).decimals();
         venft.voted = ve.voted(id);
         venft.attachments = ve.attachments(id);
-    }
-
-    function allPairRewards(
-        uint256 _amount,
-        uint256 _offset,
-        uint256 id
-    ) external view returns (AllPairRewards[] memory rewards) {
-        rewards = new AllPairRewards[](MAX_PAIRS);
-
-        uint256 totalPairs = pairFactory.allPairsLength();
-
-        uint256 i = _offset;
-        address _pair;
-        for (i; i < _offset + _amount; i++) {
-            if (i >= totalPairs) {
-                break;
-            }
-            _pair = pairFactory.allPairs(i);
-            rewards[i].rewards = _pairReward(_pair, id);
-        }
-    }
-
-    function singlePairReward(uint256 id, address _pair)
-        external
-        view
-        returns (Reward[] memory _reward)
-    {
-        return _pairReward(_pair, id);
     }
 
     function _pairReward(address _pair, uint256 id)
@@ -345,37 +316,77 @@ contract veNFTAPI is Initializable {
         return _reward;
     }
 
-    function setOwner(address _owner) external {
-        require(msg.sender == owner, "not owner");
-        require(_owner != address(0), "zeroAddr");
-        owner = _owner;
-        emit Owner(msg.sender, _owner);
+    /*  ╔══════════════════════════════╗
+        ║            GETTER            ║
+        ╚══════════════════════════════╝ */
+    function getAllNFT(uint256 _amounts, uint256 _offset)
+        external
+        view
+        returns (veNFT[] memory _veNFT)
+    {
+        require(_amounts <= MAX_RESULTS, "too many nfts");
+        _veNFT = new veNFT[](_amounts);
+
+        uint256 i = _offset;
+        address _owner;
+
+        for (i; i < _offset + _amounts; i++) {
+            _owner = ve.ownerOf(i);
+            // if id_i has owner read data
+            if (_owner != address(0)) {
+                _veNFT[i - _offset] = _getNFTFromId(i, _owner);
+            }
+        }
     }
 
-    function setVoter(address _voter) external {
-        require(msg.sender == owner);
-
-        voter = IVoter(_voter);
+    function getNFTFromId(uint256 id) external view returns (veNFT memory) {
+        return _getNFTFromId(id, ve.ownerOf(id));
     }
 
-    function setRewardDistro(address _rewarddistro) external {
-        require(msg.sender == owner);
+    function getNFTFromAddress(address _user)
+        external
+        view
+        returns (veNFT[] memory venft)
+    {
+        uint256 i = 0;
+        uint256 _id;
+        uint256 totNFTs = ve.balanceOf(_user);
 
-        rewardDisitributor = IRewardsDistributor(_rewarddistro);
-        require(rewardDisitributor.voting_escrow() == voter._ve(), "ve!=ve");
+        venft = new veNFT[](totNFTs);
 
-        ve = IVotingEscrow(rewardDisitributor.voting_escrow());
-        underlyingToken = IVotingEscrow(ve).token();
+        for (i; i < totNFTs; i++) {
+            _id = ve.tokenOfOwnerByIndex(_user, i);
+            if (_id != 0) {
+                venft[i] = _getNFTFromId(_id, _user);
+            }
+        }
     }
 
-    function setPairAPI(address _pairApi) external {
-        require(msg.sender == owner);
+    function allPairRewards(
+        uint256 _amount,
+        uint256 _offset,
+        uint256 id
+    ) external view returns (AllPairRewards[] memory rewards) {
+        rewards = new AllPairRewards[](MAX_PAIRS);
 
-        pairAPI = _pairApi;
+        uint256 totalPairs = pairFactory.allPairsLength();
+
+        uint256 i = _offset;
+        address _pair;
+        for (i; i < _offset + _amount; i++) {
+            if (i >= totalPairs) {
+                break;
+            }
+            _pair = pairFactory.allPairs(i);
+            rewards[i].rewards = _pairReward(_pair, id);
+        }
     }
 
-    function setPairFactory(address _pairFactory) external {
-        require(msg.sender == owner);
-        pairFactory = IPairFactory(_pairFactory);
+    function singlePairReward(uint256 id, address _pair)
+        external
+        view
+        returns (Reward[] memory _reward)
+    {
+        return _pairReward(_pair, id);
     }
 }

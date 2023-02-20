@@ -26,6 +26,30 @@ contract Dibs is AccessControlUpgradeable {
     uint32 public grandparentPercentage;
     uint32 public dibsPercentage;
 
+    /*  ╔══════════════════════════════╗
+        ║             EVENT            ║
+        ╚══════════════════════════════╝ */
+    event Register(
+        address indexed _address,
+        bytes32 indexed _code,
+        string _name,
+        address _parent
+    );
+    event SetMuonInterface(address _old, address _new);
+    event SetGrandparentAndDibsPercentage(
+        uint32 _oldGrandparent,
+        uint32 _newGrandparent,
+        uint32 _oldDibs,
+        uint32 _newDibs
+    );
+    event SetParent(address _user, address _parent);
+    event Claim(
+        address indexed _user,
+        uint256 _amount,
+        address _to,
+        address _token
+    );
+
     error CodeAlreadyExists();
     error CodeDoesNotExist();
     error ZeroValue();
@@ -74,15 +98,6 @@ contract Dibs is AccessControlUpgradeable {
     function getCodeName(address user) public view returns (string memory) {
         return codeToName[addressToCode[user]];
     }
-
-    /** =========== PUBLIC FUNCTIONS =========== */
-
-    event Register(
-        address indexed _address,
-        bytes32 indexed _code,
-        string _name,
-        address _parent
-    );
 
     /// @notice register a new code
     /// @param user address of the user
@@ -148,9 +163,6 @@ contract Dibs is AccessControlUpgradeable {
 
     /** =========== RESTRICTED FUNCTIONS =========== */
 
-    // set muonInterface address
-    event SetMuonInterface(address _old, address _new);
-
     function setMuonInterface(address _muonInterface)
         external
         onlyRole(SETTER)
@@ -160,13 +172,6 @@ contract Dibs is AccessControlUpgradeable {
     }
 
     // set grandparent and dibs percentage
-    event SetGrandparentAndDibsPercentage(
-        uint32 _oldGrandparent,
-        uint32 _newGrandparent,
-        uint32 _oldDibs,
-        uint32 _newDibs
-    );
-
     function setGrandparentAndDibsPercentage(
         uint32 _grandparentPercentage,
         uint32 _dibsPercentage
@@ -189,8 +194,6 @@ contract Dibs is AccessControlUpgradeable {
         IERC20Upgradeable(token).safeTransfer(to, amount);
     }
 
-    event SetParent(address _user, address _parent);
-
     function setParent(address user, address parent) external onlyRole(SETTER) {
         emit SetParent(user, parent);
         _setParent(user, parent);
@@ -202,13 +205,6 @@ contract Dibs is AccessControlUpgradeable {
         parents[user] = parent;
         emit SetParent(user, parent);
     }
-
-    event Claim(
-        address indexed _user,
-        uint256 _amount,
-        address _to,
-        address _token
-    );
 
     /// @notice transfer tokens from user to to
     /// @dev accumulativeBalance should be passed from a trusted source (e.g. Muon)
