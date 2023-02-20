@@ -85,8 +85,9 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     event Detach(address indexed owner, address indexed gauge, uint256 tokenId);
     event Whitelisted(address indexed whitelister, address indexed token);
 
-    constructor() {}
-
+    /*  ╔══════════════════════════════╗
+        ║          INITIALIZER         ║
+        ╚══════════════════════════════╝ */
     function initialize(
         address __ve,
         address _factory,

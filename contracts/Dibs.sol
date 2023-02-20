@@ -32,7 +32,10 @@ contract Dibs is AccessControlUpgradeable {
     error BalanceTooLow();
     error NotMuonInterface();
 
-    // initializer
+    /*  ╔══════════════════════════════╗
+        ║          INITIALIZER         ║
+        ╚══════════════════════════════╝ */
+
     function initialize(
         address dibs_,
         address admin_,

@@ -13,15 +13,19 @@ contract BribeFactoryV3 is OwnableUpgradeable {
     address public last_bribe;
     address public voter;
 
-    constructor() {}
-    function initialize(address _voter) initializer  public {
+    function initialize(address _voter) public initializer {
         __Ownable_init();
         voter = _voter;
     }
 
-    function createBribe(address _owner,address _token0,address _token1, string memory _type) external returns (address) {
-        require(msg.sender == voter || msg.sender == owner(), 'only voter');
-        Bribe lastBribe = new Bribe(_owner,voter,address(this), _type);
+    function createBribe(
+        address _owner,
+        address _token0,
+        address _token1,
+        string memory _type
+    ) external returns (address) {
+        require(msg.sender == voter || msg.sender == owner(), "only voter");
+        Bribe lastBribe = new Bribe(_owner, voter, address(this), _type);
         lastBribe.addReward(_token0);
         lastBribe.addReward(_token1);
         last_bribe = address(lastBribe);
@@ -29,31 +33,30 @@ contract BribeFactoryV3 is OwnableUpgradeable {
     }
 
     function setVoter(address _Voter) external {
-        require(owner() == msg.sender, 'not owner');
+        require(owner() == msg.sender, "not owner");
         require(_Voter != address(0));
         voter = _Voter;
     }
 
-     function addReward(address _token, address[] memory _bribes) external {
-        require(owner() == msg.sender, 'not owner');
-        uint i = 0;
-        for ( i ; i < _bribes.length; i++){
+    function addReward(address _token, address[] memory _bribes) external {
+        require(owner() == msg.sender, "not owner");
+        uint256 i = 0;
+        for (i; i < _bribes.length; i++) {
             IBribe(_bribes[i]).addReward(_token);
         }
-
     }
 
-    function addRewards(address[][] memory _token, address[] memory _bribes) external {
-        require(owner() == msg.sender, 'not owner');
-        uint i = 0;
-        uint k;
-        for ( i ; i < _bribes.length; i++){
+    function addRewards(address[][] memory _token, address[] memory _bribes)
+        external
+    {
+        require(owner() == msg.sender, "not owner");
+        uint256 i = 0;
+        uint256 k;
+        for (i; i < _bribes.length; i++) {
             address _bribe = _bribes[i];
-            for(k = 0; k < _token.length; k++){
+            for (k = 0; k < _token.length; k++) {
                 IBribe(_bribe).addReward(_token[i][k]);
             }
         }
-
     }
-
 }

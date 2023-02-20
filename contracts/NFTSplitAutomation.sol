@@ -19,6 +19,10 @@ contract NFTSplitAutomation is OwnableUpgradeable {
         _;
     }
 
+    /*  ╔══════════════════════════════╗
+        ║          INITIALIZER         ║
+        ╚══════════════════════════════╝ */
+
     function initialize(address _target, address _caller) public initializer {
         __Ownable_init();
         target = _target; // NFTSalesSplitter

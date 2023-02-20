@@ -3,40 +3,61 @@ pragma solidity ^0.8.7;
 
 import "./AutomationCompatible.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
 interface ICondition {
-    function check() external view returns(bool);
+    function check() external view returns (bool);
 }
 
 interface ITarget {
     function performUpkeep() external;
 }
 
-contract EpochNFTSplitManager is AutomationCompatibleInterface, OwnableUpgradeable  {
-
+contract EpochNFTSplitManager is
+    AutomationCompatibleInterface,
+    OwnableUpgradeable
+{
     address public automationRegistry;
 
     address public condition;
     address public target;
 
-    constructor() {}
-
-    function initialize(address _condition, address _target) initializer  public {
+    function initialize(address _condition, address _target)
+        public
+        initializer
+    {
         __Ownable_init();
         condition = _condition;
         target = _target;
     }
 
-
-    function checkUpkeep(bytes memory /*checkdata*/) public view override returns (bool upkeepNeeded, bytes memory /*performData*/) {
+    function checkUpkeep(
+        bytes memory /*checkdata*/
+    )
+        public
+        view
+        override
+        returns (
+            bool upkeepNeeded,
+            bytes memory /*performData*/
+        )
+    {
         upkeepNeeded = ICondition(condition).check();
     }
 
-    function performUpkeep(bytes calldata /*performData*/) external override {
-        require(msg.sender == automationRegistry || msg.sender == owner(), 'cannot execute');
-        ITarget(target).performUpkeep();        
+    function performUpkeep(
+        bytes calldata /*performData*/
+    ) external override {
+        require(
+            msg.sender == automationRegistry || msg.sender == owner(),
+            "cannot execute"
+        );
+        ITarget(target).performUpkeep();
     }
 
-    function setAutomationRegistry(address _automationRegistry) external onlyOwner {
+    function setAutomationRegistry(address _automationRegistry)
+        external
+        onlyOwner
+    {
         require(_automationRegistry != address(0));
         automationRegistry = _automationRegistry;
     }
@@ -46,11 +67,8 @@ contract EpochNFTSplitManager is AutomationCompatibleInterface, OwnableUpgradeab
         target = _target;
     }
 
-    function setCondition(address _condition ) external onlyOwner {
+    function setCondition(address _condition) external onlyOwner {
         require(_condition != address(0));
         condition = _condition;
     }
-
-
-
 }

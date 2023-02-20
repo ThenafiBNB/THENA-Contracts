@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import '../interfaces/IPairFactory.sol';
-import '../Pair.sol';
+import "../interfaces/IPairFactory.sol";
+import "../Pair.sol";
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract PairFactoryUpgradeable is IPairFactory, OwnableUpgradeable {
-
     bool public isPaused;
 
     uint256 public stableFee;
@@ -18,10 +17,11 @@ contract PairFactoryUpgradeable is IPairFactory, OwnableUpgradeable {
 
     address public feeManager;
     address public pendingFeeManager;
-    address public dibs;                // referral fee handler
-    address public stakingFeeHandler;   // staking fee handler
+    address public dibs; // referral fee handler
+    address public stakingFeeHandler; // staking fee handler
 
-    mapping(address => mapping(address => mapping(bool => address))) public getPair;
+    mapping(address => mapping(address => mapping(bool => address)))
+        public getPair;
     address[] public allPairs;
     mapping(address => bool) public isPair; // simplified check if its a pair, given that `stable` flag might not be available in peripherals
 
@@ -29,15 +29,20 @@ contract PairFactoryUpgradeable is IPairFactory, OwnableUpgradeable {
     address internal _temp1;
     bool internal _temp;
 
-    event PairCreated(address indexed token0, address indexed token1, bool stable, address pair, uint);
+    event PairCreated(
+        address indexed token0,
+        address indexed token1,
+        bool stable,
+        address pair,
+        uint256
+    );
 
     modifier onlyManager() {
         require(msg.sender == feeManager);
         _;
     }
 
-    constructor() {}
-    function initialize() initializer  public {
+    function initialize() public initializer {
         __Ownable_init();
         isPaused = false;
         feeManager = msg.sender;
@@ -47,12 +52,11 @@ contract PairFactoryUpgradeable is IPairFactory, OwnableUpgradeable {
         MAX_REFERRAL_FEE = 1200; // 12%
     }
 
-
-    function allPairsLength() external view returns (uint) {
+    function allPairsLength() external view returns (uint256) {
         return allPairs.length;
     }
 
-    function pairs() external view returns(address[] memory ){
+    function pairs() external view returns (address[] memory) {
         return allPairs;
     }
 
@@ -61,7 +65,7 @@ contract PairFactoryUpgradeable is IPairFactory, OwnableUpgradeable {
         isPaused = _state;
     }
 
-    function setFeeManager(address _feeManager) external onlyManager{
+    function setFeeManager(address _feeManager) external onlyManager {
         pendingFeeManager = _feeManager;
     }
 
@@ -69,7 +73,6 @@ contract PairFactoryUpgradeable is IPairFactory, OwnableUpgradeable {
         require(msg.sender == pendingFeeManager);
         feeManager = pendingFeeManager;
     }
-
 
     function setStakingFees(uint256 _newFee) external onlyManager {
         require(_newFee <= 3000);
@@ -90,9 +93,8 @@ contract PairFactoryUpgradeable is IPairFactory, OwnableUpgradeable {
         MAX_REFERRAL_FEE = _refFee;
     }
 
-
     function setFee(bool _stable, uint256 _fee) external onlyManager {
-        require(_fee <= MAX_FEE, 'fee');
+        require(_fee <= MAX_FEE, "fee");
         require(_fee != 0);
         if (_stable) {
             stableFee = _fee;
@@ -101,7 +103,7 @@ contract PairFactoryUpgradeable is IPairFactory, OwnableUpgradeable {
         }
     }
 
-    function getFee(bool _stable) public view returns(uint256) {
+    function getFee(bool _stable) public view returns (uint256) {
         return _stable ? stableFee : volatileFee;
     }
 
@@ -109,18 +111,32 @@ contract PairFactoryUpgradeable is IPairFactory, OwnableUpgradeable {
         return keccak256(type(Pair).creationCode);
     }
 
-    function getInitializable() external view returns (address, address, bool) {
+    function getInitializable()
+        external
+        view
+        returns (
+            address,
+            address,
+            bool
+        )
+    {
         return (_temp0, _temp1, _temp);
     }
 
-    function createPair(address tokenA, address tokenB, bool stable) external returns (address pair) {
-        require(tokenA != tokenB, 'IA'); // Pair: IDENTICAL_ADDRESSES
-        (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-        require(token0 != address(0), 'ZA'); // Pair: ZERO_ADDRESS
-        require(getPair[token0][token1][stable] == address(0), 'PE'); // Pair: PAIR_EXISTS - single check is sufficient
+    function createPair(
+        address tokenA,
+        address tokenB,
+        bool stable
+    ) external returns (address pair) {
+        require(tokenA != tokenB, "IA"); // Pair: IDENTICAL_ADDRESSES
+        (address token0, address token1) = tokenA < tokenB
+            ? (tokenA, tokenB)
+            : (tokenB, tokenA);
+        require(token0 != address(0), "ZA"); // Pair: ZERO_ADDRESS
+        require(getPair[token0][token1][stable] == address(0), "PE"); // Pair: PAIR_EXISTS - single check is sufficient
         bytes32 salt = keccak256(abi.encodePacked(token0, token1, stable)); // notice salt includes stable as well, 3 parameters
         (_temp0, _temp1, _temp) = (token0, token1, stable);
-        pair = address(new Pair{salt:salt}());
+        pair = address(new Pair{salt: salt}());
         getPair[token0][token1][stable] = pair;
         getPair[token1][token0][stable] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
