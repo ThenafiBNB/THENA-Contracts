@@ -12,9 +12,9 @@ import "../interfaces/IPair.sol";
 import "../interfaces/IPairFactory.sol";
 import "../interfaces/IVoter.sol";
 import "../interfaces/IVotingEscrow.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract RewardAPI is Initializable {
+contract RewardAPI is OwnableUpgradeable {
     /*  ╔══════════════════════════════╗
         ║            Struct            ║
         ╚══════════════════════════════╝ */
@@ -32,7 +32,6 @@ contract RewardAPI is Initializable {
     IPairFactory public pairFactory;
     IVoter public voter;
     address public underlyingToken;
-    address public owner;
 
     mapping(address => bool) public notReward;
 
@@ -40,7 +39,7 @@ contract RewardAPI is Initializable {
         ║          INITIALIZER         ║
         ╚══════════════════════════════╝ */
     function initialize(address _voter) public initializer {
-        owner = msg.sender;
+        __Ownable_init();
         voter = IVoter(_voter);
         pairFactory = IPairFactory(voter.factory());
         underlyingToken = IVotingEscrow(voter._ve()).token();
@@ -51,14 +50,7 @@ contract RewardAPI is Initializable {
     /*  ╔══════════════════════════════╗
         ║       ADMIN UTILITIES        ║
         ╚══════════════════════════════╝ */
-    function setOwner(address _owner) external {
-        require(msg.sender == owner, "not owner");
-        require(_owner != address(0), "zeroAddr");
-        owner = _owner;
-    }
-
-    function setVoter(address _voter) external {
-        require(msg.sender == owner, "not owner");
+    function setVoter(address _voter) external onlyOwner {
         require(_voter != address(0), "zeroAddr");
         voter = IVoter(_voter);
         // update variable depending on voter
@@ -66,13 +58,11 @@ contract RewardAPI is Initializable {
         underlyingToken = IVotingEscrow(voter._ve()).token();
     }
 
-    function addNotReward(address _token) external {
-        require(msg.sender == owner, "not owner");
+    function addNotReward(address _token) external onlyOwner {
         notReward[_token] = true;
     }
 
-    function removeNotReward(address _token) external {
-        require(msg.sender == owner, "not owner");
+    function removeNotReward(address _token) external onlyOwner {
         notReward[_token] = false;
     }
 

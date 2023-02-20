@@ -126,7 +126,7 @@ contract AirdropClaim is ReentrancyGuard {
         token.safeTransfer(_to, _theInstantAmount);
         token.approve(ve, 0);
         token.approve(ve, _vestedAmount);
-        IVotingEscrow(ve).create_lock_for(_vestedAmount, 2 * 364 * 86400, _who);
+        IVotingEscrow(ve).createLockFor(_vestedAmount, 2 * 364 * 86400, _who);
 
         status = true;
     }

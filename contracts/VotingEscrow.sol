@@ -40,7 +40,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         uint256 blk; // block
     }
     /* We cannot really do block numbers per se b/c slope is per time, not per block
-     * and per block could be fairly bad b/c Ethereum changes blocktimes.
+     * and per block could be fairly bad b/c Ethereum changes blockTimes.
      * What we can do is to extrapolate ***At functions */
 
     /// @notice A checkpoint for marking delegated tokenIds from a given timestamp
@@ -57,8 +57,8 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         address indexed provider,
         uint256 tokenId,
         uint256 value,
-        uint256 indexed locktime,
-        DepositType deposit_type,
+        uint256 indexed lockTime,
+        DepositType depositType,
         uint256 ts
     );
     event Withdraw(
@@ -78,7 +78,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     address public team;
     address public artProxy;
 
-    mapping(uint256 => Point) public point_history; // epoch -> unsigned point
+    mapping(uint256 => Point) public pointHistory; // epoch -> unsigned point
 
     /// @dev Mapping of interface id to bool about whether or not it's supported
     mapping(bytes4 => bool) internal supportedInterfaces;
@@ -103,8 +103,8 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         team = msg.sender;
         artProxy = art_proxy;
 
-        point_history[0].blk = block.number;
-        point_history[0].ts = block.timestamp;
+        pointHistory[0].blk = block.number;
+        pointHistory[0].ts = block.timestamp;
 
         supportedInterfaces[ERC165_INTERFACE_ID] = true;
         supportedInterfaces[ERC721_INTERFACE_ID] = true;
@@ -567,8 +567,8 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
                              ESCROW STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    mapping(uint256 => uint256) public user_point_epoch;
-    mapping(uint256 => Point[1000000000]) public user_point_history; // user -> Point[user_epoch]
+    mapping(uint256 => uint256) public userPointEpoch;
+    mapping(uint256 => Point[1000000000]) public userPointHistory; // user -> Point[user_epoch]
     mapping(uint256 => LockedBalance) public locked;
     uint256 public epoch;
     mapping(uint256 => int128) public slope_changes; // time -> signed slope change
@@ -591,20 +591,20 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         view
         returns (int128)
     {
-        uint256 uepoch = user_point_epoch[_tokenId];
-        return user_point_history[_tokenId][uepoch].slope;
+        uint256 uepoch = userPointEpoch[_tokenId];
+        return userPointHistory[_tokenId][uepoch].slope;
     }
 
     /// @notice Get the timestamp for checkpoint `_idx` for `_tokenId`
     /// @param _tokenId token of the NFT
     /// @param _idx User epoch number
     /// @return Epoch time of the checkpoint
-    function user_point_history__ts(uint256 _tokenId, uint256 _idx)
+    function userPointHistory__ts(uint256 _tokenId, uint256 _idx)
         external
         view
         returns (uint256)
     {
-        return user_point_history[_tokenId][_idx].ts;
+        return userPointHistory[_tokenId][_idx].ts;
     }
 
     /// @notice Get timestamp when `_tokenId`'s lock finishes
@@ -618,7 +618,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     /// @param _tokenId NFT token ID. No user checkpoint if 0
     /// @param old_locked Pevious locked amount / end lock time for the user
     /// @param new_locked New locked amount / end lock time for the user
-    function _checkpoint(
+    function _checkPoint(
         uint256 _tokenId,
         LockedBalance memory old_locked,
         LockedBalance memory new_locked
@@ -665,9 +665,9 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
             blk: block.number
         });
         if (_epoch > 0) {
-            last_point = point_history[_epoch];
+            last_point = pointHistory[_epoch];
         }
-        uint256 last_checkpoint = last_point.ts;
+        uint256 last_checkPoint = last_point.ts;
         // initial_last_point is used for extrapolation to calculate block number
         // (approximately, for *At methods) and save them
         // as we cannot figure that out exactly from inside the contract
@@ -683,7 +683,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
 
         // Go over weeks to fill history and calculate what the current point is
         {
-            uint256 t_i = (last_checkpoint / WEEK) * WEEK;
+            uint256 t_i = (last_checkPoint / WEEK) * WEEK;
             for (uint256 i = 0; i < 255; ++i) {
                 // Hopefully it won't happen that this won't get used in 5 years!
                 // If it does, users will be able to withdraw but vote weight will be broken
@@ -696,7 +696,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
                 }
                 last_point.bias -=
                     last_point.slope *
-                    int128(int256(t_i - last_checkpoint));
+                    int128(int256(t_i - last_checkPoint));
                 last_point.slope += d_slope;
                 if (last_point.bias < 0) {
                     // This can happen
@@ -706,7 +706,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
                     // This cannot happen - just in case
                     last_point.slope = 0;
                 }
-                last_checkpoint = t_i;
+                last_checkPoint = t_i;
                 last_point.ts = t_i;
                 last_point.blk =
                     initial_last_point.blk +
@@ -717,13 +717,13 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
                     last_point.blk = block.number;
                     break;
                 } else {
-                    point_history[_epoch] = last_point;
+                    pointHistory[_epoch] = last_point;
                 }
             }
         }
 
         epoch = _epoch;
-        // Now point_history is filled until t=now
+        // Now pointHistory is filled until t=now
 
         if (_tokenId != 0) {
             // If last point was in this block, the slope change has been applied already
@@ -739,7 +739,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         }
 
         // Record the changed point into history
-        point_history[_epoch] = last_point;
+        pointHistory[_epoch] = last_point;
 
         if (_tokenId != 0) {
             // Schedule the slope changes (slope is going down)
@@ -762,12 +762,12 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
                 // else: we recorded it already in old_dslope
             }
             // Now handle user history
-            uint256 user_epoch = user_point_epoch[_tokenId] + 1;
+            uint256 user_epoch = userPointEpoch[_tokenId] + 1;
 
-            user_point_epoch[_tokenId] = user_epoch;
+            userPointEpoch[_tokenId] = user_epoch;
             u_new.ts = block.timestamp;
             u_new.blk = block.number;
-            user_point_history[_tokenId][user_epoch] = u_new;
+            userPointHistory[_tokenId][user_epoch] = u_new;
         }
     }
 
@@ -776,13 +776,13 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     /// @param _value Amount to deposit
     /// @param unlock_time New time when to unlock the tokens, or 0 if unchanged
     /// @param locked_balance Previous locked amount / timestamp
-    /// @param deposit_type The type of deposit
-    function _deposit_for(
+    /// @param depositType The type of deposit
+    function _depositFor(
         uint256 _tokenId,
         uint256 _value,
         uint256 unlock_time,
         LockedBalance memory locked_balance,
-        DepositType deposit_type
+        DepositType depositType
     ) internal {
         LockedBalance memory _locked = locked_balance;
         uint256 supply_before = supply;
@@ -801,13 +801,13 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         // Both old_locked.end could be current or expired (>/< block.timestamp)
         // value == 0 (extend lock) or value > 0 (add to lock or extend lock)
         // _locked.end > block.timestamp (always)
-        _checkpoint(_tokenId, old_locked, _locked);
+        _checkPoint(_tokenId, old_locked, _locked);
 
         address from = msg.sender;
         if (
             _value != 0 &&
-            deposit_type != DepositType.MERGE_TYPE &&
-            deposit_type != DepositType.SPLIT_TYPE
+            depositType != DepositType.MERGE_TYPE &&
+            depositType != DepositType.SPLIT_TYPE
         ) {
             assert(IERC20(token).transferFrom(from, address(this), _value));
         }
@@ -817,7 +817,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
             _tokenId,
             _value,
             _locked.end,
-            deposit_type,
+            depositType,
             block.timestamp
         );
         emit Supply(supply_before, supply_before + _value);
@@ -829,12 +829,12 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
 
     /// @notice Record global data to checkpoint
     function checkpoint() external {
-        _checkpoint(0, LockedBalance(0, 0), LockedBalance(0, 0));
+        _checkPoint(0, LockedBalance(0, 0), LockedBalance(0, 0));
     }
 
     /// @notice Deposit `_value` tokens for `_tokenId` and add to the lock
     /// @dev Anyone (even a smart contract) can deposit for someone else, but
-    ///      cannot extend their locktime and deposit for a brand new user
+    ///      cannot extend their lockTime and deposit for a brand new user
     /// @param _tokenId lock NFT
     /// @param _value Amount to add to user's lock
     function deposit_for(uint256 _tokenId, uint256 _value)
@@ -849,26 +849,19 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
             _locked.end > block.timestamp,
             "Cannot add to expired lock. Withdraw"
         );
-        _deposit_for(
-            _tokenId,
-            _value,
-            0,
-            _locked,
-            DepositType.DEPOSIT_FOR_TYPE
-        );
+        _depositFor(_tokenId, _value, 0, _locked, DepositType.DEPOSIT_FOR_TYPE);
     }
 
-    /// @notice Deposit `_value` tokens for `_to` and lock for `_lock_duration`
+    /// @notice Deposit `_value` tokens for `_to` and lock for `_lockDuration`
     /// @param _value Amount to deposit
-    /// @param _lock_duration Number of seconds to lock tokens for (rounded down to nearest week)
+    /// @param _lockDuration Number of seconds to lock tokens for (rounded down to nearest week)
     /// @param _to Address to deposit
-    function _create_lock(
+    function _createLock(
         uint256 _value,
-        uint256 _lock_duration,
+        uint256 _lockDuration,
         address _to
     ) internal returns (uint256) {
-        uint256 unlock_time = ((block.timestamp + _lock_duration) / WEEK) *
-            WEEK; // Locktime is rounded down to weeks
+        uint256 unlock_time = ((block.timestamp + _lockDuration) / WEEK) * WEEK; // LockTime is rounded down to weeks
 
         require(_value > 0); // dev: need non-zero value
         require(
@@ -884,7 +877,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         uint256 _tokenId = tokenId;
         _mint(_to, _tokenId);
 
-        _deposit_for(
+        _depositFor(
             _tokenId,
             _value,
             unlock_time,
@@ -894,27 +887,27 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         return _tokenId;
     }
 
-    /// @notice Deposit `_value` tokens for `msg.sender` and lock for `_lock_duration`
+    /// @notice Deposit `_value` tokens for `msg.sender` and lock for `_lockDuration`
     /// @param _value Amount to deposit
-    /// @param _lock_duration Number of seconds to lock tokens for (rounded down to nearest week)
-    function create_lock(uint256 _value, uint256 _lock_duration)
+    /// @param _lockDuration Number of seconds to lock tokens for (rounded down to nearest week)
+    function createLock(uint256 _value, uint256 _lockDuration)
         external
         nonreentrant
         returns (uint256)
     {
-        return _create_lock(_value, _lock_duration, msg.sender);
+        return _createLock(_value, _lockDuration, msg.sender);
     }
 
-    /// @notice Deposit `_value` tokens for `_to` and lock for `_lock_duration`
+    /// @notice Deposit `_value` tokens for `_to` and lock for `_lockDuration`
     /// @param _value Amount to deposit
-    /// @param _lock_duration Number of seconds to lock tokens for (rounded down to nearest week)
+    /// @param _lockDuration Number of seconds to lock tokens for (rounded down to nearest week)
     /// @param _to Address to deposit
-    function create_lock_for(
+    function createLockFor(
         uint256 _value,
-        uint256 _lock_duration,
+        uint256 _lockDuration,
         address _to
     ) external nonreentrant returns (uint256) {
-        return _create_lock(_value, _lock_duration, _to);
+        return _createLock(_value, _lockDuration, _to);
     }
 
     /// @notice Deposit `_value` additional tokens for `_tokenId` without modifying the unlock time
@@ -934,7 +927,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
             "Cannot add to expired lock. Withdraw"
         );
 
-        _deposit_for(
+        _depositFor(
             _tokenId,
             _value,
             0,
@@ -944,16 +937,15 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     }
 
     /// @notice Extend the unlock time for `_tokenId`
-    /// @param _lock_duration New number of seconds until tokens unlock
-    function increase_unlock_time(uint256 _tokenId, uint256 _lock_duration)
+    /// @param _lockDuration New number of seconds until tokens unlock
+    function increase_unlock_time(uint256 _tokenId, uint256 _lockDuration)
         external
         nonreentrant
     {
         assert(_isApprovedOrOwner(msg.sender, _tokenId));
 
         LockedBalance memory _locked = locked[_tokenId];
-        uint256 unlock_time = ((block.timestamp + _lock_duration) / WEEK) *
-            WEEK; // Locktime is rounded down to weeks
+        uint256 unlock_time = ((block.timestamp + _lockDuration) / WEEK) * WEEK; // LockTime is rounded down to weeks
 
         require(_locked.end > block.timestamp, "Lock expired");
         require(_locked.amount > 0, "Nothing is locked");
@@ -963,7 +955,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
             "Voting lock can be 2 years max"
         );
 
-        _deposit_for(
+        _depositFor(
             _tokenId,
             0,
             unlock_time,
@@ -989,7 +981,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         // old_locked can have either expired <= timestamp or zero end
         // _locked has only 0 end
         // Both can have >= 0 amount
-        _checkpoint(_tokenId, _locked, LockedBalance(0, 0));
+        _checkPoint(_tokenId, _locked, LockedBalance(0, 0));
 
         assert(IERC20(token).transfer(msg.sender, value));
 
@@ -1026,7 +1018,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
                 break;
             }
             uint256 _mid = (_min + _max + 1) / 2;
-            if (point_history[_mid].blk <= _block) {
+            if (pointHistory[_mid].blk <= _block) {
                 _min = _mid;
             } else {
                 _max = _mid - 1;
@@ -1045,11 +1037,11 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         view
         returns (uint256)
     {
-        uint256 _epoch = user_point_epoch[_tokenId];
+        uint256 _epoch = userPointEpoch[_tokenId];
         if (_epoch == 0) {
             return 0;
         } else {
-            Point memory last_point = user_point_history[_tokenId][_epoch];
+            Point memory last_point = userPointHistory[_tokenId][_epoch];
             last_point.bias -=
                 last_point.slope *
                 int128(int256(_t) - int256(last_point.ts));
@@ -1089,29 +1081,29 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
 
         // Binary search
         uint256 _min = 0;
-        uint256 _max = user_point_epoch[_tokenId];
+        uint256 _max = userPointEpoch[_tokenId];
         for (uint256 i = 0; i < 128; ++i) {
             // Will be always enough for 128-bit numbers
             if (_min >= _max) {
                 break;
             }
             uint256 _mid = (_min + _max + 1) / 2;
-            if (user_point_history[_tokenId][_mid].blk <= _block) {
+            if (userPointHistory[_tokenId][_mid].blk <= _block) {
                 _min = _mid;
             } else {
                 _max = _mid - 1;
             }
         }
 
-        Point memory upoint = user_point_history[_tokenId][_min];
+        Point memory upoint = userPointHistory[_tokenId][_min];
 
         uint256 max_epoch = epoch;
         uint256 _epoch = _find_block_epoch(_block, max_epoch);
-        Point memory point_0 = point_history[_epoch];
+        Point memory point_0 = pointHistory[_epoch];
         uint256 d_block = 0;
         uint256 d_t = 0;
         if (_epoch < max_epoch) {
-            Point memory point_1 = point_history[_epoch + 1];
+            Point memory point_1 = pointHistory[_epoch + 1];
             d_block = point_1.blk - point_0.blk;
             d_t = point_1.ts - point_0.ts;
         } else {
@@ -1147,10 +1139,10 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         uint256 _epoch = epoch;
         uint256 target_epoch = _find_block_epoch(_block, _epoch);
 
-        Point memory point = point_history[target_epoch];
+        Point memory point = pointHistory[target_epoch];
         uint256 dt = 0;
         if (target_epoch < _epoch) {
-            Point memory point_next = point_history[target_epoch + 1];
+            Point memory point_next = pointHistory[target_epoch + 1];
             if (point.blk != point_next.blk) {
                 dt =
                     ((_block - point.blk) * (point_next.ts - point.ts)) /
@@ -1164,14 +1156,14 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
             }
         }
         // Now dt contains info on how far are we beyond point
-        return _supply_at(point, point.ts + dt);
+        return _supplyAt(point, point.ts + dt);
     }
 
     /// @notice Calculate total voting power at some point in the past
     /// @param point The point (bias/slope) to start search from
     /// @param t Time to calculate the total voting power at
     /// @return Total voting power at that time
-    function _supply_at(Point memory point, uint256 t)
+    function _supplyAt(Point memory point, uint256 t)
         internal
         view
         returns (uint256)
@@ -1211,8 +1203,8 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     /// @return Total voting power
     function totalSupplyAtT(uint256 t) public view returns (uint256) {
         uint256 _epoch = epoch;
-        Point memory last_point = point_history[_epoch];
-        return _supply_at(last_point, t);
+        Point memory last_point = pointHistory[_epoch];
+        return _supplyAt(last_point, t);
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -1261,9 +1253,9 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
             : _locked1.end;
 
         locked[_from] = LockedBalance(0, 0);
-        _checkpoint(_from, _locked0, LockedBalance(0, 0));
+        _checkPoint(_from, _locked0, LockedBalance(0, 0));
         _burn(_from);
-        _deposit_for(_to, value0, end, _locked1, DepositType.MERGE_TYPE);
+        _depositFor(_to, value0, end, _locked1, DepositType.MERGE_TYPE);
     }
 
     /**
@@ -1283,7 +1275,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         uint256 value = uint256(int256(_locked.amount));
         require(value > 0); // dev: need non-zero value
 
-        // reset supply, _deposit_for increase it
+        // reset supply, _depositFor increase it
         supply = supply - value;
 
         uint256 i;
@@ -1294,7 +1286,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
 
         // remove old data
         locked[_tokenId] = LockedBalance(0, 0);
-        _checkpoint(_tokenId, _locked, LockedBalance(0, 0));
+        _checkPoint(_tokenId, _locked, LockedBalance(0, 0));
         _burn(_tokenId);
 
         // save end
@@ -1315,7 +1307,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
             _tokenId = tokenId;
             _mint(_to, _tokenId);
             _value = (value * amounts[i]) / totalWeight;
-            _deposit_for(
+            _depositFor(
                 _tokenId,
                 _value,
                 unlock_time,

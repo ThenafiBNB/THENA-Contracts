@@ -5,7 +5,7 @@
   "abi": [
     {
       "inputs": [],
-      "name": "active_period",
+      "name": "activePeriod",
       "outputs": [
         {
           "internalType": "uint256",
@@ -44,7 +44,7 @@
     },
     {
       "inputs": [],
-      "name": "update_period",
+      "name": "updatePeriod",
       "outputs": [
         {
           "internalType": "uint256",

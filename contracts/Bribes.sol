@@ -81,7 +81,7 @@ contract Bribe is ReentrancyGuard {
     }
 
     function getEpochStart() public view returns (uint256) {
-        return IMinter(minter).active_period();
+        return IMinter(minter).activePeriod();
     }
 
     function getNextEpochStart() public view returns (uint256) {
@@ -105,7 +105,7 @@ contract Bribe is ReentrancyGuard {
     }
 
     function totalSupply() external view returns (uint256) {
-        uint256 _currentEpochStart = IMinter(minter).active_period(); // claim until current epoch
+        uint256 _currentEpochStart = IMinter(minter).activePeriod(); // claim until current epoch
         return _totalSupply[_currentEpochStart];
     }
 
@@ -134,7 +134,7 @@ contract Bribe is ReentrancyGuard {
     {
         uint256 k = 0;
         uint256 reward = 0;
-        uint256 _endTimestamp = IMinter(minter).active_period(); // claim until current epoch
+        uint256 _endTimestamp = IMinter(minter).activePeriod(); // claim until current epoch
         uint256 _userLastTime = userTimestamp[tokenId][_rewardToken];
 
         if (_endTimestamp == _userLastTime) {
@@ -190,7 +190,7 @@ contract Bribe is ReentrancyGuard {
     function deposit(uint256 amount, uint256 tokenId) external nonReentrant {
         require(amount > 0, "Cannot stake 0");
         require(msg.sender == voter);
-        uint256 _startTimestamp = IMinter(minter).active_period() + WEEK;
+        uint256 _startTimestamp = IMinter(minter).activePeriod() + WEEK;
         uint256 _oldSupply = _totalSupply[_startTimestamp];
         _totalSupply[_startTimestamp] = _oldSupply + amount;
         _balances[tokenId][_startTimestamp] =
@@ -202,7 +202,7 @@ contract Bribe is ReentrancyGuard {
     function withdraw(uint256 amount, uint256 tokenId) public nonReentrant {
         require(amount > 0, "Cannot withdraw 0");
         require(msg.sender == voter);
-        uint256 _startTimestamp = IMinter(minter).active_period() + WEEK;
+        uint256 _startTimestamp = IMinter(minter).activePeriod() + WEEK;
         // incase of bribe contract reset in gauge proxy
         if (amount <= _balances[tokenId][_startTimestamp]) {
             uint256 _oldSupply = _totalSupply[_startTimestamp];
@@ -218,7 +218,7 @@ contract Bribe is ReentrancyGuard {
         nonReentrant
     {
         require(IVotingEscrow(ve).isApprovedOrOwner(msg.sender, tokenId));
-        uint256 _endTimestamp = IMinter(minter).active_period(); // claim until current epoch
+        uint256 _endTimestamp = IMinter(minter).activePeriod(); // claim until current epoch
         uint256 reward = 0;
         address _owner = IVotingEscrow(ve).ownerOf(tokenId);
 
@@ -238,7 +238,7 @@ contract Bribe is ReentrancyGuard {
         nonReentrant
     {
         require(msg.sender == voter);
-        uint256 _endTimestamp = IMinter(minter).active_period(); // claim until current epoch
+        uint256 _endTimestamp = IMinter(minter).activePeriod(); // claim until current epoch
         uint256 reward = 0;
         address _owner = IVotingEscrow(ve).ownerOf(tokenId);
 
@@ -264,7 +264,7 @@ contract Bribe is ReentrancyGuard {
             reward
         );
 
-        uint256 _startTimestamp = IMinter(minter).active_period() + WEEK; //period points to the current thursday. Bribes are distributed from next epoch (thursday)
+        uint256 _startTimestamp = IMinter(minter).activePeriod() + WEEK; //period points to the current thursday. Bribes are distributed from next epoch (thursday)
         if (firstBribeTimestamp == 0) {
             //_startTimestamp = (block.timestamp / WEEK * WEEK) + WEEK; //if first then save current thursday
             firstBribeTimestamp = _startTimestamp;

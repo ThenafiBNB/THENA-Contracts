@@ -13,7 +13,7 @@ import "../interfaces/IPairFactory.sol";
 import "../interfaces/IVoter.sol";
 import "../interfaces/IVotingEscrow.sol";
 import "../interfaces/IRewardsDistributor.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 interface IPairAPI {
     /*  ╔══════════════════════════════╗
@@ -62,7 +62,7 @@ interface IPairAPI {
     function pair_factory() external view returns (address);
 }
 
-contract veNFTAPI is Initializable {
+contract veNFTAPI is OwnableUpgradeable {
     struct pairVotes {
         address pair;
         uint256 weight;
@@ -110,9 +110,6 @@ contract veNFTAPI is Initializable {
     address public pairAPI;
     IPairFactory public pairFactory;
 
-    address public owner;
-    event Owner(address oldOwner, address newOwner);
-
     struct AllPairRewards {
         Reward[] rewards;
     }
@@ -126,15 +123,15 @@ contract veNFTAPI is Initializable {
         address _pairApi,
         address _pairFactory
     ) public initializer {
-        owner = msg.sender;
+        __Ownable_init();
 
         pairAPI = _pairApi;
         voter = IVoter(_voter);
         rewardDisitributor = IRewardsDistributor(_rewarddistro);
 
-        require(rewardDisitributor.voting_escrow() == voter._ve(), "ve!=ve");
+        require(rewardDisitributor.votingEscrow() == voter._ve(), "ve!=ve");
 
-        ve = IVotingEscrow(rewardDisitributor.voting_escrow());
+        ve = IVotingEscrow(rewardDisitributor.votingEscrow());
         underlyingToken = IVotingEscrow(ve).token();
 
         pairFactory = IPairFactory(_pairFactory);
@@ -145,37 +142,23 @@ contract veNFTAPI is Initializable {
         ║       ADMIN UTILITIES        ║
         ╚══════════════════════════════╝ */
 
-    function setOwner(address _owner) external {
-        require(msg.sender == owner, "not owner");
-        require(_owner != address(0), "zeroAddr");
-        owner = _owner;
-        emit Owner(msg.sender, _owner);
-    }
-
-    function setVoter(address _voter) external {
-        require(msg.sender == owner);
-
+    function setVoter(address _voter) external onlyOwner {
         voter = IVoter(_voter);
     }
 
-    function setRewardDistro(address _rewarddistro) external {
-        require(msg.sender == owner);
-
+    function setRewardDistro(address _rewarddistro) external onlyOwner {
         rewardDisitributor = IRewardsDistributor(_rewarddistro);
-        require(rewardDisitributor.voting_escrow() == voter._ve(), "ve!=ve");
+        require(rewardDisitributor.votingEscrow() == voter._ve(), "ve!=ve");
 
-        ve = IVotingEscrow(rewardDisitributor.voting_escrow());
+        ve = IVotingEscrow(rewardDisitributor.votingEscrow());
         underlyingToken = IVotingEscrow(ve).token();
     }
 
-    function setPairAPI(address _pairApi) external {
-        require(msg.sender == owner);
-
+    function setPairAPI(address _pairApi) external onlyOwner {
         pairAPI = _pairApi;
     }
 
-    function setPairFactory(address _pairFactory) external {
-        require(msg.sender == owner);
+    function setPairFactory(address _pairFactory) external onlyOwner {
         pairFactory = IPairFactory(_pairFactory);
     }
 

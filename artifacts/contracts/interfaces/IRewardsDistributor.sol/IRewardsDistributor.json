@@ -5,14 +5,14 @@
   "abi": [
     {
       "inputs": [],
-      "name": "checkpoint_token",
+      "name": "checkPointToken",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [],
-      "name": "checkpoint_total_supply",
+      "name": "checkPointTotalSupply",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -38,7 +38,7 @@
     },
     {
       "inputs": [],
-      "name": "voting_escrow",
+      "name": "votingEscrow",
       "outputs": [
         {
           "internalType": "address",

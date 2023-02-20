@@ -481,12 +481,12 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     }
 
     function distribute(address _gauge) public nonReentrant {
-        IMinter(minter).update_period();
+        IMinter(minter).updatePeriod();
         _updateFor(_gauge); // should set claimable to 0 if killed
         uint256 _claimable = claimable[_gauge];
 
         uint256 lastTimestamp = gaugesDistributionTimestmap[_gauge];
-        uint256 currentTimestamp = IMinter(minter).active_period();
+        uint256 currentTimestamp = IMinter(minter).activePeriod();
         // distribute only if claimable is > 0 and currentEpoch != lastepoch
         if (_claimable > 0 && lastTimestamp < currentTimestamp) {
             claimable[_gauge] = 0;

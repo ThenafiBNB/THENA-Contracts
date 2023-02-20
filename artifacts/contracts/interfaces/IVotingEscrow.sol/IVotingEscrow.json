@@ -111,7 +111,7 @@
           "type": "address"
         }
       ],
-      "name": "create_lock_for",
+      "name": "createLockFor",
       "outputs": [
         {
           "internalType": "uint256",
@@ -148,7 +148,7 @@
           "type": "uint256"
         }
       ],
-      "name": "deposit_for",
+      "name": "depositFor",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -261,7 +261,7 @@
           "type": "uint256"
         }
       ],
-      "name": "point_history",
+      "name": "pointHistory",
       "outputs": [
         {
           "components": [
@@ -401,7 +401,7 @@
           "type": "uint256"
         }
       ],
-      "name": "user_point_epoch",
+      "name": "userPointEpoch",
       "outputs": [
         {
           "internalType": "uint256",
@@ -425,7 +425,7 @@
           "type": "uint256"
         }
       ],
-      "name": "user_point_history",
+      "name": "userPointHistory",
       "outputs": [
         {
           "components": [

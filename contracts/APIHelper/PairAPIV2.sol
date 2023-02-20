@@ -12,9 +12,9 @@ import "../interfaces/IPair.sol";
 import "../interfaces/IPairFactory.sol";
 import "../interfaces/IVoter.sol";
 import "../interfaces/IVotingEscrow.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract PairAPI is Initializable {
+contract PairAPI is OwnableUpgradeable {
     /*  ╔══════════════════════════════╗
         ║            Struct            ║
         ╚══════════════════════════════╝ */
@@ -78,9 +78,6 @@ contract PairAPI is Initializable {
 
     address public underlyingToken;
 
-    address public owner;
-
-    event Owner(address oldOwner, address newOwner);
     event Voter(address oldVoter, address newVoter);
     event WBF(address oldWBF, address newWBF);
 
@@ -88,7 +85,7 @@ contract PairAPI is Initializable {
         ║          INITIALIZER         ║
         ╚══════════════════════════════╝ */
     function initialize(address _voter) public initializer {
-        owner = msg.sender;
+        __Ownable_init();
         voter = IVoter(_voter);
 
         pairFactory = IPairFactory(voter.factory());
@@ -99,15 +96,7 @@ contract PairAPI is Initializable {
         ║       ADMIN UTILITIES        ║
         ╚══════════════════════════════╝ */
 
-    function setOwner(address _owner) external {
-        require(msg.sender == owner, "not owner");
-        require(_owner != address(0), "zeroAddr");
-        owner = _owner;
-        emit Owner(msg.sender, _owner);
-    }
-
-    function setVoter(address _voter) external {
-        require(msg.sender == owner, "not owner");
+    function setVoter(address _voter) external onlyOwner {
         require(_voter != address(0), "zeroAddr");
         address _oldVoter = address(voter);
         voter = IVoter(_voter);

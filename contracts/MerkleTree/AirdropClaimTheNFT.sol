@@ -77,7 +77,7 @@ contract AirdropClaimTheNFT is ReentrancyGuard {
         uint256 _veShare = (VE_SHARE * _amount) / PRECISION;
         token.approve(ve, 0);
         token.approve(ve, _amount);
-        uint256 _tokenId = IVotingEscrow(ve).create_lock_for(_veShare, LOCK_PERIOD, _to);
+        uint256 _tokenId = IVotingEscrow(ve).createLockFor(_veShare, LOCK_PERIOD, _to);
         require(_tokenId != 0);
         require(IVotingEscrow(ve).ownerOf(_tokenId) == _to, 'wrong ve mint'); 
 
