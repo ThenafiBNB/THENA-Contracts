@@ -14,6 +14,9 @@ contract NFTStaking is Ownable {
     using SafeERC20 for IERC20;
     using SignedSafeMath for int256;
 
+    /*  ╔══════════════════════════════╗
+        ║            Struct            ║
+        ╚══════════════════════════════╝ */
     struct UserInfo {
         uint256 amount;
         int256 rewardDebt;

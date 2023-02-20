@@ -19,16 +19,17 @@ interface IERC20Ext {
 contract Bribe is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    uint256 public constant WEEK = 7 days; // rewards are released over 7 days
-    uint256 public firstBribeTimestamp;
-
-    /* ========== STATE VARIABLES ========== */
-
+    /*  ╔══════════════════════════════╗
+        ║            Struct            ║
+        ╚══════════════════════════════╝ */
     struct Reward {
         uint256 periodFinish;
         uint256 rewardsPerEpoch;
         uint256 lastUpdateTime;
     }
+
+    uint256 public constant WEEK = 7 days; // rewards are released over 7 days
+    uint256 public firstBribeTimestamp;
 
     mapping(address => mapping(uint256 => Reward)) public rewardData; // token -> startTimestamp -> Reward
     mapping(address => bool) public isRewardToken;

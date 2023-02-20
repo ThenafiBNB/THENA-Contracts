@@ -1,12 +1,8 @@
-# for verify
-args.js 
-
 # Foundry
 cache/
 
 # JS
 node_modules/
-pvkey.js
 
 # Hardhat files
 cache_hardhat/

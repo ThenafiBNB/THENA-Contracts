@@ -37,6 +37,9 @@ contract Pair is IPair {
     address immutable factory;
 
     // Structure to capture time period obervations every 30 minutes, used for local oracles
+    /*  ╔══════════════════════════════╗
+        ║            Struct            ║
+        ╚══════════════════════════════╝ */
     struct Observation {
         uint256 timestamp;
         uint256 reserve0Cumulative;

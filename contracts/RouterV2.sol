@@ -137,6 +137,9 @@ interface IWETH {
 contract RouterV2 {
     using Math for uint256;
 
+    /*  ╔══════════════════════════════╗
+        ║            Struct            ║
+        ╚══════════════════════════════╝ */
     struct route {
         address from;
         address to;

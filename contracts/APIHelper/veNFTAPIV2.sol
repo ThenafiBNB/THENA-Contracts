@@ -16,6 +16,9 @@ import "../interfaces/IRewardsDistributor.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 interface IPairAPI {
+    /*  ╔══════════════════════════════╗
+        ║            Struct            ║
+        ╚══════════════════════════════╝ */
     struct pairInfo {
         // pair info
         address pair_address; // pair contract address
