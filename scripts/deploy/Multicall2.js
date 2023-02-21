@@ -5,12 +5,12 @@ const { bigNumberify } = require("../shared/utilities");
 require("dotenv").config();
 
 async function main() {
-  await deployContract("Multicall2", []);
+    await deployContract("Multicall2", []);
 }
 
 main()
-  .then(() => process.exit(0))
-  .catch(error => {
-    console.error(error);
-    process.exit(1);
-  });
+    .then(() => process.exit(0))
+    .catch(error => {
+        console.error(error);
+        process.exit(1);
+    });

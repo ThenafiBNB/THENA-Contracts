@@ -9,7 +9,7 @@ async function main() {
     const lpFeeReciever = ""
     const bribeFeeReciever = ""
     const hasClaimFee = true
-    await deployProxyContract("GaugeV2", [rewardToken, process.env.VOTINGESCROW, mainToken, voter, lpFeeReciever, bribeFeeReciever, hasClaimFee]);
+    await deployProxyContract("GaugeV2", [ rewardToken, process.env.VOTINGESCROW, mainToken, voter, lpFeeReciever, bribeFeeReciever, hasClaimFee ]);
 }
 
 main()

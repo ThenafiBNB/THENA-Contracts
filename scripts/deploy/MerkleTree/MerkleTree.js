@@ -4,7 +4,7 @@ const { deployContract } = require("../../shared/helpers");
 
 async function main() {
     const airdropClaim = process.env.USERAIRDROPCLAIM // AirdropClaim.js
-    await deployContract("MerkleTree", [airdropClaim]);
+    await deployContract("MerkleTree", [ airdropClaim ]);
 }
 
 main()

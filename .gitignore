@@ -14,3 +14,12 @@ typechain-types/
 
 abi
 build
+
+.env
+hardhat.config.js
+
+.idea
+
+.openzeppelin/*
+artifacts
+deployments

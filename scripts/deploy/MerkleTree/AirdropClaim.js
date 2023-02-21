@@ -5,7 +5,7 @@ const { deployContract } = require("../../shared/helpers");
 async function main() {
     const tokenAddress = process.env.THE
 
-    await deployContract("AirdropClaim", [tokenAddress, process.env.VOTINGESCROW]);
+    await deployContract("AirdropClaim", [ tokenAddress, process.env.VOTINGESCROW ]);
 }
 
 main()

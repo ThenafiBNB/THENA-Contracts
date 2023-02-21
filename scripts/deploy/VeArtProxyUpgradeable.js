@@ -3,12 +3,12 @@ const { ethers, upgrades } = require("hardhat");
 const { deployProxyContract } = require("../shared/helpers");
 
 async function main() {
-  await deployProxyContract("VeArtProxyUpgradeable", []);
+    await deployProxyContract("VeArtProxyUpgradeable", []);
 }
 
 main()
-  .then(() => process.exit(0))
-  .catch(error => {
-    console.error(error);
-    process.exit(1);
-  });
+    .then(() => process.exit(0))
+    .catch(error => {
+        console.error(error);
+        process.exit(1);
+    });

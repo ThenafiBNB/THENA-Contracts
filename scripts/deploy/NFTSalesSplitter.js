@@ -3,18 +3,18 @@ const { deployProxyContract, contractAt, writeTmpAddresses } = require("../share
 require("dotenv").config();
 
 async function main() {
-  await deployProxyContract("NFTSalesSplitter",
-    [
-      process.env.WFTM,
-      process.env.STAKINGCONVERTER,
-      process.env.ROYALTIES
-    ], "deploy NFTSalesSplitter");
+    await deployProxyContract("NFTSalesSplitter",
+        [
+            process.env.WFTM,
+            process.env.STAKINGCONVERTER,
+            process.env.ROYALTIES,
+        ], "deploy NFTSalesSplitter");
 
 }
 
 main()
-  .then(() => process.exit(0))
-  .catch(error => {
-    console.error(error);
-    process.exit(1);
-  });
+    .then(() => process.exit(0))
+    .catch(error => {
+        console.error(error);
+        process.exit(1);
+    });

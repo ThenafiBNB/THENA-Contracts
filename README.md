@@ -1,10 +1,10 @@
-# THENA-Contracts
+# CUSTOS-Contracts
 
-This is the contract's public repository of THENA https://www.thena.fi/
+This is the contract's public repository of CUSTOS https://custos.finance/
 
 
 ```
-npm install
+yarn install
 npx hardhat compile
 ```
 

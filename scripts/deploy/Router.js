@@ -4,16 +4,16 @@ const { deployContract, contractAt, writeTmpAddresses } = require("../shared/hel
 require("dotenv").config();
 
 async function main() {
-  await deployContract("Router",
-    [
-      process.env.PAIRFACTORYUPGRADEABLE,
-      process.env.WFTM
-    ], "deploy Router");
+    await deployContract("Router",
+        [
+            process.env.PAIRFACTORYUPGRADEABLE,
+            process.env.WFTM,
+        ], "deploy Router");
 }
 
 main()
-  .then(() => process.exit(0))
-  .catch(error => {
-    console.error(error);
-    process.exit(1);
-  });
+    .then(() => process.exit(0))
+    .catch(error => {
+        console.error(error);
+        process.exit(1);
+    });

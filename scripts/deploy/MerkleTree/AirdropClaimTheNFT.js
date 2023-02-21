@@ -5,7 +5,7 @@ const { deployContract } = require("../../shared/helpers");
 async function main() {
     const tokenAddress = process.env.THE
 
-    await deployContract("AirdropClaimTheNFT", [tokenAddress, process.env.VOTINGESCROW]);
+    await deployContract("AirdropClaimTheNFT", [ tokenAddress, process.env.VOTINGESCROW ]);
     // 0x491D87b3C30655009037Fe4dA76Db3dAb726B614
 }
 

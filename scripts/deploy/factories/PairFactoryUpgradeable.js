@@ -4,16 +4,16 @@ const { deployProxyContract, sendTxn, contractAt } = require("../../shared/helpe
 require("dotenv").config();
 
 async function main() {
-  // let contract = await deployProxyContract("PairFactoryUpgradeable", []);
+    // let contract = await deployProxyContract("PairFactoryUpgradeable", []);
 
-  const contract = await contractAt("PairFactoryUpgradeable", process.env.PAIRFACTORYUPGRADEABLE);
-  // DIBS contract, tạm thời để admin nhận fee
-  await sendTxn(contract.setDibs(process.env.PUBLICKEY), "PairFactoryUpgradeable.setDibs");
+    const contract = await contractAt("PairFactoryUpgradeable", process.env.PAIRFACTORYUPGRADEABLE);
+    // DIBS contract, tạm thời để admin nhận fee
+    await sendTxn(contract.setDibs(process.env.PUBLICKEY), "PairFactoryUpgradeable.setDibs");
 }
 
 main()
-  .then(() => process.exit(0))
-  .catch(error => {
-    console.error(error);
-    process.exit(1);
-  });
+    .then(() => process.exit(0))
+    .catch(error => {
+        console.error(error);
+        process.exit(1);
+    });

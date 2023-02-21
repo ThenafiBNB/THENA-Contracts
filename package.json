@@ -1,9 +1,12 @@
 {
-  "name": "thena",
+  "name": "custos",
   "version": "1.0.0",
-  "description": "Base layer AMM on Binance",
+  "description": "Base layer AMM on Arbitrum",
   "directories": {
     "lib": "lib"
+  },
+  "scripts": {
+    "compile": "npx hardhat compile"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",

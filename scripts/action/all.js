@@ -10,9 +10,12 @@ async function main() {
     await sendTxn(theContract.mint(process.env.PUBLICKEY, ethers.utils.parseUnits("1000000000", 18)), "theContract.mint");
 
     //Mint theNFT
-    const thenianContract = await deployContract("Thenian", [3000, ethers.utils.parseUnits("25", 15), timestamp - 2*24*60*60 -1, process.env.PUBLICKEY]);
+    const thenianContract = await deployContract("Thenian", [ 3000, ethers.utils.parseUnits("25", 15), timestamp - 2 * 24 * 60 * 60 - 1, process.env.PUBLICKEY ]);
     await sendTxn(thenianContract.reserveNFTs(process.env.PUBLICKEY, 5), "thenianContract.reserveNFTs");
-    await sendTxn(thenianContract.mintPublic(5, {value: ethers.utils.parseUnits("125", 15), gasLimit: "3000000"}), "thenianContract.mintPublic");
+    await sendTxn(thenianContract.mintPublic(5, {
+        value: ethers.utils.parseUnits("125", 15),
+        gasLimit: "3000000",
+    }), "thenianContract.mintPublic");
 
     // Multicall
     await deployContract("Multicall2", []);
@@ -26,7 +29,7 @@ async function main() {
     const routerContract = await deployContract("RouterV2",
         [
             pairFactoryContract.address,
-            process.env.WFTM
+            process.env.WFTM,
         ], "deploy RouterV2");
 
     // Ve Art
@@ -36,19 +39,19 @@ async function main() {
     const veContract = await deployContract("VotingEscrow",
         [
             theContract.address,
-            veArtProxyUpgradeableContract.address
+            veArtProxyUpgradeableContract.address,
         ]);
 
     // RewardsDistributor
     const rewardsDistributorContract = await deployContract("RewardsDistributor", [
-        veContract.address
+        veContract.address,
     ], "deploy RewardsDistributor");
 
     // Gauge Factory
     const gaugeFactoryContract = await deployProxyContract("GaugeFactoryV3", []);
 
     // Bribe Factory
-    const bribeFactoryContract = await deployProxyContract("BribeFactoryV3", [process.env.PUBLICKEY]);
+    const bribeFactoryContract = await deployProxyContract("BribeFactoryV3", [ process.env.PUBLICKEY ]);
 
     // VoterV2_1
     const voterContract = await deployProxyContract("VoterV3",
@@ -70,29 +73,29 @@ async function main() {
         [
             voterContract.address,
             veContract.address,
-            rewardsDistributorContract.address
+            rewardsDistributorContract.address,
         ], "deploy MinterUpgradeable");
 
     // Set minter and whitelist for Voter contract
     await sendTxn(voterContract._initialize([
         theContract.address,
         process.env.WFTM,
+        process.env.ETH,
         process.env.USDT,
         process.env.BTC,
-        process.env.ETH,
         process.env.BUSD,
         process.env.USDC,
     ], minterContract.address), "VoterV3._initialize");
 
     await sendTxn(rewardsDistributorContract.setDepositor(minterContract.address), "rewardsDistributorContract.setDepositor");
 
-    const pairApiContract = await deployProxyContract("PairAPI", [voterContract.address]);
+    const pairApiContract = await deployProxyContract("PairAPI", [ voterContract.address ]);
 
     // veNFTAPI
-    await deployProxyContract("veNFTAPI", [voterContract.address, rewardsDistributorContract.address, pairApiContract.address, pairFactoryContract.address]);
+    await deployProxyContract("veNFTAPI", [ voterContract.address, rewardsDistributorContract.address, pairApiContract.address, pairFactoryContract.address ]);
 
     // RewardAPI
-    await deployProxyContract("RewardAPI", [voterContract.address]);
+    await deployProxyContract("RewardAPI", [ voterContract.address ]);
 
     //Deploy NFTSALESSPLITTER
 
@@ -112,7 +115,7 @@ async function main() {
             thenianContract.address,
         ]);
 
-    await sendTxn(NFTStakingContract.addKeeper([process.env.PUBLICKEY, stakingNFTFeeConvertercontract.address]), "NFTStaking.addKeeper");
+    await sendTxn(NFTStakingContract.addKeeper([ process.env.PUBLICKEY, stakingNFTFeeConvertercontract.address ]), "NFTStaking.addKeeper");
     await sendTxn(NFTStakingContract.setDistributionRate(ethers.utils.parseUnits("10", 18)), "NFTStaking.setDistributionRate");
 
     // Set NFTStaking for staking nft contract
@@ -132,23 +135,23 @@ async function main() {
         [
             process.env.WFTM,
             stakingNFTFeeConvertercontract.address,
-            royaltyContract.address
+            royaltyContract.address,
         ], "deploy NFTSalesSplitter");
 
     // set keeper for staking NFT
     await sendTxn(stakingNFTFeeConvertercontract.setKeeper(nftSalesSplitterContract.address), "StakingNFTFeeConverter.setKeeper");
-    
+
     // set depositor for royalContract
     await sendTxn(royaltyContract.setDepositor(nftSalesSplitterContract.address), "Royalties.setDepositor");
 
     // airdrop
-    const airdropClaimContract = await deployContract("AirdropClaim", [theContract.address, veContract.address]);
+    const airdropClaimContract = await deployContract("AirdropClaim", [ theContract.address, veContract.address ]);
 
-    await deployContract("MerkleTree", [airdropClaimContract.address]);
+    await deployContract("MerkleTree", [ airdropClaimContract.address ]);
 
-    const airdropClaimNftContract = await deployContract("AirdropClaimTheNFT", [theContract.address, veContract.address]);
+    const airdropClaimNftContract = await deployContract("AirdropClaimTheNFT", [ theContract.address, veContract.address ]);
 
-    await deployContract("MerkleTreeTHENFT", [airdropClaimNftContract.address]);
+    await deployContract("MerkleTreeTHENFT", [ airdropClaimNftContract.address ]);
 
 }
 

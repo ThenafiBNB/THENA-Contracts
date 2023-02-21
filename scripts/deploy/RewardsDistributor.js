@@ -4,14 +4,14 @@ const { deployContract, contractAt, writeTmpAddresses } = require("../shared/hel
 require("dotenv").config();
 
 async function main() {
-  await deployContract("RewardsDistributor", [
-    process.env.VOTINGESCROW
-  ], "deploy RewardsDistributor");
+    await deployContract("RewardsDistributor", [
+        process.env.VOTINGESCROW,
+    ], "deploy RewardsDistributor");
 }
 
 main()
-  .then(() => process.exit(0))
-  .catch(error => {
-    console.error(error);
-    process.exit(1);
-  });
+    .then(() => process.exit(0))
+    .catch(error => {
+        console.error(error);
+        process.exit(1);
+    });

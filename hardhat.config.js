@@ -23,7 +23,7 @@ module.exports = {
       },
     ]
   },
-  defaultNetwork: "ftmTestnet",
+  defaultNetwork: "mumbaiTestnet",
   networks: {
     bsc: {
       url: "https://bsc-dataseed1.binance.org",
@@ -40,6 +40,12 @@ module.exports = {
     ftmTestnet: {
       url: "https://rpc.ankr.com/fantom_testnet",
       chainId: 4002,
+      accounts: [process.env.PRIVATEKEY]
+    },
+
+    mumbaiTestnet: {
+      url: "https://rpc.ankr.com/polygon_mumbai",
+      chainId: 80001,
       accounts: [process.env.PRIVATEKEY]
     },
 

@@ -9,6 +9,14 @@ interface IDibs {
                     address token) external returns(uint256 referralFee);
 
     function findTotalRewardFor(address _user, uint _totalFees) external view returns(uint256 _referralFeeAmount);
+
+    function claim(
+        address from,
+        address token,
+        uint256 amount,
+        address to,
+        uint256 accumulativeBalance
+    ) external;
 }
 
 

@@ -3,7 +3,7 @@ const { ethers, upgrades } = require("hardhat");
 const { deployProxyContract } = require("../../shared/helpers");
 
 async function main() {
-    await deployProxyContract("PairAPI", [process.env.VOTERV2_1]);
+    await deployProxyContract("PairAPI", [ process.env.VOTERV2_1 ]);
 }
 
 main()
