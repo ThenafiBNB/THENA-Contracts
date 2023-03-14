@@ -1320,9 +1320,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
                     ? checkpoints[srcRep][srcRepNum - 1].tokenIds
                     : checkpoints[srcRep][0].tokenIds;
                 uint32 nextSrcRepNum = _findWhatCheckpointToWrite(srcRep);
-                uint[] storage srcRepNew = checkpoints[srcRep][
-                    nextSrcRepNum
-                ].tokenIds;
+                uint[] storage srcRepNew = checkpoints[srcRep][nextSrcRepNum].tokenIds;
                 // All the same except what owner owns
                 for (uint i = 0; i < srcRepOld.length; i++) {
                     uint tId = srcRepOld[i];

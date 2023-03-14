@@ -137,7 +137,10 @@ contract RewardsDistributor is IRewardsDistributor {
         uint max_user_epoch = IVotingEscrow(ve).user_point_epoch(_tokenId);
         uint epoch = _find_timestamp_user_epoch(ve, _tokenId, _timestamp, max_user_epoch);
         IVotingEscrow.Point memory pt = IVotingEscrow(ve).user_point_history(_tokenId, epoch);
-        return Math.max(uint(int256(pt.bias - pt.slope * (int128(int256(_timestamp - pt.ts))))), 0);
+        
+        int bias = int256( pt.bias - pt.slope * ( int128( int256(_timestamp - pt.ts) ) ) );
+        if(bias<0) bias = 0;
+        return uint(bias);
     }
 
     function _checkpoint_total_supply() internal {

@@ -193,7 +193,6 @@ contract StakingNFTFeeConverter  {
         uint256 _tokenToPosition = tokenToPosition[token];
         delete tokenToRoutes[token];
         delete tokenToPosition[token];
-        delete tokenToRoutes[token];
 
         isToken[token] = false;
 

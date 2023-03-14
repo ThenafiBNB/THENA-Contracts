@@ -49,12 +49,12 @@ contract PairFees {
     function withdrawStakingFees(address recipient) external {
         require(msg.sender == pair);
         if (toStake0 > 0){
-            _safeTransfer(token0, recipient, toStake0);
             toStake0 = 0;
+            _safeTransfer(token0, recipient, toStake0);
         } 
         if (toStake1 > 0){
-            _safeTransfer(token1, recipient, toStake1);
             toStake1 = 0;
+            _safeTransfer(token1, recipient, toStake1);
         }
     }
 

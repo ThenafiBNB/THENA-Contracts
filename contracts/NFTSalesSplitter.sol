@@ -55,11 +55,11 @@ contract NFTSalesSplitter is OwnableUpgradeable  {
 
     }
 
-    function swapWBNBToBNB() public onlyAllowed {
-        _swapWBNBToBNB();
+    function swapBNBToWBNB() public onlyAllowed {
+        _swapBNBToWBNB();
     }
 
-    function _swapWBNBToBNB() internal {
+    function _swapBNBToWBNB() internal {
         if(address(this).balance > 0){
             IWBNB(wbnb).deposit{value: address(this).balance}();
         }
@@ -68,7 +68,7 @@ contract NFTSalesSplitter is OwnableUpgradeable  {
     function split() public onlyAllowed {
         
         // convert bnb to wbnb, easier to handle
-        _swapWBNBToBNB();
+        _swapBNBToWBNB();
 
         uint256 balance = balanceOf();
         uint256 stakingAmount = 0;

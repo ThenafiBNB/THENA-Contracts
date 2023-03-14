@@ -100,7 +100,7 @@ contract AirdropClaim is ReentrancyGuard {
 
         uint256 _vestedAmount = _amount * VESTED_SHARE / PRECISION;
         uint256 _theInstantAmount = _amount * LINEAR_DISTRO / PRECISION;
-        uint256 _theLockedLinearAmount = _theInstantAmount; 
+        uint256 _theLockedLinearAmount = _amount - _vestedAmount - _theInstantAmount; 
         uint256 _tokenPerSec = _theLockedLinearAmount * PRECISION / DISTRIBUTION_PERIOD;
 
         UserInfo memory _user = UserInfo({

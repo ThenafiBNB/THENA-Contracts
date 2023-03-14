@@ -94,7 +94,6 @@ contract PairAPI is Initializable {
 
     event Owner(address oldOwner, address newOwner);
     event Voter(address oldVoter, address newVoter);
-    event WBF(address oldWBF, address newWBF);
 
     constructor() {}
 
