@@ -27,7 +27,6 @@ contract RewardAPI is Initializable {
     address public underlyingToken;
     address public owner;
 
-    mapping(address => bool) public notReward;
 
     
     constructor() {}
@@ -38,8 +37,6 @@ contract RewardAPI is Initializable {
         voter = IVoter(_voter);
         pairFactory = IPairFactory(voter.factory());
         underlyingToken = IVotingEscrow(voter._ve()).token();
-        address _notrew = address(0xF0308D005717858756ACAa6B3DCd4D0De4A1ca54);
-        notReward[_notrew] = true;
     }
 
 
@@ -54,7 +51,7 @@ contract RewardAPI is Initializable {
         Bribes[] bribes;
     }
 
-    // @Notice Get the rewards available the next epoch.
+    /// @notice Get the rewards available the next epoch.
     function getExpectedClaimForNextEpoch(uint tokenId, address[] memory pairs) external view returns(Rewards[] memory){
         uint i;
         uint len = pairs.length;
@@ -97,7 +94,7 @@ contract RewardAPI is Initializable {
         for(i; i < totTokens; i++){
             _token = IBribeAPI(_bribe).rewardTokens(i);
             _tokens[i] = _token;
-            if(_balance == 0 || notReward[_token]){
+            if(_balance == 0){
                 _amounts[i] = 0;
                 _symbol[i] = '';
                 _decimals[i] = 0;
@@ -151,17 +148,11 @@ contract RewardAPI is Initializable {
         for(i; i < totTokens; i++){
             _token = IBribeAPI(_bribe).rewardTokens(i);
             _tokens[i] = _token;
-            if(notReward[_token]){
-                _amounts[i] = 0;
-                _tokens[i] = address(0);
-                _symbol[i] = '';
-                _decimals[i] = 0;
-            } else {
-                _symbol[i] = IERC20(_token).symbol();
-                _decimals[i] = IERC20(_token).decimals();
-                _reward = IBribeAPI(_bribe).rewardData(_token, ts);
-                _amounts[i] = _reward.rewardsPerEpoch;
-            }
+            _symbol[i] = IERC20(_token).symbol();
+            _decimals[i] = IERC20(_token).decimals();
+            _reward = IBribeAPI(_bribe).rewardData(_token, ts);
+            _amounts[i] = _reward.rewardsPerEpoch;
+            
         }
 
         _rewards.tokens = _tokens;
@@ -170,16 +161,7 @@ contract RewardAPI is Initializable {
         _rewards.decimals = _decimals;
     }
 
-
-    function addNotReward(address _token) external {
-        require(msg.sender == owner, 'not owner');
-        notReward[_token] = true;
-    }
-    function removeNotReward(address _token) external {
-        require(msg.sender == owner, 'not owner');
-        notReward[_token] = false;
-    }
-
+ 
     function setOwner(address _owner) external {
         require(msg.sender == owner, 'not owner');
         require(_owner != address(0), 'zeroAddr');

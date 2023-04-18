@@ -21,6 +21,15 @@ module.exports = {
           },
         },
       },
+      {
+        version: "0.7.0",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
     ]
   },
 
@@ -37,7 +46,14 @@ module.exports = {
       chainId: 97,
       accounts: PRIVATEKEY
     },
-   
+
+
+    op: {
+      url: "https://mainnet.optimism.io",
+      chainId: 10,
+      accounts: PRIVATEKEY
+    },
+    
 
     hardhat: {
       forking: {

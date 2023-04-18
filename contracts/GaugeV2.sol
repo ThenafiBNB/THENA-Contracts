@@ -28,6 +28,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
 
     bool public isForPair;
+    bool public emergency;
 
 
     IERC20 public rewardToken;
@@ -76,6 +77,11 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         _;
     }
 
+    modifier isNotEmergency() {
+        require(emergency == false);
+        _;
+    }
+
     constructor(address _rewardToken,address _ve,address _token,address _distribution, address _internal_bribe, address _external_bribe, bool _isForPair) {
         rewardToken = IERC20(_rewardToken);     // main reward
         _VE = IERC20(_ve);                      // vested
@@ -86,9 +92,20 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         internal_bribe = _internal_bribe;       // lp fees goes here
         external_bribe = _external_bribe;       // bribe fees goes here
 
-        isForPair = _isForPair;                       // pair boolean, if false no claim_fees
+        isForPair = _isForPair;                 // pair boolean, if false no claim_fees
+
+        emergency = false;                      // emergency flag
 
     }
+
+
+    /* -----------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+                                    ONLY OWNER
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    ----------------------------------------------------------------------------- */
 
     ///@notice set distribution address (should be GaugeProxyL2)
     function setDistribution(address _distribution) external onlyOwner {
@@ -110,6 +127,31 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         require(_pid != rewarderPid, "same pid");
         rewarderPid = _pid;
     }
+
+    ///@notice set new internal bribe contract (where to send fees)
+    function setInternalBribe(address _int) external onlyOwner {
+        require(_int >= address(0), "zero");
+        internal_bribe = _int;
+    }
+
+    function activateEmergencyMode() external onlyOwner {
+        require(emergency == false);
+        emergency = true;
+    }
+
+    function stopEmergencyMode() external onlyOwner {
+        require(emergency == false);
+        emergency = false;
+    }
+
+
+    /* -----------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+                                    VIEW FUNCTIONS
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    ----------------------------------------------------------------------------- */
 
     ///@notice total supply held
     function totalSupply() public view returns (uint256) {
@@ -145,6 +187,20 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         return rewardRate.mul(DURATION);
     }
 
+    function _periodFinish() external view returns (uint256) {
+        return periodFinish;
+    }
+
+
+
+    /* -----------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+                                    USER INTERACTION
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    ----------------------------------------------------------------------------- */
+
 
     ///@notice deposit all TOKEN of msg.sender
     function depositAll() external {
@@ -157,7 +213,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     }
 
     ///@notice deposit internal
-    function _deposit(uint256 amount, address account) internal nonReentrant updateReward(account) {
+    function _deposit(uint256 amount, address account) internal nonReentrant isNotEmergency updateReward(account) {
         require(amount > 0, "deposit(Gauge): cannot stake 0");
 
         _balances[account] = _balances[account].add(amount);
@@ -182,8 +238,8 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         _withdraw(amount);
     }
 
-    ///@notice withdar internal
-    function _withdraw(uint256 amount) internal nonReentrant updateReward(msg.sender) {
+    ///@notice withdraw internal
+    function _withdraw(uint256 amount) internal nonReentrant isNotEmergency updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
         require(_totalSupply.sub(amount) >= 0, "supply < 0");
         require(_balances[msg.sender] > 0, "no balances");
@@ -200,6 +256,22 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         emit Withdraw(msg.sender, amount);
     }
 
+    function emergencyWithdraw() external nonReentrant {
+        require(emergency);
+        require(_balances[msg.sender] > 0, "no balances");
+        uint256 _amount = _balances[msg.sender];
+        _totalSupply = _totalSupply.sub(_amount);
+        _balances[msg.sender] = 0;
+        TOKEN.safeTransfer(msg.sender, _amount);
+        emit Withdraw(msg.sender, _amount);
+    }
+    function emergencyWithdrawAmount(uint256 _amount) external nonReentrant {
+        require(emergency);
+        _totalSupply = _totalSupply.sub(_amount);
+        _balances[msg.sender] = _balances[msg.sender] - _amount;
+        TOKEN.safeTransfer(msg.sender, _amount);
+        emit Withdraw(msg.sender, _amount);
+    }
 
     ///@notice withdraw all TOKEN and harvest rewardToken
     function withdrawAllAndHarvest() external {
@@ -208,7 +280,21 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     }
 
  
-    ///@notice User harvest function
+    ///@notice User harvest function called from distribution (voter allows harvest on multiple gauges)
+    function getReward(address _user) public nonReentrant onlyDistribution updateReward(_user) {
+        uint256 reward = rewards[_user];
+        if (reward > 0) {
+            rewards[_user] = 0;
+            rewardToken.safeTransfer(_user, reward);
+            emit Harvest(_user, reward);
+        }
+
+        if (gaugeRewarder != address(0)) {
+            IRewarder(gaugeRewarder).onReward(rewarderPid, _user, _user, reward, _balances[_user]);
+        }
+    }
+
+     ///@notice User harvest function
     function getReward() public nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
@@ -222,12 +308,24 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         }
     }
 
-    function _periodFinish() external view returns (uint256) {
-        return periodFinish;
-    }
+
+
+
+
+
+
+
+    /* -----------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+                                    DISTRIBUTION
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    ----------------------------------------------------------------------------- */
+
 
     /// @dev Receive rewards from distribution
-    function notifyRewardAmount(address token, uint reward) external nonReentrant onlyDistribution updateReward(address(0)) {
+    function notifyRewardAmount(address token, uint reward) external nonReentrant isNotEmergency onlyDistribution updateReward(address(0)) {
         require(token == address(rewardToken));
         rewardToken.safeTransferFrom(DISTRIBUTION, address(this), reward);
 
@@ -251,6 +349,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         emit RewardAdded(reward);
     }
 
+
     function claimFees() external nonReentrant returns (uint claimed0, uint claimed1) {
         return _claimFees();
     }
@@ -260,9 +359,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
             return (0, 0);
         }
         address _token = address(TOKEN);
-
         (claimed0, claimed1) = IPair(_token).claimFees();
-
         if (claimed0 > 0 || claimed1 > 0) {
             uint _fees0 = fees0 + claimed0;
             uint _fees1 = fees1 + claimed1;
@@ -270,22 +367,20 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
 
             if (_fees0  > 0) {
                 fees0 = 0;
+                IERC20(_token0).approve(internal_bribe, 0);
                 IERC20(_token0).approve(internal_bribe, _fees0);
                 IBribe(internal_bribe).notifyRewardAmount(_token0, _fees0);
             } else {
                 fees0 = _fees0;
             }
-
-
             if (_fees1  > 0) {
                 fees1 = 0;
+                IERC20(_token1).approve(internal_bribe, 0);
                 IERC20(_token1).approve(internal_bribe, _fees1);
                 IBribe(internal_bribe).notifyRewardAmount(_token1, _fees1);
             } else {
                 fees1 = _fees1;
             }
-
-
             emit ClaimFees(msg.sender, claimed0, claimed1);
         }
     }

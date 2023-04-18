@@ -15,8 +15,6 @@ contract Thena is IThena {
 
     bool public initialMinted;
     address public minter;
-    address public redemptionReceiver;
-    address public merkleClaim;
 
     event Transfer(address indexed from, address indexed to, uint value);
     event Approval(address indexed owner, address indexed spender, uint value);
