@@ -1,0 +1,8 @@
+
+
+PRIVATEKEY = [`0x${"INSERT_YOUR_PVKEY"}`]
+
+APIKEY = "INSERT_YOUR_APY_KEY"
+
+
+module.exports = {PRIVATEKEY, APIKEY }

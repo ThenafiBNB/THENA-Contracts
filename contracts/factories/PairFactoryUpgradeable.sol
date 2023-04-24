@@ -2,7 +2,6 @@
 pragma solidity 0.8.13;
 
 import '../interfaces/IPairFactory.sol';
-import '../interfaces/IPermissionsRegistry.sol';
 import '../Pair.sol';
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -17,9 +16,10 @@ contract PairFactoryUpgradeable is IPairFactory, OwnableUpgradeable {
     uint256 public MAX_REFERRAL_FEE; // 12%
     uint256 public constant MAX_FEE = 25; // 0.25%
 
+    address public feeManager;
+    address public pendingFeeManager;
     address public dibs;                // referral fee handler
     address public stakingFeeHandler;   // staking fee handler
-    IPermissionsRegistry public permissionsRegistry;
 
     mapping(address => mapping(address => mapping(bool => address))) public getPair;
     address[] public allPairs;
@@ -32,19 +32,19 @@ contract PairFactoryUpgradeable is IPairFactory, OwnableUpgradeable {
     event PairCreated(address indexed token0, address indexed token1, bool stable, address pair, uint);
 
     modifier onlyManager() {
-        require(owner() == msg.sender || IPermissionsRegistry(permissionsRegistry).hasRole("FEE_MANAGER",msg.sender), 'ERR: FEE_MANAGER');
+        require(msg.sender == feeManager);
         _;
     }
 
     constructor() {}
-    function initialize(address _permissionsRegistry) initializer  public {
+    function initialize() initializer  public {
         __Ownable_init();
         isPaused = false;
+        feeManager = msg.sender;
         stableFee = 4; // 0.04%
         volatileFee = 18; // 0.18%
         stakingNFTFee = 3000; // 30% of stable/volatileFee
         MAX_REFERRAL_FEE = 1200; // 12%
-        permissionsRegistry = IPermissionsRegistry(_permissionsRegistry);
     }
 
 
@@ -61,7 +61,16 @@ contract PairFactoryUpgradeable is IPairFactory, OwnableUpgradeable {
         isPaused = _state;
     }
 
-   
+    function setFeeManager(address _feeManager) external onlyManager{
+        pendingFeeManager = _feeManager;
+    }
+
+    function acceptFeeManager() external {
+        require(msg.sender == pendingFeeManager);
+        feeManager = pendingFeeManager;
+    }
+
+
     function setStakingFees(uint256 _newFee) external onlyManager {
         require(_newFee <= 3000);
         stakingNFTFee = _newFee;
