@@ -470,7 +470,7 @@ describe("Thena - Claim rewards Section", function () {
         const extraRewAmountBef = await usdc.balanceOf(impersonator)
         const amountBef = await thena.balanceOf(impersonator)
 
-        await gauge.connect(signer).getReward2()
+        await gauge.connect(signer).getReward()
 
         const amountAft = await thena.balanceOf(impersonator)
         const extraRewAmountAft = await usdc.balanceOf(impersonator)
@@ -503,15 +503,15 @@ describe("Thena - Claim rewards Section", function () {
         await hre.network.provider.request({method: "hardhat_impersonateAccount",params: [impersonator]});
         signer = await ethers.getSigner(impersonator)
 
-        //console.log("owner1 earned: ", await int_bribe.earned2(impersonator, usdc.address))
+        //console.log("owner1 earned: ", await int_bribe.earned(impersonator, usdc.address))
         //console.log("tokenid1 earned: ", await int_bribe.earned(3077, usdc.address))
         
         const amountBef = await usdc.balanceOf(impersonator)
-        await int_bribe.connect(signer).getReward2([usdc.address])
+        await int_bribe.connect(signer).getReward([usdc.address])
         const amountAft = await usdc.balanceOf(impersonator)
         expect(amountBef).to.be.below(amountAft)
 
-        //console.log("owner1_aft earned: ", await int_bribe.earned2(impersonator, usdc.address))
+        //console.log("owner1_aft earned: ", await int_bribe.earned(impersonator, usdc.address))
         //console.log("tokenid1_aft earned: ", await int_bribe.earned(3077, usdc.address))
         
         //console.log("amountBef: ", amountBef/1e18)
@@ -524,15 +524,15 @@ describe("Thena - Claim rewards Section", function () {
         await hre.network.provider.request({method: "hardhat_impersonateAccount",params: [impersonator2]});
         signer = await ethers.getSigner(impersonator2)
 
-        //console.log("owner2 earned: ", await int_bribe.earned2(impersonator2, usdc.address))
+        //console.log("owner2 earned: ", await int_bribe.earned(impersonator2, usdc.address))
         //console.log("tokenid2 earned: ", await int_bribe.earned(10, usdc.address))
         
         const amountBef2 = await usdc.balanceOf(impersonator2)
-        await int_bribe.connect(signer).getReward2([usdc.address])
+        await int_bribe.connect(signer).getReward([usdc.address])
         const amountAft2 = await usdc.balanceOf(impersonator2)
         expect(amountBef2).to.be.below(amountAft2)
 
-        //console.log("owner2_aft earned: ", await int_bribe.earned2(impersonator2, usdc.address))
+        //console.log("owner2_aft earned: ", await int_bribe.earned(impersonator2, usdc.address))
         //console.log("tokenid2_aft earned: ", await int_bribe.earned(10, usdc.address))
         
         //console.log("amountBef2: ", amountBef2/1e18)

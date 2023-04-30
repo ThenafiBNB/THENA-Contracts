@@ -346,7 +346,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, _tokenId));
         _reset(_tokenId);
         IVotingEscrow(_ve).abstain(_tokenId);
-        lastVoted[_tokenId] = block.timestamp;
+        lastVoted[_tokenId] = _epochTimestamp() + 1;
     }
 
     function _reset(uint _tokenId) internal {
@@ -399,7 +399,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         }
 
         _vote(_tokenId, _poolVote, _weights);
-        lastVoted[_tokenId] = block.timestamp;
+        lastVoted[_tokenId] = _epochTimestamp() + 1;
     }
 
     
@@ -412,7 +412,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, _tokenId));
         require(_poolVote.length == _weights.length);
         _vote(_tokenId, _poolVote, _weights);
-        lastVoted[_tokenId] = block.timestamp;
+        lastVoted[_tokenId] = _epochTimestamp() + 1;
     }
     
     function _vote(uint _tokenId, address[] memory _poolVote, uint256[] memory _weights) internal {
@@ -552,8 +552,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     ///         Make sure to use the corrcet gaugeType or it will fail
 
     function _createGauge(address _pool, uint256 _gaugeType) internal returns (address _gauge, address _internal_bribe, address _external_bribe) {
-        require(_gaugeType < factories.length, "gaugetype big");
-        require(gauges[_pool] == address(0x0), "!exists gauge");
+        require(_gaugeType < factories.length, "gaugetype");
+        require(gauges[_pool] == address(0x0), "!exists");
         bool isPair;
         address _factory = factories[_gaugeType];
         address _gaugeFactory = gaugeFactories[_gaugeType];
@@ -860,6 +860,22 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         (bool success, bytes memory data) =
         token.call(abi.encodeWithSelector(IERC20.transferFrom.selector, from, to, value));
         require(success && (data.length == 0 || abi.decode(data, (bool))));
+    }
+
+
+    
+    /* -----------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+                                    PROXY UPDATES
+    --------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
+    ----------------------------------------------------------------------------- */
+
+    /// @notice Fix wrong timestamp of a tokenId
+    /// @dev    this is used only if a user weight is saved into the wrong timestamp in weightsPerEpoch [fix 28/04/2023]
+    function forceResetTo(uint _tokenId) external VoterAdmin {
+        lastVoted[_tokenId] = _epochTimestamp() - 86400;
     }
 
     
