@@ -59,6 +59,7 @@ module.exports = {
       forking: {
           url: "https://bsc-dataseed1.binance.org",
           chainId: 56,
+          blockNumber: 27942810, //fork before changing proxyAdmin to multisig
       },
       //accounts: []
     }
