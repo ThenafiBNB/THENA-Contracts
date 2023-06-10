@@ -25,7 +25,6 @@ contract GaugeExtraRewarder is Ownable {
     using SafeMath for uint256;
     using SignedSafeMath for int256;
 
-    bool public stop = false;
 
     IERC20 public immutable rewardToken;
 
@@ -69,7 +68,6 @@ contract GaugeExtraRewarder is Ownable {
 
 
     function onReward(uint256 /*pid*/, address _user, address to, uint256 /*extraData*/, uint256 lpToken) onlyGauge external {
-        if(stop) return;
         PoolInfo memory pool = updatePool();
         UserInfo storage user = userInfo[_user];
         uint256 pending;
@@ -151,13 +149,7 @@ contract GaugeExtraRewarder is Ownable {
         IERC20(token).safeTransfer(msg.sender, amount);
     }
 
-    function stopRewarder() external onlyOwner {
-        stop = true;
-    }
 
-    function startRewarder() external onlyOwner {
-        stop = false;
-    }
 
 
 }
