@@ -313,27 +313,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         isAlive[_gauge] = true;
         emit GaugeRevived(_gauge);
     }
-    
-    /// @notice Kill a malicious gauge completly
-    /// @param  _gauge gauge to kill
-    function killGaugeTotally(address _gauge) external Governance {
-        require(isAlive[_gauge], "gauge already dead");
-
-        delete isAlive[_gauge];
-        delete internal_bribes[_gauge];
-        delete external_bribes[_gauge];
-        delete poolForGauge[_gauge];
-        delete isGauge[_gauge];
-        delete claimable[_gauge];
-        delete supplyIndex[_gauge];
-
-        address _pool = poolForGauge[_gauge];
-        gauges[_pool] = address(0);
-        
-
-        emit GaugeKilled(_gauge);
-    }
-
+   
     /* -----------------------------------------------------------------------------
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
