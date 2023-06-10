@@ -108,14 +108,6 @@ contract GaugeExtraRewarder is Ownable {
 
 
 
-    /// @notice Sets the reward per second to be distributed. Can only be called by the owner.
-    /// @param _rewardPerSecond The amount of Reward to be distributed per second.
-    function setRewardPerSecond(uint256 _rewardPerSecond) public onlyOwner {
-        updatePool();
-        rewardPerSecond = _rewardPerSecond;
-    }
-
-
     function setDistributionRate(uint256 amount) public onlyOwner {
         updatePool();
         require(IERC20(rewardToken).balanceOf(address(this)) >= amount);
