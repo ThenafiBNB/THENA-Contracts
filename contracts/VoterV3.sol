@@ -299,6 +299,9 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(isAlive[_gauge], "gauge already dead");
         isAlive[_gauge] = false;
         claimable[_gauge] = 0;
+        uint _time = _epochTimestamp();
+        totWeightsPerEpoch[_time] -= weightsPerEpoch[_time][poolForGauge[_gauge]]; 
+
         emit GaugeKilled(_gauge);
     }
 
@@ -370,7 +373,9 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
                 if (_votes > 0) {
                     IBribe(internal_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
                     IBribe(external_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
-                    _totalWeight += _votes;
+
+                    // if is alive remove _votes, else don't because we already done it in killGauge()
+                    if(isAlive[gauges[_pool]]) _totalWeight += _votes;
                 }
                 
                 emit Abstained(_tokenId, _votes);
