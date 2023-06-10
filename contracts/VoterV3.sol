@@ -437,7 +437,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
             address _pool = _poolVote[i];
             address _gauge = gauges[_pool];
 
-            if (isGauge[_gauge]) {
+            if (isGauge[_gauge] && isAlive[_gauge]) {
                 uint256 _poolWeight = _weights[i] * _weight / _totalVoteWeight;
                 require(votes[_tokenId][_pool] == 0);
                 require(_poolWeight != 0);
