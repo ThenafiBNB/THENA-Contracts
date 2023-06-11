@@ -122,7 +122,7 @@ contract GaugeExtraRewarder is Ownable {
     /// @notice Set the distribution rate for a given distributePeriod. Rewards needs to be sent before calling setDistributionRate
     function setDistributionRate(uint256 amount) public onlyOwner {
         updatePool();
-        require(IERC20(rewardToken).balanceOf(address(this)) >= amount);
+        require(IERC20(rewardToken).balanceOf(address(this)) >= amount, "not enough");
         uint256 notDistributed;
         if (lastDistributedTime > 0 && block.timestamp < lastDistributedTime) {
             uint256 timeLeft = lastDistributedTime.sub(block.timestamp);
@@ -156,9 +156,9 @@ contract GaugeExtraRewarder is Ownable {
 
     /// @notice Recover any ERC20 available
     function recoverERC20(uint amount, address token) external onlyOwner {
-        require(amount > 0);
-        require(token != address(0));
-        require(IERC20(token).balanceOf(address(this)) >= amount);
+        require(amount > 0, "amount > 0");
+        require(token != address(0), "addr0");
+        require(IERC20(token).balanceOf(address(this)) >= amount, "not enough");
         IERC20(token).safeTransfer(msg.sender, amount);
     }
 

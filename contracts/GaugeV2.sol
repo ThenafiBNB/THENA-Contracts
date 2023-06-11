@@ -78,7 +78,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     }
 
     modifier isNotEmergency() {
-        require(emergency == false);
+        require(emergency == false, "emergency");
         _;
     }
 
@@ -135,12 +135,12 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     }
 
     function activateEmergencyMode() external onlyOwner {
-        require(emergency == false);
+        require(emergency == false, "emergency");
         emergency = true;
     }
 
     function stopEmergencyMode() external onlyOwner {
-        require(emergency == false);
+        require(emergency == false, "emergency");
         emergency = false;
     }
 
@@ -257,7 +257,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     }
 
     function emergencyWithdraw() external nonReentrant {
-        require(emergency);
+        require(emergency, "emergency");
         require(_balances[msg.sender] > 0, "no balances");
         uint256 _amount = _balances[msg.sender];
         _totalSupply = _totalSupply.sub(_amount);
@@ -266,7 +266,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         emit Withdraw(msg.sender, _amount);
     }
     function emergencyWithdrawAmount(uint256 _amount) external nonReentrant {
-        require(emergency);
+        require(emergency, "emergency");
         _totalSupply = _totalSupply.sub(_amount);
         _balances[msg.sender] = _balances[msg.sender] - _amount;
         TOKEN.safeTransfer(msg.sender, _amount);
@@ -326,7 +326,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
 
     /// @dev Receive rewards from distribution
     function notifyRewardAmount(address token, uint reward) external nonReentrant isNotEmergency onlyDistribution updateReward(address(0)) {
-        require(token == address(rewardToken));
+        require(token == address(rewardToken), "not rew token");
         rewardToken.safeTransferFrom(DISTRIBUTION, address(this), reward);
 
         if (block.timestamp >= periodFinish) {

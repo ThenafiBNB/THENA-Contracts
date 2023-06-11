@@ -55,7 +55,7 @@ contract PermissionsRegistry {
     }
 
     modifier onlyThenaMultisig() {
-        require(msg.sender == thenaMultisig);
+        require(msg.sender == thenaMultisig, "!thenaMultisig");
         _;
     }
 
@@ -201,9 +201,9 @@ contract PermissionsRegistry {
     /// @notice set emergency counsil
     /// @param _new new address    
     function setEmergencyCouncil(address _new) external {
-        require(msg.sender == emergencyCouncil || msg.sender == thenaMultisig);
-        require(_new != address(0));
-        require(_new != emergencyCouncil);
+        require(msg.sender == emergencyCouncil || msg.sender == thenaMultisig, "not allowed");
+        require(_new != address(0), "addr0");
+        require(_new != emergencyCouncil, "same emergencyCouncil");
         emergencyCouncil = _new;
     }
 
@@ -211,18 +211,18 @@ contract PermissionsRegistry {
     /// @notice set thena team multisig
     /// @param _new new address    
     function setThenaTeamMultisig(address _new) external {
-        require(msg.sender == thenaTeamMultisig);
-        require(_new != address(0));
-        require(_new != thenaTeamMultisig);
+        require(msg.sender == thenaTeamMultisig, "not allowed");
+        require(_new != address(0), "addr 0");
+        require(_new != thenaTeamMultisig, "same multisig");
         thenaTeamMultisig = _new;
     }
 
     /// @notice set thena multisig
     /// @param _new new address    
     function setThenaMultisig(address _new) external {
-        require(msg.sender == thenaMultisig);
-        require(_new != address(0));
-        require(_new != thenaMultisig);
+        require(msg.sender == thenaMultisig, "not allowed");
+        require(_new != address(0), "addr0");
+        require(_new != thenaMultisig, "same multisig");
         thenaMultisig = _new;
     }
     
