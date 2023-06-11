@@ -32,8 +32,8 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     bool public emergency;
 
 
-    IERC20 public rewardToken;
-    IERC20 public TOKEN;
+    IERC20 public immutable rewardToken;
+    IERC20 public immutable TOKEN;
 
     
     address public VE;
@@ -43,7 +43,7 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     address public external_bribe;
     address public feeVault;
 
-    uint256 public DURATION;
+    uint256 public immutable DURATION;
     uint256 internal _periodFinish;
     uint256 public rewardRate;
     uint256 public lastUpdateTime;

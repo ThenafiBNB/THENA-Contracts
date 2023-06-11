@@ -45,8 +45,8 @@ contract GaugeExtraRewarder is Ownable {
 
     uint public lastDistributedTime;
     uint public rewardPerSecond;
-    uint public distributePeriod = 1 days * 7;
-    uint public ACC_TOKEN_PRECISION = 1e12;
+    uint public immutable distributePeriod;
+    uint public immutable ACC_TOKEN_PRECISION = 1e12;
 
 
     address private immutable GAUGE;
@@ -60,6 +60,7 @@ contract GaugeExtraRewarder is Ownable {
             accRewardPerShare: 0
         });
         GAUGE = gauge;
+        distributePeriod = 7 days;
     }
 
 

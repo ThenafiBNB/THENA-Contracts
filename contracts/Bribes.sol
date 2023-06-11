@@ -33,9 +33,9 @@ contract Bribe is ReentrancyGuard {
     mapping(address => bool) public isRewardToken;
     address[] public rewardTokens;
     address public voter;
-    address public bribeFactory;
+    address public immutable bribeFactory;
     address public minter;
-    address public ve;
+    address public immutable ve;
     address public owner;
 
     string public TYPE;

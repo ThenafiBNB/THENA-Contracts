@@ -23,12 +23,12 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
 
     using SafeERC20 for IERC20;
 
-    bool public isForPair;
+    bool public immutable isForPair;
     bool public emergency;
 
 
-    IERC20 public rewardToken;
-    IERC20 public TOKEN;
+    IERC20 public immutable rewardToken;
+    IERC20 public immutable TOKEN;
 
     address public VE;
     address public DISTRIBUTION;
@@ -36,7 +36,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     address public internal_bribe;
     address public external_bribe;
 
-    uint256 public DURATION;
+    uint256 public immutable DURATION;
     uint256 internal _periodFinish;
     uint256 public rewardRate;
     uint256 public lastUpdateTime;
