@@ -680,21 +680,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         emit NotifyReward(msg.sender, base, amount);
     }
 
-    /// @notice notify reward amount for gauge
-    /// @dev    the function is called by the minter each epoch. Anyway anyone can top up some extra rewards.
-    /// @param  amount  amount to distribute
-    function _notifyRewardAmount(uint amount) external {
-        _safeTransferFrom(base, msg.sender, address(this), amount); // transfer the distro in
-        uint _totalWeight = totalWeight();
-        require(_totalWeight > 0);
-        uint256 _ratio = amount * 1e18 / _totalWeight; // 1e18 adjustment is removed during claim
-        if (_ratio > 0) {
-            index += _ratio;
-        }
-        emit NotifyReward(msg.sender, base, amount);
-    }
-
-  
+    
 
     /// @notice distribute the LP Fees to the internal bribes
     /// @param  _gauges  gauge address where to claim the fees 

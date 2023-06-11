@@ -25,7 +25,6 @@ contract GaugeExtraRewarder is Ownable {
     using SafeMath for uint256;
     using SignedSafeMath for int256;
 
-    bool public stop = false;
 
     IERC20 public immutable rewardToken;
 
@@ -69,9 +68,6 @@ contract GaugeExtraRewarder is Ownable {
 
 
     function onReward(uint256 /*pid*/, address _user, address to, uint256 /*extraData*/, uint256 lpToken) onlyGauge external {
-        if(stop){
-            return;
-        }        
         PoolInfo memory pool = updatePool();
         UserInfo storage user = userInfo[_user];
         uint256 pending;
@@ -120,14 +116,6 @@ contract GaugeExtraRewarder is Ownable {
 
 
 
-    /// @notice Sets the reward per second to be distributed. Can only be called by the owner.
-    /// @param _rewardPerSecond The amount of Reward to be distributed per second.
-    function setRewardPerSecond(uint256 _rewardPerSecond) public onlyOwner {
-        updatePool();
-        rewardPerSecond = _rewardPerSecond;
-    }
-
-
     function setDistributionRate(uint256 amount) public onlyOwner {
         updatePool();
         require(IERC20(rewardToken).balanceOf(address(this)) >= amount);
@@ -138,6 +126,7 @@ contract GaugeExtraRewarder is Ownable {
         }
 
         amount = amount.add(notDistributed);
+        require(IERC20(rewardToken).balanceOf(address(this)) >= amount);
         uint256 _rewardPerSecond = amount.div(distributePeriod);
         rewardPerSecond = _rewardPerSecond;
         lastDistributedTime = block.timestamp.add(distributePeriod);
@@ -178,13 +167,7 @@ contract GaugeExtraRewarder is Ownable {
         IERC20(token).safeTransfer(msg.sender, amount);
     }
 
-    function stopRewarder() external onlyOwner {
-        stop = true;
-    }
 
-    function startRewarder() external onlyOwner {
-        stop = false;
-    }
 
     function _gauge() external view returns(address){
         return GAUGE;

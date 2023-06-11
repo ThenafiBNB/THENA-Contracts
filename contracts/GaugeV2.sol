@@ -219,11 +219,11 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         _balances[account] = _balances[account].add(amount);
         _totalSupply = _totalSupply.add(amount);
 
-        TOKEN.safeTransferFrom(account, address(this), amount);
-
         if (address(gaugeRewarder) != address(0)) {
             IRewarder(gaugeRewarder).onReward(rewarderPid, account, account, 0, _balances[account]);
         }
+
+        TOKEN.safeTransferFrom(account, address(this), amount);
 
         emit Deposit(account, amount);
     }
