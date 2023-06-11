@@ -45,7 +45,7 @@ contract Bribe is ReentrancyGuard {
     mapping(address => mapping(address => uint256)) public userTimestamp;
 
     //uint256 private _totalSupply;
-    mapping(uint256 => uint256) public _totalSupply;
+    mapping(uint256 => uint256) private _totalSupply;
     mapping(address => mapping(uint256 => uint256)) private _balances; //owner -> timestamp -> amount
 
 
@@ -230,7 +230,7 @@ contract Bribe is ReentrancyGuard {
     /// @dev    called on voter.vote() or voter.poke()
     ///         we save into owner "address" and not "tokenID". 
     ///         Owner must reset before transferring token
-    function _deposit(uint256 amount, uint256 tokenId) external nonReentrant {
+    function deposit(uint256 amount, uint256 tokenId) external nonReentrant {
         require(amount > 0, "Cannot stake 0");
         require(msg.sender == voter);
         uint256 _startTimestamp = IMinter(minter).active_period() + WEEK;
@@ -246,7 +246,7 @@ contract Bribe is ReentrancyGuard {
 
     /// @notice User votes withdrawal 
     /// @dev    called on voter.reset()
-    function _withdraw(uint256 amount, uint256 tokenId) public nonReentrant {
+    function withdraw(uint256 amount, uint256 tokenId) public nonReentrant {
         require(amount > 0, "Cannot withdraw 0");
         require(msg.sender == voter);
         uint256 _startTimestamp = IMinter(minter).active_period() + WEEK; 

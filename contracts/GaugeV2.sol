@@ -28,16 +28,16 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
 
 
     IERC20 public rewardToken;
-    IERC20 public _VE;
     IERC20 public TOKEN;
 
+    address public VE;
     address public DISTRIBUTION;
     address public gaugeRewarder;
     address public internal_bribe;
     address public external_bribe;
 
     uint256 public DURATION;
-    uint256 public periodFinish;
+    uint256 internal _periodFinish;
     uint256 public rewardRate;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
@@ -48,8 +48,8 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
 
-    uint256 public _totalSupply;
-    mapping(address => uint256) public _balances;
+    uint256 internal _totalSupply;
+    mapping(address => uint256) internal _balances;
 
     event RewardAdded(uint256 reward);
     event Deposit(address indexed user, uint256 amount);
@@ -79,7 +79,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
 
     constructor(address _rewardToken,address _ve,address _token,address _distribution, address _internal_bribe, address _external_bribe, bool _isForPair) {
         rewardToken = IERC20(_rewardToken);     // main reward
-        _VE = IERC20(_ve);                      // vested
+        VE = _ve;                               // vested
         TOKEN = IERC20(_token);                 // underlying (LP)
         DISTRIBUTION = _distribution;           // distro address (voter)
         DURATION = 7 * 86400;                    // distro time
@@ -154,7 +154,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
 
     ///@notice last time reward
     function lastTimeRewardApplicable() public view returns (uint256) {
-        return Math.min(block.timestamp, periodFinish);
+        return Math.min(block.timestamp, _periodFinish);
     }
 
     ///@notice  reward for a sinle token
@@ -176,8 +176,8 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         return rewardRate * DURATION;
     }
 
-    function _periodFinish() external view returns (uint256) {
-        return periodFinish;
+    function periodFinish() external view returns (uint256) {
+        return _periodFinish;
     }
 
 
@@ -317,10 +317,10 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         require(token == address(rewardToken));
         rewardToken.safeTransferFrom(DISTRIBUTION, address(this), reward);
 
-        if (block.timestamp >= periodFinish) {
+        if (block.timestamp >= _periodFinish) {
             rewardRate = reward / DURATION;
         } else {
-            uint256 remaining = periodFinish - block.timestamp;
+            uint256 remaining = _periodFinish - block.timestamp;
             uint256 leftover = remaining * rewardRate;
             rewardRate = reward + leftover / DURATION;
         }
@@ -333,7 +333,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         require(rewardRate <= balance / DURATION, "Provided reward too high");
 
         lastUpdateTime = block.timestamp;
-        periodFinish = block.timestamp + DURATION;
+        _periodFinish = block.timestamp + DURATION;
         emit RewardAdded(reward);
     }
 

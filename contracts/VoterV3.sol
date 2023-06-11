@@ -27,12 +27,12 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     
     bool internal initflag;
 
-    address public _ve;                                         // the ve token that governs these contracts
+    address internal _ve;                                         // the ve token that governs these contracts
     address public factory;                                     // classic stable and volatile Pair Factory
-    address[] public factories;                                 // Array with all the pair factories
+    address[] internal _factories;                                 // Array with all the pair factories
     address internal base;                                      // $the token
     address public gaugefactory;                                // gauge factory
-    address[] public gaugeFactories;                            // array with all the gauge factories
+    address[] internal _gaugeFactories;                            // array with all the gauge factories
     address public bribefactory;                                // bribe factory (internal and external)
     address public minter;                                      // minter mints $the each epoch
     address public permissionRegistry;                          // registry to check accesses
@@ -86,11 +86,11 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         base = IVotingEscrow(__ve).token();
 
         factory = _factory;
-        factories.push(factory);
+        _factories.push(factory);
         isFactory[factory] = true;
 
         gaugefactory = _gauges;
-        gaugeFactories.push(_gauges);
+        _gaugeFactories.push(_gauges);
         isGaugeFactory[_gauges] = true;
 
         bribefactory = _bribes;
@@ -125,7 +125,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// @notice initialize the voter contract 
     /// @param  _tokens array of tokens to whitelist
     /// @param  _minter the minter of $the
-    function _init(address[] memory _tokens, address _permissionsRegistry, address _minter) external {
+    function initVoter(address[] memory _tokens, address _permissionsRegistry, address _minter) external {
         require(msg.sender == minter || IPermissionsRegistry(permissionRegistry).hasRole("VOTER_ADMIN",msg.sender));
         require(!initflag);
         for (uint i = 0; i < _tokens.length; i++) {
@@ -219,8 +219,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(!isFactory[_pairFactory], 'factory true');
         require(!isGaugeFactory[_gaugeFactory], 'g.fact true');
 
-        factories.push(_pairFactory);
-        gaugeFactories.push(_gaugeFactory);
+        _factories.push(_pairFactory);
+        _gaugeFactories.push(_gaugeFactory);
         isFactory[_pairFactory] = true;
         isGaugeFactory[_gaugeFactory] = true;
     }
@@ -230,24 +230,24 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(_gaugeFactory != address(0), 'addr 0');
         require(isFactory[_pairFactory], 'factory false');
         require(isGaugeFactory[_gaugeFactory], 'g.fact false');
-        address oldPF = factories[_pos];
-        address oldGF = gaugeFactories[_pos];
+        address oldPF = _factories[_pos];
+        address oldGF = _gaugeFactories[_pos];
         isFactory[oldPF] = false;
         isGaugeFactory[oldGF] = false;
 
-        factories[_pos] = (_pairFactory);
-        gaugeFactories[_pos] = (_gaugeFactory);
+        _factories[_pos] = (_pairFactory);
+        _gaugeFactories[_pos] = (_gaugeFactory);
         isFactory[_pairFactory] = true;
         isGaugeFactory[_gaugeFactory] = true;
     }
 
     function removeFactory(uint256 _pos) external VoterAdmin {
-        address oldPF = factories[_pos];
-        address oldGF = gaugeFactories[_pos];
+        address oldPF = _factories[_pos];
+        address oldGF = _gaugeFactories[_pos];
         require(isFactory[oldPF], 'factory false');
         require(isGaugeFactory[oldGF], 'g.fact false');
-        factories[_pos] = address(0);
-        gaugeFactories[_pos] = address(0);
+        _factories[_pos] = address(0);
+        _gaugeFactories[_pos] = address(0);
         isFactory[oldPF] = false;
         isGaugeFactory[oldGF] = false;
     }
@@ -366,8 +366,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
                 votes[_tokenId][_pool] -= _votes;
 
                 if (_votes > 0) {
-                    IBribe(internal_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
-                    IBribe(external_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
+                    IBribe(internal_bribes[gauges[_pool]]).withdraw(uint256(_votes), _tokenId);
+                    IBribe(external_bribes[gauges[_pool]]).withdraw(uint256(_votes), _tokenId);
                     _totalWeight += _votes;
                 }
                 
@@ -441,8 +441,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
                 votes[_tokenId][_pool] += _poolWeight;
 
-                IBribe(internal_bribes[_gauge])._deposit(uint256(_poolWeight), _tokenId);
-                IBribe(external_bribes[_gauge])._deposit(uint256(_poolWeight), _tokenId);
+                IBribe(internal_bribes[_gauge]).deposit(uint256(_poolWeight), _tokenId);
+                IBribe(external_bribes[_gauge]).deposit(uint256(_poolWeight), _tokenId);
                 
                 _usedWeight += _poolWeight;
                 _totalWeight += _poolWeight;
@@ -550,11 +550,11 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     ///         Make sure to use the corrcet gaugeType or it will fail
 
     function _createGauge(address _pool, uint256 _gaugeType) internal returns (address _gauge, address _internal_bribe, address _external_bribe) {
-        require(_gaugeType < factories.length, "gaugetype");
+        require(_gaugeType < _factories.length, "gaugetype");
         require(gauges[_pool] == address(0x0), "!exists");
         bool isPair;
-        address _factory = factories[_gaugeType];
-        address _gaugeFactory = gaugeFactories[_gaugeType];
+        address _factory = _factories[_gaugeType];
+        address _gaugeFactory = _gaugeFactories[_gaugeType];
         require(_factory != address(0));
         require(_gaugeFactory != address(0));
         
@@ -633,20 +633,20 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         return poolVote[tokenId].length;
     }
 
-    function _factories() external view returns(address[] memory){
-        return factories;
+    function factories() external view returns(address[] memory){
+        return _factories;
     }
     
     function factoryLength() external view returns(uint){
-        return factories.length;
+        return _factories.length;
     }
     
-    function _gaugeFactories() external view returns(address[] memory){
-        return gaugeFactories;
+    function gaugeFactories() external view returns(address[] memory){
+        return _gaugeFactories;
     }
     
     function gaugeFactoriesLength() external view returns(uint) {
-        return gaugeFactories.length;
+        return _gaugeFactories.length;
     }
 
     function weights(address _pool) public view returns(uint) {
@@ -667,8 +667,12 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         return totalWeightsPerEpoch[_time];
     }
 
-    function _epochTimestamp() public view returns(uint) {
+    function _epochTimestamp() internal view returns(uint) {
         return IMinter(minter).active_period();
+    }
+
+    function ve() public view returns(address) {
+        return _ve;
     }
     /* -----------------------------------------------------------------------------
     --------------------------------------------------------------------------------

@@ -179,12 +179,12 @@ contract PermissionsRegistry {
     *************************************************************/
 
     /// @notice Helper function to get bytes from a string
-    function __helper_stringToBytes(string memory _input) public pure returns(bytes memory){
+    function helper_stringToBytes(string memory _input) public pure returns(bytes memory){
         return bytes(_input);
     }
 
     /// @notice Helper function to get string from bytes
-    function __helper_bytesToString(bytes memory _input) public pure returns(string memory){
+    function helper_bytesToString(bytes memory _input) public pure returns(string memory){
         return string(_input);
     }
 
