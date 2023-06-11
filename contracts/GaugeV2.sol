@@ -112,7 +112,6 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
 
     ///@notice set gauge rewarder address
     function setGaugeRewarder(address _gaugeRewarder) external onlyOwner {
-        require(_gaugeRewarder != address(0), "zero addr");
         require(_gaugeRewarder != gaugeRewarder, "same addr");
         gaugeRewarder = _gaugeRewarder;
     }
@@ -131,7 +130,9 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     }
 
     function stopEmergencyMode() external onlyOwner {
-        require(emergency == false, "emergency");
+
+        require(emergency == true,"emergency");
+
         emergency = false;
         emit EmergencyDeactivated(address(this), block.timestamp);
     }
