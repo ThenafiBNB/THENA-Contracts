@@ -18,6 +18,8 @@ import "hardhat/console.sol";
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 
 interface IHypervisor {
@@ -26,6 +28,7 @@ interface IHypervisor {
 
 contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
+    using SafeERC20Upgradeable for IERC20Upgradeable;
     
     bool internal initflag;
 
@@ -685,7 +688,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// @param  amount  amount to distribute
     function notifyRewardAmount(uint amount) external {
         require(msg.sender == minter);
-        _safeTransferFrom(base, msg.sender, address(this), amount);     // transfer the distro in
+        IERC20Upgradeable(base).safeTransferFrom(msg.sender, address(this), amount);
         uint _totalWeight = totalWeightAt(_epochTimestamp() - 604800);   // minter call notify after updates active_period, loads votes - 1 week
         uint256 _ratio = 0;
 
@@ -697,21 +700,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         emit NotifyReward(msg.sender, base, amount);
     }
 
-    /// @notice notify reward amount for gauge
-    /// @dev    the function is called by the minter each epoch. Anyway anyone can top up some extra rewards.
-    /// @param  amount  amount to distribute
-    function _notifyRewardAmount(uint amount) external {
-        _safeTransferFrom(base, msg.sender, address(this), amount); // transfer the distro in
-        uint _totalWeight = totalWeight();
-        require(_totalWeight > 0);
-        uint256 _ratio = amount * 1e18 / _totalWeight; // 1e18 adjustment is removed during claim
-        if (_ratio > 0) {
-            index += _ratio;
-        }
-        emit NotifyReward(msg.sender, base, amount);
-    }
-
-  
+ 
 
     /// @notice distribute the LP Fees to the internal bribes
     /// @param  _gauges  gauge address where to claim the fees 
@@ -851,17 +840,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         }
     }
 
-
-
-    /// @notice safeTransfer function
-    /// @dev    implemented safeTransfer function from openzeppelin to remove a bit of bytes from code
-    function _safeTransferFrom(address token, address from, address to, uint256 value) internal {
-        require(token.code.length > 0);
-        (bool success, bytes memory data) =
-        token.call(abi.encodeWithSelector(IERC20.transferFrom.selector, from, to, value));
-        require(success && (data.length == 0 || abi.decode(data, (bool))));
-    }
-
+ 
 
     
     /* -----------------------------------------------------------------------------
