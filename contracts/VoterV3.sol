@@ -9,7 +9,6 @@ import './interfaces/IERC20.sol';
 import './interfaces/IMinter.sol';
 import './interfaces/IPairInfo.sol';
 import './interfaces/IPairFactory.sol';
-import './interfaces/IVoter.sol';
 import './interfaces/IVotingEscrow.sol';
 import './interfaces/IPermissionsRegistry.sol';
 import './interfaces/IAlgebraFactory.sol';
@@ -24,7 +23,7 @@ interface IHypervisor {
     function pool() external view returns(address);
 }
 
-contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     using SafeERC20Upgradeable for IERC20Upgradeable;
     
@@ -252,8 +251,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     function removeFactory(uint256 _pos) external VoterAdmin {
 
-        address oldPF = factories[_pos];
-        address oldGF = gaugeFactories[_pos];
+        address oldPF = _factories[_pos];
+        address oldGF = _gaugeFactories[_pos];
         require(isFactory[oldPF], 'fact in');
         require(isGaugeFactory[oldGF], 'g.fact false');
         _factories[_pos] = address(0);
@@ -308,7 +307,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         isAlive[_gauge] = false;
         claimable[_gauge] = 0;
         uint _time = _epochTimestamp();
-        totWeightsPerEpoch[_time] -= weightsPerEpoch[_time][poolForGauge[_gauge]]; 
+        totalWeightsPerEpoch[_time] -= weightsPerEpoch[_time][poolForGauge[_gauge]]; 
 
         emit GaugeKilled(_gauge);
     }
@@ -357,8 +356,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
                 votes[_tokenId][_pool] -= _votes;
                 
-                IBribe(internal_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
-                IBribe(external_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
+                IBribe(internal_bribes[gauges[_pool]]).withdraw(uint256(_votes), _tokenId);
+                IBribe(external_bribes[gauges[_pool]]).withdraw(uint256(_votes), _tokenId);
 
                 // if is alive remove _votes, else don't because we already done it in killGauge()
                 if(isAlive[gauges[_pool]]) _totalWeight += _votes;
@@ -667,7 +666,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// @param  amount  amount to distribute
     function notifyRewardAmount(uint256 amount) external {
         require(msg.sender == minter, "!minter");
-        _safeTransferFrom(base, msg.sender, address(this), amount);     // transfer the distro in
+        IERC20Upgradeable(base).safeTransferFrom(msg.sender, address(this), amount);
+
         uint256 _totalWeight = totalWeightAt(_epochTimestamp() - 1 weeks);   // minter call notify after updates active_period, loads votes - 1 week
 
         uint256 _ratio = 0;

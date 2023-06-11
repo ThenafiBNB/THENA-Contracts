@@ -100,13 +100,13 @@ contract GaugeExtraRewarder is Ownable {
             uint _tempTimestamp;
             if( block.timestamp >= lastDistributedTime){
                 // if lastRewardTime is > than LastDistributedTime then set tempTimestamp to 0 to avoid underflow
-                _tempTimestamp = pool.lastRewardTime > lastDistributedTime ?  0 : lastDistributedTime.sub(pool.lastRewardTime);
+                _tempTimestamp = pool.lastRewardTime > lastDistributedTime ?  0 : lastDistributedTime - pool.lastRewardTime;
             } else {
-                _tempTimestamp = block.timestamp.sub(pool.lastRewardTime);
+                _tempTimestamp = block.timestamp - pool.lastRewardTime;
             } 
             uint256 time = _tempTimestamp;
-            uint256 reward = time.mul(rewardPerSecond);
-            accRewardPerShare = accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION) / lpSupply );
+            uint256 reward = time * (rewardPerSecond);
+            accRewardPerShare = accRewardPerShare + ( reward * (ACC_TOKEN_PRECISION) / lpSupply );
         }
         
         pending =  (user.amount * (accRewardPerShare) / ACC_TOKEN_PRECISION)  - (user.rewardDebt);
@@ -153,14 +153,14 @@ contract GaugeExtraRewarder is Ownable {
                 uint _tempTimestamp;
                 if( block.timestamp >= lastDistributedTime){
                     // if lastRewardTime is > than LastDistributedTime then set tempTimestamp to 0 to avoid underflow
-                    _tempTimestamp = pool.lastRewardTime > lastDistributedTime ?  0 : lastDistributedTime.sub(pool.lastRewardTime);
+                    _tempTimestamp = pool.lastRewardTime > lastDistributedTime ?  0 : lastDistributedTime - (pool.lastRewardTime);
                 } else {
-                    _tempTimestamp = block.timestamp.sub(pool.lastRewardTime);
+                    _tempTimestamp = block.timestamp - (pool.lastRewardTime);
                 } 
 
                 uint256 time = _tempTimestamp;
-                uint256 reward = time.mul(rewardPerSecond);
-                pool.accRewardPerShare = pool.accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION).div(lpSupply) );
+                uint256 reward = time * (rewardPerSecond);
+                pool.accRewardPerShare = pool.accRewardPerShare + ( reward * (ACC_TOKEN_PRECISION) / (lpSupply) );
 
             }
             pool.lastRewardTime = block.timestamp;
