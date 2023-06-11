@@ -688,7 +688,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function notifyRewardAmount(uint amount) external {
         require(msg.sender == minter);
         _safeTransferFrom(base, msg.sender, address(this), amount);     // transfer the distro in
-        uint _totalWeight = totalWeightAt(_epochTimestamp() - 604800);   // minter call notify after updates active_period, loads votes - 1 week
+        uint _totalWeight = totalWeightAt(_epochTimestamp() - 1 weeks);   // minter call notify after updates active_period, loads votes - 1 week
         uint256 _ratio = 0;
 
         if(_totalWeight > 0) _ratio = amount * 1e18 / _totalWeight;     // 1e18 adjustment is removed during claim
@@ -834,7 +834,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// @dev    this function track the gauge index to emit the correct $the amount after the distribution
     function _updateForAfterDistribution(address _gauge) private {
         address _pool = poolForGauge[_gauge];
-        uint256 _time = _epochTimestamp() - 604800;
+        uint256 _time = _epochTimestamp() - 1 weeks;
         uint256 _supplied = weightsPerEpoch[_time][_pool];
 
         if (_supplied > 0) {
@@ -877,7 +877,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// @notice Fix wrong timestamp of a tokenId
     /// @dev    this is used only if a user weight is saved into the wrong timestamp in weightsPerEpoch [fix 28/04/2023]
     function forceResetTo(uint _tokenId) external VoterAdmin {
-        lastVoted[_tokenId] = _epochTimestamp() - 86400;
+        lastVoted[_tokenId] = _epochTimestamp() - 1 days;
     }
 
     
