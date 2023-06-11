@@ -106,13 +106,13 @@ contract Bribe is ReentrancyGuard {
         return _balances[_owner][_timestamp];
     }
 
-    /// @notice get the balance of a owner in the current epoch
+    /// @notice get the balance of an owner in the current epoch
     function balanceOfOwner(address _owner) public view returns (uint256) {
         uint256 _timestamp = getNextEpochStart();
         return _balances[_owner][_timestamp];
     }
 
-    /// @notice get the balance of a owner given a timestamp
+    /// @notice get the balance of an owner given a timestamp
     function balanceOfOwnerAt(address _owner, uint256 _timestamp) public view returns (uint256) {
         return _balances[_owner][_timestamp];
     }
@@ -216,11 +216,11 @@ contract Bribe is ReentrancyGuard {
     }
 
     /// @notice get the rewards for token
-    function rewardPerToken(address _rewardsToken, uint256 _timestmap) public view returns (uint256) {
-        if (_totalSupply[_timestmap] == 0) {
-            return rewardData[_rewardsToken][_timestmap].rewardsPerEpoch;
+    function rewardPerToken(address _rewardsToken, uint256 _timestamp) public view returns (uint256) {
+        if (_totalSupply[_timestamp] == 0) {
+            return rewardData[_rewardsToken][_timestamp].rewardsPerEpoch;
         }
-        return rewardData[_rewardsToken][_timestmap].rewardsPerEpoch * 1e18 / _totalSupply[_timestmap];
+        return rewardData[_rewardsToken][_timestamp].rewardsPerEpoch * 1e18 / _totalSupply[_timestamp];
     }
 
  

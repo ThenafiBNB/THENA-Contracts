@@ -170,7 +170,7 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
         return Math.min(block.timestamp, periodFinish);
     }
 
-    ///@notice  reward for a sinle token
+    ///@notice  reward for a single token
     function rewardPerToken() public view returns (uint256) {
         if (_totalSupply == 0) {
             return rewardPerTokenStored;
