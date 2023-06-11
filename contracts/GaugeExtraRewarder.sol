@@ -124,7 +124,7 @@ contract GaugeExtraRewarder is Ownable {
         updatePool();
         require(IERC20(rewardToken).balanceOf(address(this)) >= amount, "not enough");
         uint256 notDistributed;
-        if (lastDistributedTime > 0 && block.timestamp < lastDistributedTime) {
+        if (block.timestamp < lastDistributedTime) {
             uint256 timeLeft = lastDistributedTime.sub(block.timestamp);
             notDistributed = rewardPerSecond.mul(timeLeft);
         }

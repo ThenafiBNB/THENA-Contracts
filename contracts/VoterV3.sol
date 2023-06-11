@@ -61,7 +61,6 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     mapping(uint => address[]) public poolVote;                 // nft      => pools
     mapping(uint => mapping(address => uint)) internal weightsPerEpoch; // timestamp => pool => weights
     mapping(uint => uint) internal totWeightsPerEpoch;         // timestamp => total weights
-    mapping(uint => uint) public usedWeights;                   // nft      => total voting weight of user
     mapping(uint => uint) public lastVoted;                     // nft      => timestamp of last vote
     mapping(address => bool) public isGauge;                    // gauge    => boolean [is a gauge?]
     mapping(address => bool) public isWhitelisted;              // token    => boolean [is an allowed token?]
@@ -209,14 +208,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         external_bribes[_gauge] = _external;
     }
     
-    
-    /// @notice Increase gauge approvals if max is type(uint).max is reached    [very long run could happen]
-    function increaseGaugeApprovals(address _gauge) external VoterAdmin {
-        require(isGauge[_gauge], "not a gauge");
-        IERC20(base).approve(_gauge, 0);
-        IERC20(base).approve(_gauge, type(uint).max);
-    }
-
+ 
     
     function addFactory(address _pairFactory, address _gaugeFactory) external VoterAdmin {
         require(_pairFactory != address(0), 'addr0');
@@ -366,15 +358,15 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
                 _updateFor(gauges[_pool]);
 
                 // if user last vote is < than epochTimestamp then votes are 0! IF not underflow occur
-                if(lastVoted[_tokenId] > _epochTimestamp()) weightsPerEpoch[_time][_pool] -= _votes;
+                if(lastVoted[_tokenId] > _time) weightsPerEpoch[_time][_pool] -= _votes;
 
                 votes[_tokenId][_pool] -= _votes;
 
-                if (_votes > 0) {
-                    IBribe(internal_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
-                    IBribe(external_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
-                    _totalWeight += _votes;
-                }
+               
+                IBribe(internal_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
+                IBribe(external_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
+                _totalWeight += _votes;
+                
                 
                 emit Abstained(_tokenId, _votes);
             }
@@ -382,10 +374,9 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
         
         // if user last vote is < than epochTimestamp then _totalWeight is 0! IF not underflow occur
-        if(lastVoted[_tokenId] < _epochTimestamp()) _totalWeight = 0;
+        if(lastVoted[_tokenId] < _time) _totalWeight = 0;
         
         totWeightsPerEpoch[_time] -= _totalWeight;
-        usedWeights[_tokenId] = 0;
         delete poolVote[_tokenId];
     }
 
@@ -456,7 +447,6 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         }
         if (_usedWeight > 0) IVotingEscrow(_ve).voting(_tokenId);
         totWeightsPerEpoch[_time] += _totalWeight;
-        usedWeights[_tokenId] = (_usedWeight);
     }
 
     /// @notice claim LP gauge rewards
@@ -830,7 +820,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
             supplyIndex[_gauge] = _index; // update _gauge current position to global position
             uint _delta = _index - _supplyIndex; // see if there is any difference that need to be accrued
             if (_delta > 0) {
-                uint _share = uint(_supplied) * _delta / 1e18; // add accrued difference for each supplied token
+                uint _share = _supplied * _delta / 1e18; // add accrued difference for each supplied token
                 if (isAlive[_gauge]) {
                     claimable[_gauge] += _share;
                 }

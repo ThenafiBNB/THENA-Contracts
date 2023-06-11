@@ -51,9 +51,6 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
 
-    uint public fees0;
-    uint public fees1;
-
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
 
@@ -376,27 +373,21 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
         (claimed0, claimed1) = IFeeVault(feeVault).claimFees();
 
         if (claimed0 > 0 || claimed1 > 0) {
-            uint _fees0 = fees0 + claimed0;
-            uint _fees1 = fees1 + claimed1;
+            uint _fees0 = claimed0;
+            uint _fees1 = claimed1;
             (address _token0) = IPairInfo(_token).token0();
             (address _token1) = IPairInfo(_token).token1();
             if (_fees0  > 0) {
-                fees0 = 0;
                 IERC20(_token0).approve(internal_bribe, 0);
                 IERC20(_token0).approve(internal_bribe, _fees0);
                 IBribe(internal_bribe).notifyRewardAmount(_token0, _fees0);
-            } else {
-                fees0 = _fees0;
-            }
+            } 
 
             if (_fees1  > 0) {
-                fees1 = 0;
                 IERC20(_token1).approve(internal_bribe, 0);
                 IERC20(_token1).approve(internal_bribe, _fees1);
                 IBribe(internal_bribe).notifyRewardAmount(_token1, _fees1);
-            } else {
-                fees1 = _fees1;
-            }
+            } 
             emit ClaimFees(msg.sender, claimed0, claimed1);
         }
     }
