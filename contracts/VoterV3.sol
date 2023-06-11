@@ -158,32 +158,42 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// @notice Set a new Minter
     function setMinter(address _minter) external VoterAdmin {
         require(_minter != address(0), "addr0");
+        require(_minter.code.length > 0, "!contract");
         minter = _minter;
     }
 
     /// @notice Set a new Bribe Factory
     function setBribeFactory(address _bribeFactory) external VoterAdmin {
+        require(_bribeFactory.code.length > 0, "!contract");
+        require(_bribeFactory != address(0), "addr0");
         bribefactory = _bribeFactory;
     }
 
     /// @notice Set a new Gauge Factory
     function setGaugeFactory(address _gaugeFactory) external VoterAdmin {
+        require(_gaugeFactory.code.length > 0, "!contract");
+        require(_gaugeFactory != address(0), "addr0");
         gaugefactory = _gaugeFactory;
     }
 
     /// @notice Set a new Pair Factory
     function setPairFactory(address _factory) external VoterAdmin {
+        require(_factory.code.length > 0, "!contract");
+        require(_factory != address(0), "addr0");
         factory = _factory;
     }
 
     /// @notice Set a new PermissionRegistry
     function setPermissionsRegistry(address _permissionRegistry) external VoterAdmin {
+        require(_permissionRegistry.code.length > 0, "!contract");
+        require(_permissionRegistry != address(0), "addr0");
         permissionRegistry = _permissionRegistry;
     }
 
     /// @notice Set a new bribes for a given gauge
     function setNewBribes(address _gauge, address _internal, address _external) external VoterAdmin {
         require(isGauge[_gauge] == true, "not a gauge");
+        require(_gauge.code.length > 0, "!contract");
         _setInternalBribe(_gauge, _internal);
         _setExternalBribe(_gauge, _external);
     }
@@ -201,10 +211,12 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     }
 
     function _setInternalBribe(address _gauge, address _internal) private {
+        require(_internal.code.length > 0, "!contract");
         internal_bribes[_gauge] = _internal;
     }
 
     function _setExternalBribe(address _gauge, address _external) private {
+        require(_external.code.length > 0, "!contract");
         external_bribes[_gauge] = _external;
     }
     
@@ -215,6 +227,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(_gaugeFactory != address(0), 'addr0');
         require(!isFactory[_pairFactory], 'fact in');
         require(!isGaugeFactory[_gaugeFactory], 'g.fact true');
+        require(_pairFactory.code.length > 0, "!contract");
+        require(_gaugeFactory.code.length > 0, "!contract");
 
         factories.push(_pairFactory);
         gaugeFactories.push(_gaugeFactory);
@@ -248,7 +262,6 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         isFactory[oldPF] = false;
         isGaugeFactory[oldGF] = false;
     }
-
     
     
     /* -----------------------------------------------------------------------------
@@ -270,6 +283,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
        
     function _whitelist(address _token) private {
         require(!isWhitelisted[_token], "in");
+        require(_token.code.length > 0, "!contract");
         isWhitelisted[_token] = true;
         emit Whitelisted(msg.sender, _token);
     }
@@ -547,6 +561,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function _createGauge(address _pool, uint256 _gaugeType) internal returns (address _gauge, address _internal_bribe, address _external_bribe) {
         require(_gaugeType < factories.length, "gaugetype");
         require(gauges[_pool] == address(0x0), "!exists");
+        require(_pool.code.length > 0, "!contract");
+
         bool isPair;
         address _factory = factories[_gaugeType];
         address _gaugeFactory = gaugeFactories[_gaugeType];
