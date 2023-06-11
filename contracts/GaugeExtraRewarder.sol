@@ -54,7 +54,7 @@ contract GaugeExtraRewarder is Ownable {
     uint public ACC_TOKEN_PRECISION = 1e12;
 
 
-    address private immutable GAUGE;
+    address private GAUGE;
 
     event LogOnReward(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
 
@@ -69,13 +69,14 @@ contract GaugeExtraRewarder is Ownable {
 
 
     function onReward(uint256 /*pid*/, address _user, address to, uint256 /*extraData*/, uint256 lpToken) onlyGauge external {
-        if(stop) return;
+        if(stop){
+            return;
+        }        
         PoolInfo memory pool = updatePool();
         UserInfo storage user = userInfo[_user];
         uint256 pending;
-        uint256 accRewardPerShare = pool.accRewardPerShare;
         if (user.amount > 0) {
-            pending = int256( user.amount.mul(accRewardPerShare) / ACC_TOKEN_PRECISION ).sub(user.rewardDebt).toUInt256();
+            pending = _pendingReward(_user);
             rewardToken.safeTransfer(to, pending);
         }
         user.amount = lpToken;
@@ -83,17 +84,28 @@ contract GaugeExtraRewarder is Ownable {
     }
 
 
-    /// @notice View function to see pending WBNB on frontend.
+    /// @notice View function to see pending Rewards on frontend.
     /// @param _user Address of user.
     /// @return pending rewardToken reward for a given user.
-    function pendingReward(address _user) external view returns (uint256 pending){
+    function pendingReward(address _user) public view returns (uint256 pending){
+        pending = _pendingReward(_user);
+    }
+    function _pendingReward(address _user) internal view returns(uint256 pending){
         PoolInfo memory pool = poolInfo;
         UserInfo storage user = userInfo[_user];
         uint256 accRewardPerShare = pool.accRewardPerShare;
         uint256 lpSupply = IERC20(IGauge(GAUGE).TOKEN()).balanceOf(GAUGE);
 
         if (block.timestamp > pool.lastRewardTime && lpSupply != 0) {
-            uint256 time = block.timestamp.sub(pool.lastRewardTime);
+            // if we reach the end, look for the missing seconds up to LastDistributedTime ; else use block.timestamp
+            uint _tempTimestamp;
+            if( block.timestamp >= lastDistributedTime){
+                // if lastRewardTime is > than LastDistributedTime then set tempTimestamp to 0 to avoid underflow
+                _tempTimestamp = pool.lastRewardTime > lastDistributedTime ?  0 : lastDistributedTime.sub(pool.lastRewardTime);
+            } else {
+                _tempTimestamp = block.timestamp.sub(pool.lastRewardTime);
+            } 
+            uint256 time = _tempTimestamp;
             uint256 reward = time.mul(rewardPerSecond);
             accRewardPerShare = accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION) / lpSupply );
         }
@@ -137,11 +149,19 @@ contract GaugeExtraRewarder is Ownable {
     /// @return pool Returns the pool that was updated.
     function updatePool() public returns (PoolInfo memory pool) {
         pool = poolInfo;
-
         if (block.timestamp > pool.lastRewardTime) {
             uint256 lpSupply = IERC20(IGauge(GAUGE).TOKEN()).balanceOf(GAUGE);
             if (lpSupply > 0) {
-                uint256 time = block.timestamp.sub(pool.lastRewardTime);
+                // if we reach the end, look for the missing seconds up to LastDistributedTime ; else use block.timestamp
+                uint _tempTimestamp;
+                if( block.timestamp >= lastDistributedTime){
+                    // if lastRewardTime is > than LastDistributedTime then set tempTimestamp to 0 to avoid underflow
+                    _tempTimestamp = pool.lastRewardTime > lastDistributedTime ?  0 : lastDistributedTime.sub(pool.lastRewardTime);
+                } else {
+                    _tempTimestamp = block.timestamp.sub(pool.lastRewardTime);
+                } 
+
+                uint256 time = _tempTimestamp;
                 uint256 reward = time.mul(rewardPerSecond);
                 pool.accRewardPerShare = pool.accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION).div(lpSupply) );
             }
@@ -165,6 +185,11 @@ contract GaugeExtraRewarder is Ownable {
     function startRewarder() external onlyOwner {
         stop = false;
     }
+
+    function _gauge() external view returns(address){
+        return GAUGE;
+    }
+
 
 
 }

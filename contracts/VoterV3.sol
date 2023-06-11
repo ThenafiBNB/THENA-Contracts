@@ -299,6 +299,9 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(isAlive[_gauge], "gauge already dead");
         isAlive[_gauge] = false;
         claimable[_gauge] = 0;
+        uint _time = _epochTimestamp();
+        totWeightsPerEpoch[_time] -= weightsPerEpoch[_time][poolForGauge[_gauge]]; 
+
         emit GaugeKilled(_gauge);
     }
 
@@ -310,27 +313,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         isAlive[_gauge] = true;
         emit GaugeRevived(_gauge);
     }
-    
-    /// @notice Kill a malicious gauge completly
-    /// @param  _gauge gauge to kill
-    function killGaugeTotally(address _gauge) external Governance {
-        require(isAlive[_gauge], "gauge already dead");
-
-        delete isAlive[_gauge];
-        delete internal_bribes[_gauge];
-        delete external_bribes[_gauge];
-        delete poolForGauge[_gauge];
-        delete isGauge[_gauge];
-        delete claimable[_gauge];
-        delete supplyIndex[_gauge];
-
-        address _pool = poolForGauge[_gauge];
-        gauges[_pool] = address(0);
-        
-
-        emit GaugeKilled(_gauge);
-    }
-
+   
     /* -----------------------------------------------------------------------------
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
@@ -369,7 +352,9 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
                 if (_votes > 0) {
                     IBribe(internal_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
                     IBribe(external_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
-                    _totalWeight += _votes;
+
+                    // if is alive remove _votes, else don't because we already done it in killGauge()
+                    if(isAlive[gauges[_pool]]) _totalWeight += _votes;
                 }
                 
                 emit Abstained(_tokenId, _votes);
@@ -431,7 +416,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
             address _pool = _poolVote[i];
             address _gauge = gauges[_pool];
 
-            if (isGauge[_gauge]) {
+            if (isGauge[_gauge] && isAlive[_gauge]) {
                 uint256 _poolWeight = _weights[i] * _weight / _totalVoteWeight;
                 require(votes[_tokenId][_pool] == 0);
                 require(_poolWeight != 0);
