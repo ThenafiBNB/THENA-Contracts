@@ -27,6 +27,15 @@ contract PermissionsRegistry {
     /// @notice Roles array
     bytes[] internal _roles;
 
+    event RoleAdded(bytes role);
+    event RoleRemoved(bytes role);
+    event RoleSetFor(address indexed user, bytes indexed role);
+    event RoleRemovedFor(address indexed user, bytes indexed role);
+    event SetEmergencyCouncil(address indexed council);
+    event SetThenaTeamMultisig(address indexed multisig);
+    event SetThenaMultisig(address indexed multisig);
+
+
 
     constructor() {
         thenaTeamMultisig = msg.sender;
@@ -55,7 +64,7 @@ contract PermissionsRegistry {
     }
 
     modifier onlyThenaMultisig() {
-        require(msg.sender == thenaMultisig);
+        require(msg.sender == thenaMultisig, "!thenaMultisig");
         _;
     }
 
@@ -72,6 +81,7 @@ contract PermissionsRegistry {
         require(!_checkRole[_role], 'is a role');
         _checkRole[_role] = true;
         _roles.push(_role);
+        emit RoleAdded(_role);
     }
 
     /// @notice Remove a role
@@ -85,6 +95,7 @@ contract PermissionsRegistry {
                 _roles[i] = _roles[_roles.length -1];
                 _roles.pop();
                 _checkRole[_role] = false;
+                emit RoleRemoved(_role);
                 break; 
             }
         }
@@ -116,6 +127,8 @@ contract PermissionsRegistry {
         _roleToAddresses[_role].push(c);
         _addressToRoles[c].push(_role);
 
+        emit RoleSetFor(c, _role);
+
     }
 
     
@@ -136,12 +149,14 @@ contract PermissionsRegistry {
         }
 
         bytes[] storage atr = _addressToRoles[c];
-        for(uint i = 0; i < rta.length; i++){
+        for(uint i = 0; i < atr.length; i++){
             if(keccak256(atr[i]) == keccak256(_role)){
                 atr[i] = atr[atr.length -1];
                 atr.pop();
             }
         }
+
+        emit RoleRemovedFor(c, _role);
         
     }
 
@@ -214,29 +229,35 @@ contract PermissionsRegistry {
     /// @notice set emergency counsil
     /// @param _new new address    
     function setEmergencyCouncil(address _new) external {
-        require(msg.sender == emergencyCouncil || msg.sender == thenaMultisig);
-        require(_new != address(0));
-        require(_new != emergencyCouncil);
+        require(msg.sender == emergencyCouncil || msg.sender == thenaMultisig, "not allowed");
+        require(_new != address(0), "addr0");
+        require(_new != emergencyCouncil, "same emergencyCouncil");
         emergencyCouncil = _new;
+
+        emit SetEmergencyCouncil(_new);
     }
 
 
     /// @notice set thena team multisig
     /// @param _new new address    
     function setThenaTeamMultisig(address _new) external {
-        require(msg.sender == thenaTeamMultisig);
-        require(_new != address(0));
-        require(_new != thenaTeamMultisig);
+        require(msg.sender == thenaTeamMultisig, "not allowed");
+        require(_new != address(0), "addr 0");
+        require(_new != thenaTeamMultisig, "same multisig");
         thenaTeamMultisig = _new;
+        
+        emit SetThenaTeamMultisig(_new);
     }
 
     /// @notice set thena multisig
     /// @param _new new address    
     function setThenaMultisig(address _new) external {
-        require(msg.sender == thenaMultisig);
-        require(_new != address(0));
-        require(_new != thenaMultisig);
+        require(msg.sender == thenaMultisig, "not allowed");
+        require(_new != address(0), "addr0");
+        require(_new != thenaMultisig, "same multisig");
         thenaMultisig = _new;
+        
+        emit SetThenaMultisig(_new);
     }
     
 

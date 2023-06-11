@@ -51,9 +51,6 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
 
-    uint public fees0;
-    uint public fees1;
-
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
 
@@ -146,12 +143,12 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     }
 
     function activateEmergencyMode() external onlyOwner {
-        require(emergency == false);
+        require(emergency == false, "emergency");
         emergency = true;
     }
 
     function stopEmergencyMode() external onlyOwner {
-        require(emergency == false);
+        require(emergency == false, "emergency");
         emergency = false;
     }
 
@@ -268,7 +265,7 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     }
 
     function emergencyWithdraw() external nonReentrant {
-        require(emergency);
+        require(emergency, "emergency");
         require(_balances[msg.sender] > 0, "no balances");
 
         uint256 _amount = _balances[msg.sender];
@@ -280,7 +277,7 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     }
     
     function emergencyWithdrawAmount(uint256 _amount) external nonReentrant {
-        require(emergency);
+        require(emergency, "emergency");
         require(_balances[msg.sender] >= _amount, "no balances");
 
         _totalSupply = _totalSupply.sub(_amount);
@@ -342,7 +339,7 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
 
     /// @dev Receive rewards from distribution
     function notifyRewardAmount(address token, uint reward) external nonReentrant isNotEmergency onlyDistribution updateReward(address(0)) {
-        require(token == address(rewardToken));
+        require(token == address(rewardToken), "not rew token");
         rewardToken.safeTransferFrom(DISTRIBUTION, address(this), reward);
 
         if (block.timestamp >= periodFinish) {
@@ -376,27 +373,21 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
         (claimed0, claimed1) = IFeeVault(feeVault).claimFees();
 
         if (claimed0 > 0 || claimed1 > 0) {
-            uint _fees0 = fees0 + claimed0;
-            uint _fees1 = fees1 + claimed1;
+            uint _fees0 = claimed0;
+            uint _fees1 = claimed1;
             (address _token0) = IPairInfo(_token).token0();
             (address _token1) = IPairInfo(_token).token1();
             if (_fees0  > 0) {
-                fees0 = 0;
                 IERC20(_token0).approve(internal_bribe, 0);
                 IERC20(_token0).approve(internal_bribe, _fees0);
                 IBribe(internal_bribe).notifyRewardAmount(_token0, _fees0);
-            } else {
-                fees0 = _fees0;
-            }
+            } 
 
             if (_fees1  > 0) {
-                fees1 = 0;
                 IERC20(_token1).approve(internal_bribe, 0);
                 IERC20(_token1).approve(internal_bribe, _fees1);
                 IBribe(internal_bribe).notifyRewardAmount(_token1, _fees1);
-            } else {
-                fees1 = _fees1;
-            }
+            } 
             emit ClaimFees(msg.sender, claimed0, claimed1);
         }
     }

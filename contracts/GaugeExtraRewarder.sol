@@ -31,11 +31,10 @@ contract GaugeExtraRewarder is Ownable {
     /// @notice Info of each user.
     struct UserInfo {
         uint256 amount;
-        int256 rewardDebt;
+        uint256 rewardDebt;
     }
 
     /// @notice Struct of pool info
-   
     struct PoolInfo {
         uint256 accRewardPerShare;
         uint256 lastRewardTime;
@@ -67,16 +66,25 @@ contract GaugeExtraRewarder is Ownable {
     }
 
 
-    function onReward(uint256 /*pid*/, address _user, address to, uint256 /*extraData*/, uint256 lpToken) onlyGauge external {
+    /// @notice Call onReward from gauge, it saves the new user balance and get any available reward
+    /// @param pid      PID of the pool if used
+    /// @param _user    user address
+    /// @param to       where to send rewards
+    /// @param extraData extra data for future upgrade
+    /// @param lpToken  the balance of LP in gauge
+    function onReward(uint256 pid, address _user, address to, uint256 extraData, uint256 lpToken) onlyGauge external {
+
         PoolInfo memory pool = updatePool();
         UserInfo storage user = userInfo[_user];
         uint256 pending;
         if (user.amount > 0) {
+
             pending = _pendingReward(_user);
+
             rewardToken.safeTransfer(to, pending);
         }
         user.amount = lpToken;
-        user.rewardDebt = int256(lpToken.mul(pool.accRewardPerShare) / ACC_TOKEN_PRECISION);
+        user.rewardDebt = (lpToken.mul(pool.accRewardPerShare) / ACC_TOKEN_PRECISION);
     }
 
 
@@ -105,7 +113,7 @@ contract GaugeExtraRewarder is Ownable {
             uint256 reward = time.mul(rewardPerSecond);
             accRewardPerShare = accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION) / lpSupply );
         }
-        pending = int256( user.amount.mul(accRewardPerShare) / ACC_TOKEN_PRECISION ).sub(user.rewardDebt).toUInt256();
+        pending = ( user.amount.mul(accRewardPerShare) / ACC_TOKEN_PRECISION ).sub(user.rewardDebt);
     }
 
 
@@ -116,11 +124,13 @@ contract GaugeExtraRewarder is Ownable {
 
 
 
+
+    /// @notice Set the distribution rate for a given distributePeriod. Rewards needs to be sent before calling setDistributionRate
     function setDistributionRate(uint256 amount) public onlyOwner {
         updatePool();
-        require(IERC20(rewardToken).balanceOf(address(this)) >= amount);
+        require(IERC20(rewardToken).balanceOf(address(this)) >= amount, "not enough");
         uint256 notDistributed;
-        if (lastDistributedTime > 0 && block.timestamp < lastDistributedTime) {
+        if (block.timestamp < lastDistributedTime) {
             uint256 timeLeft = lastDistributedTime.sub(block.timestamp);
             notDistributed = rewardPerSecond.mul(timeLeft);
         }
@@ -159,11 +169,11 @@ contract GaugeExtraRewarder is Ownable {
         }
     }
 
-
+    /// @notice Recover any ERC20 available
     function recoverERC20(uint amount, address token) external onlyOwner {
-        require(amount > 0);
-        require(token != address(0));
-        require(IERC20(token).balanceOf(address(this)) >= amount);
+        require(amount > 0, "amount > 0");
+        require(token != address(0), "addr0");
+        require(IERC20(token).balanceOf(address(this)) >= amount, "not enough");
         IERC20(token).safeTransfer(msg.sender, amount);
     }
 
