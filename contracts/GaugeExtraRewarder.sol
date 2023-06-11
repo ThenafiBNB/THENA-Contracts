@@ -20,7 +20,6 @@ contract GaugeExtraRewarder is Ownable {
 
     using SafeERC20 for IERC20;
 
-    bool public stop = false;
 
     IERC20 public immutable rewardToken;
 
@@ -49,7 +48,7 @@ contract GaugeExtraRewarder is Ownable {
     uint256 public immutable ACC_TOKEN_PRECISION = 1e12;
 
 
-    address private immutable GAUGE;
+    address private GAUGE;
 
     event OnReward(address indexed user, uint256 LPBalance, uint256 rewardAmount, address indexed to);
 
@@ -63,15 +62,16 @@ contract GaugeExtraRewarder is Ownable {
         distributePeriod = 7 days;
     }
 
-
+    /// @notice Call onReward from gauge, it saves the new user balance and get any available reward
+    /// @param _user    user address
+    /// @param to       where to send rewards
+    /// @param userBalance  the balance of LP in gauge
     function onReward(address _user, address to, uint256 userBalance) onlyGauge external {
-        if(stop) return;
         PoolInfo memory pool = updatePool();
         UserInfo storage user = userInfo[_user];
         uint256 pending;
-        uint256 accRewardPerShare = pool.accRewardPerShare;
         if (user.amount > 0) {
-            pending = user.amount * accRewardPerShare / ACC_TOKEN_PRECISION - user.rewardDebt;
+            pending = _pendingReward(_user);
             rewardToken.safeTransfer(to, pending);
         }
         user.amount = userBalance;
@@ -81,19 +81,30 @@ contract GaugeExtraRewarder is Ownable {
     }
 
 
-    /// @notice View function to see pending WBNB on frontend.
+    /// @notice View function to see pending Rewards on frontend.
     /// @param _user Address of user.
     /// @return pending rewardToken reward for a given user.
-    function pendingReward(address _user) external view returns (uint256 pending){
+    function pendingReward(address _user) public view returns (uint256 pending){
+        pending = _pendingReward(_user);
+    }
+    function _pendingReward(address _user) internal view returns(uint256 pending){
         PoolInfo memory pool = poolInfo;
         UserInfo storage user = userInfo[_user];
         uint256 accRewardPerShare = pool.accRewardPerShare;
         uint256 lpSupply = IERC20(IGauge(GAUGE).TOKEN()).balanceOf(GAUGE);
 
         if (block.timestamp > pool.lastRewardTime && lpSupply != 0) {
-            uint256 time = block.timestamp - (pool.lastRewardTime);
-            uint256 reward = time * (rewardPerSecond);
-            accRewardPerShare = accRewardPerShare + ( reward * (ACC_TOKEN_PRECISION) / lpSupply );
+            // if we reach the end, look for the missing seconds up to LastDistributedTime ; else use block.timestamp
+            uint _tempTimestamp;
+            if( block.timestamp >= lastDistributedTime){
+                // if lastRewardTime is > than LastDistributedTime then set tempTimestamp to 0 to avoid underflow
+                _tempTimestamp = pool.lastRewardTime > lastDistributedTime ?  0 : lastDistributedTime.sub(pool.lastRewardTime);
+            } else {
+                _tempTimestamp = block.timestamp.sub(pool.lastRewardTime);
+            } 
+            uint256 time = _tempTimestamp;
+            uint256 reward = time.mul(rewardPerSecond);
+            accRewardPerShare = accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION) / lpSupply );
         }
         pending =  (user.amount * (accRewardPerShare) / ACC_TOKEN_PRECISION)  - (user.rewardDebt);
     }
@@ -104,14 +115,6 @@ contract GaugeExtraRewarder is Ownable {
         _;
     }
 
-
-
-    /// @notice Sets the reward per second to be distributed. Can only be called by the owner.
-    /// @param _rewardPerSecond The amount of Reward to be distributed per second.
-    function setRewardPerSecond(uint256 _rewardPerSecond) public onlyOwner {
-        updatePool();
-        rewardPerSecond = _rewardPerSecond;
-    }
 
 
     function setDistributionRate(uint256 amount) public onlyOwner {
@@ -125,6 +128,8 @@ contract GaugeExtraRewarder is Ownable {
 
         amount = amount + (notDistributed);
         uint256 _rewardPerSecond = amount / (distributePeriod);
+        require(IERC20(rewardToken).balanceOf(address(this)) >= amount);
+
         rewardPerSecond = _rewardPerSecond;
         lastDistributedTime = block.timestamp + (distributePeriod);
     }
@@ -135,13 +140,22 @@ contract GaugeExtraRewarder is Ownable {
     /// @return pool Returns the pool that was updated.
     function updatePool() public returns (PoolInfo memory pool) {
         pool = poolInfo;
-
         if (block.timestamp > pool.lastRewardTime) {
             uint256 lpSupply = IERC20(IGauge(GAUGE).TOKEN()).balanceOf(GAUGE);
             if (lpSupply > 0) {
-                uint256 time = block.timestamp - (pool.lastRewardTime);
-                uint256 reward = time * (rewardPerSecond);
-                pool.accRewardPerShare = pool.accRewardPerShare + ( reward * (ACC_TOKEN_PRECISION) / (lpSupply) );
+                // if we reach the end, look for the missing seconds up to LastDistributedTime ; else use block.timestamp
+                uint _tempTimestamp;
+                if( block.timestamp >= lastDistributedTime){
+                    // if lastRewardTime is > than LastDistributedTime then set tempTimestamp to 0 to avoid underflow
+                    _tempTimestamp = pool.lastRewardTime > lastDistributedTime ?  0 : lastDistributedTime.sub(pool.lastRewardTime);
+                } else {
+                    _tempTimestamp = block.timestamp.sub(pool.lastRewardTime);
+                } 
+
+                uint256 time = _tempTimestamp;
+                uint256 reward = time.mul(rewardPerSecond);
+                pool.accRewardPerShare = pool.accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION).div(lpSupply) );
+
             }
             pool.lastRewardTime = block.timestamp;
             poolInfo = pool;
@@ -156,13 +170,12 @@ contract GaugeExtraRewarder is Ownable {
         IERC20(token).safeTransfer(msg.sender, amount);
     }
 
-    function stopRewarder() external onlyOwner {
-        stop = true;
+
+
+    function _gauge() external view returns(address){
+        return GAUGE;
     }
 
-    function startRewarder() external onlyOwner {
-        stop = false;
-    }
 
 
 }

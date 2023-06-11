@@ -208,11 +208,11 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         _balances[account] = _balances[account] + amount;
         _totalSupply = _totalSupply + amount;
 
-        TOKEN.safeTransferFrom(account, address(this), amount);
-
         if (address(gaugeRewarder) != address(0)) {
             IRewarder(gaugeRewarder).onReward(account, account, _balances[account]);
         }
+
+        TOKEN.safeTransferFrom(account, address(this), amount);
 
         emit Deposit(account, amount);
     }
@@ -282,7 +282,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         }
     }
 
-     ///@notice User harvest function
+    ///@notice User harvest function
     function getReward() public nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
