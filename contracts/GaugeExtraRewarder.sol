@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./libraries/SignedSafeMath.sol";
 
 
 interface IRewarder {
@@ -21,8 +19,6 @@ interface IGauge {
 contract GaugeExtraRewarder is Ownable {
 
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
-    using SignedSafeMath for int256;
 
     bool public stop = false;
 
@@ -31,7 +27,7 @@ contract GaugeExtraRewarder is Ownable {
     /// @notice Info of each user.
     struct UserInfo {
         uint256 amount;
-        int256 rewardDebt;
+        uint256 rewardDebt;
     }
 
     /// @notice Struct of pool info
@@ -74,11 +70,11 @@ contract GaugeExtraRewarder is Ownable {
         uint256 pending;
         uint256 accRewardPerShare = pool.accRewardPerShare;
         if (user.amount > 0) {
-            pending = int256( user.amount.mul(accRewardPerShare) / ACC_TOKEN_PRECISION ).sub(user.rewardDebt).toUInt256();
+            pending = user.amount * accRewardPerShare / ACC_TOKEN_PRECISION - user.rewardDebt;
             rewardToken.safeTransfer(to, pending);
         }
         user.amount = lpToken;
-        user.rewardDebt = int256(lpToken.mul(pool.accRewardPerShare) / ACC_TOKEN_PRECISION);
+        user.rewardDebt = (lpToken * (pool.accRewardPerShare) / ACC_TOKEN_PRECISION);
 
         emit OnReward(_user, lpToken, pending, to);
     }
@@ -94,11 +90,11 @@ contract GaugeExtraRewarder is Ownable {
         uint256 lpSupply = IERC20(IGauge(GAUGE).TOKEN()).balanceOf(GAUGE);
 
         if (block.timestamp > pool.lastRewardTime && lpSupply != 0) {
-            uint256 time = block.timestamp.sub(pool.lastRewardTime);
-            uint256 reward = time.mul(rewardPerSecond);
-            accRewardPerShare = accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION) / lpSupply );
+            uint256 time = block.timestamp - (pool.lastRewardTime);
+            uint256 reward = time * (rewardPerSecond);
+            accRewardPerShare = accRewardPerShare + ( reward * (ACC_TOKEN_PRECISION) / lpSupply );
         }
-        pending = int256( user.amount.mul(accRewardPerShare) / ACC_TOKEN_PRECISION ).sub(user.rewardDebt).toUInt256();
+        pending =  (user.amount * (accRewardPerShare) / ACC_TOKEN_PRECISION)  - (user.rewardDebt);
     }
 
 
@@ -122,14 +118,14 @@ contract GaugeExtraRewarder is Ownable {
         require(IERC20(rewardToken).balanceOf(address(this)) >= amount);
         uint256 notDistributed;
         if (lastDistributedTime > 0 && block.timestamp < lastDistributedTime) {
-            uint256 timeLeft = lastDistributedTime.sub(block.timestamp);
-            notDistributed = rewardPerSecond.mul(timeLeft);
+            uint256 timeLeft = lastDistributedTime - (block.timestamp);
+            notDistributed = rewardPerSecond * (timeLeft);
         }
 
-        amount = amount.add(notDistributed);
-        uint256 _rewardPerSecond = amount.div(distributePeriod);
+        amount = amount + (notDistributed);
+        uint256 _rewardPerSecond = amount / (distributePeriod);
         rewardPerSecond = _rewardPerSecond;
-        lastDistributedTime = block.timestamp.add(distributePeriod);
+        lastDistributedTime = block.timestamp + (distributePeriod);
     }
 
 
@@ -142,9 +138,9 @@ contract GaugeExtraRewarder is Ownable {
         if (block.timestamp > pool.lastRewardTime) {
             uint256 lpSupply = IERC20(IGauge(GAUGE).TOKEN()).balanceOf(GAUGE);
             if (lpSupply > 0) {
-                uint256 time = block.timestamp.sub(pool.lastRewardTime);
-                uint256 reward = time.mul(rewardPerSecond);
-                pool.accRewardPerShare = pool.accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION).div(lpSupply) );
+                uint256 time = block.timestamp - (pool.lastRewardTime);
+                uint256 reward = time * (rewardPerSecond);
+                pool.accRewardPerShare = pool.accRewardPerShare + ( reward * (ACC_TOKEN_PRECISION) / (lpSupply) );
             }
             pool.lastRewardTime = block.timestamp;
             poolInfo = pool;

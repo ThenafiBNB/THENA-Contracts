@@ -26,7 +26,7 @@ interface IFeeVault {
 
 
 contract GaugeV2_CL is ReentrancyGuard, Ownable {
-    using SafeMath for uint256;
+
     using SafeERC20 for IERC20;
 
     bool public emergency;
@@ -175,18 +175,18 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
         if (_totalSupply == 0) {
             return rewardPerTokenStored;
         } else {
-            return rewardPerTokenStored.add(lastTimeRewardApplicable().sub(lastUpdateTime).mul(rewardRate).mul(1e18).div(_totalSupply));
+            return rewardPerTokenStored + (lastTimeRewardApplicable() - lastUpdateTime) * rewardRate * 1e18 / _totalSupply; 
         }
     }
 
     ///@notice see earned rewards for user
     function earned(address account) public view returns (uint256) {
-        return _balances[account].mul(rewardPerToken().sub(userRewardPerTokenPaid[account])).div(1e18).add(rewards[account]);
+        return rewards[account] + _balances[account] * (rewardPerToken() - userRewardPerTokenPaid[account]) / 1e18;  
     }
 
     ///@notice get total reward for the duration
     function rewardForDuration() external view returns (uint256) {
-        return rewardRate.mul(DURATION);
+        return rewardRate * DURATION;
     }
 
     function _periodFinish() external view returns (uint256) {
@@ -218,8 +218,8 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     function _deposit(uint256 amount, address account) internal nonReentrant isNotEmergency updateReward(account) {
         require(amount > 0, "deposit(Gauge): cannot stake 0");
 
-        _balances[account] = _balances[account].add(amount);
-        _totalSupply = _totalSupply.add(amount);
+        _balances[account] = _balances[account] + (amount);
+        _totalSupply = _totalSupply + (amount);
 
         TOKEN.safeTransferFrom(account, address(this), amount);
 
@@ -243,11 +243,10 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     ///@notice withdraw internal
     function _withdraw(uint256 amount) internal nonReentrant isNotEmergency updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
-        require(_totalSupply.sub(amount) >= 0, "supply < 0");
         require(_balances[msg.sender] > 0, "no balances");
 
-        _totalSupply = _totalSupply.sub(amount);
-        _balances[msg.sender] = _balances[msg.sender].sub(amount);
+        _totalSupply = _totalSupply - (amount);
+        _balances[msg.sender] = _balances[msg.sender] - (amount);
 
         if (address(gaugeRewarder) != address(0)) {
             IRewarder(gaugeRewarder).onReward(msg.sender, msg.sender, _balances[msg.sender]);
@@ -263,7 +262,7 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
         require(_balances[msg.sender] > 0, "no balances");
 
         uint256 _amount = _balances[msg.sender];
-        _totalSupply = _totalSupply.sub(_amount);
+        _totalSupply = _totalSupply - (_amount);
         _balances[msg.sender] = 0;
 
         TOKEN.safeTransfer(msg.sender, _amount);
@@ -274,7 +273,7 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
         require(emergency);
         require(_balances[msg.sender] >= _amount, "no balances");
 
-        _totalSupply = _totalSupply.sub(_amount);
+        _totalSupply = _totalSupply - (_amount);
         _balances[msg.sender] -= _amount;
         TOKEN.safeTransfer(msg.sender, _amount);
         emit Withdraw(msg.sender, _amount);
@@ -337,11 +336,11 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
         rewardToken.safeTransferFrom(DISTRIBUTION, address(this), reward);
 
         if (block.timestamp >= periodFinish) {
-            rewardRate = reward.div(DURATION);
+            rewardRate = reward / (DURATION);
         } else {
-            uint256 remaining = periodFinish.sub(block.timestamp);
-            uint256 leftover = remaining.mul(rewardRate);
-            rewardRate = reward.add(leftover).div(DURATION);
+            uint256 remaining = periodFinish - (block.timestamp);
+            uint256 leftover = remaining * (rewardRate);
+            rewardRate = reward + (leftover) / (DURATION);
         }
 
         // Ensure the provided reward amount is not more than the balance in the contract.
@@ -349,10 +348,10 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
         // very high values of rewardRate in the earned and rewardsPerToken functions;
         // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
         uint256 balance = rewardToken.balanceOf(address(this));
-        require(rewardRate <= balance.div(DURATION), "Provided reward too high");
+        require(rewardRate <= balance / (DURATION), "Provided reward too high");
 
         lastUpdateTime = block.timestamp;
-        periodFinish = block.timestamp.add(DURATION);
+        periodFinish = block.timestamp + (DURATION);
         emit RewardAdded(reward);
     }
 
