@@ -14,7 +14,6 @@ import './interfaces/IVoter.sol';
 import './interfaces/IVotingEscrow.sol';
 import './interfaces/IPermissionsRegistry.sol';
 import './interfaces/IAlgebraFactory.sol';
-import "hardhat/console.sol";
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
