@@ -405,9 +405,11 @@ contract Bribe is ReentrancyGuard {
     }
 
     /// @notice Set a new Owner
+    event SetOwner(address indexed _owner);
     function setOwner(address _owner) external onlyAllowed {
         require(_owner != address(0));
         owner = _owner;
+        emit SetOwner(_owner);
     }
 
 

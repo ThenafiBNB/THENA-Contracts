@@ -27,6 +27,15 @@ contract PermissionsRegistry {
     /// @notice Roles array
     bytes[] internal _roles;
 
+    event RoleAdded(bytes role);
+    event RoleRemoved(bytes role);
+    event RoleSetFor(address indexed user, bytes indexed role);
+    event RoleRemovedFor(address indexed user, bytes indexed role);
+    event SetEmergencyCouncil(address indexed council);
+    event SetThenaTeamMultisig(address indexed multisig);
+    event SetThenaMultisig(address indexed multisig);
+
+
 
     constructor() {
         thenaTeamMultisig = msg.sender;
@@ -72,6 +81,7 @@ contract PermissionsRegistry {
         require(!_checkRole[_role], 'is a role');
         _checkRole[_role] = true;
         _roles.push(_role);
+        emit RoleAdded(_role);
     }
 
     /// @notice Remove a role
@@ -85,6 +95,7 @@ contract PermissionsRegistry {
                 _roles[i] = _roles[_roles.length -1];
                 _roles.pop();
                 _checkRole[_role] = false;
+                emit RoleRemoved(_role);
                 break; 
             }
         }
@@ -102,6 +113,8 @@ contract PermissionsRegistry {
 
         _roleToAddresses[_role].push(c);
         _addressToRoles[c].push(_role);
+
+        emit RoleSetFor(c, _role);
 
     }
 
@@ -129,6 +142,8 @@ contract PermissionsRegistry {
                 atr.pop();
             }
         }
+
+        emit RoleRemovedFor(c, _role);
         
     }
 
@@ -205,6 +220,8 @@ contract PermissionsRegistry {
         require(_new != address(0), "addr0");
         require(_new != emergencyCouncil, "same emergencyCouncil");
         emergencyCouncil = _new;
+
+        emit SetEmergencyCouncil(_new);
     }
 
 
@@ -215,6 +232,8 @@ contract PermissionsRegistry {
         require(_new != address(0), "addr 0");
         require(_new != thenaTeamMultisig, "same multisig");
         thenaTeamMultisig = _new;
+        
+        emit SetThenaTeamMultisig(_new);
     }
 
     /// @notice set thena multisig
@@ -224,6 +243,8 @@ contract PermissionsRegistry {
         require(_new != address(0), "addr0");
         require(_new != thenaMultisig, "same multisig");
         thenaMultisig = _new;
+        
+        emit SetThenaMultisig(_new);
     }
     
 

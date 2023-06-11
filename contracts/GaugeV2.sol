@@ -58,6 +58,8 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     event Withdraw(address indexed user, uint256 amount);
     event Harvest(address indexed user, uint256 reward);
     event ClaimFees(address indexed from, uint claimed0, uint claimed1);
+    event EmergencyActivated(address indexed gauge, uint timestamp);
+    event EmergencyDeactivated(address indexed gauge, uint timestamp);
 
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
@@ -134,11 +136,13 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     function activateEmergencyMode() external onlyOwner {
         require(emergency == false, "emergency");
         emergency = true;
+        emit EmergencyActivated(address(this), block.timestamp);
     }
 
     function stopEmergencyMode() external onlyOwner {
         require(emergency == false, "emergency");
         emergency = false;
+        emit EmergencyDeactivated(address(this), block.timestamp);
     }
 
 
