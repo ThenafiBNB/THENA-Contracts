@@ -151,7 +151,7 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     }
 
     function stopEmergencyMode() external onlyOwner {
-        require(emergency == false);
+        require(emergency == true);
         emergency = false;
     }
 
