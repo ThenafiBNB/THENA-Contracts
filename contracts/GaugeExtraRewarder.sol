@@ -32,7 +32,7 @@ contract GaugeExtraRewarder is Ownable {
     /// @notice Info of each user.
     struct UserInfo {
         uint256 amount;
-        int256 rewardDebt;
+        uint256 rewardDebt;
     }
 
     /// @notice Struct of pool info
@@ -75,11 +75,11 @@ contract GaugeExtraRewarder is Ownable {
         uint256 pending;
         uint256 accRewardPerShare = pool.accRewardPerShare;
         if (user.amount > 0) {
-            pending = int256( user.amount.mul(accRewardPerShare) / ACC_TOKEN_PRECISION ).sub(user.rewardDebt).toUInt256();
+            pending = ( user.amount.mul(accRewardPerShare) / ACC_TOKEN_PRECISION ).sub(user.rewardDebt);
             rewardToken.safeTransfer(to, pending);
         }
         user.amount = lpToken;
-        user.rewardDebt = int256(lpToken.mul(pool.accRewardPerShare) / ACC_TOKEN_PRECISION);
+        user.rewardDebt = (lpToken.mul(pool.accRewardPerShare) / ACC_TOKEN_PRECISION);
     }
 
 
@@ -97,7 +97,7 @@ contract GaugeExtraRewarder is Ownable {
             uint256 reward = time.mul(rewardPerSecond);
             accRewardPerShare = accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION) / lpSupply );
         }
-        pending = int256( user.amount.mul(accRewardPerShare) / ACC_TOKEN_PRECISION ).sub(user.rewardDebt).toUInt256();
+        pending = ( user.amount.mul(accRewardPerShare) / ACC_TOKEN_PRECISION ).sub(user.rewardDebt);
     }
 
 
