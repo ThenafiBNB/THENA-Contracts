@@ -123,7 +123,7 @@ contract PermissionsRegistry {
         }
 
         bytes[] storage atr = _addressToRoles[c];
-        for(uint i = 0; i < rta.length; i++){
+        for(uint i = 0; i < atr.length; i++){
             if(keccak256(atr[i]) == keccak256(_role)){
                 atr[i] = atr[atr.length -1];
                 atr.pop();
