@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
+
 import './interfaces/IBribe.sol';
 import './interfaces/IBribeFactory.sol';
 import './interfaces/IGauge.sol';
@@ -67,7 +68,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     event GaugeKilled(address indexed gauge);
     event GaugeRevived(address indexed gauge);
     event Voted(address indexed voter, uint tokenId, uint256 weight);
-    event Abstained(uint tokenId, uint256 weight);
+    event Abstained(uint indexed tokenId, uint256 weight);
     event NotifyReward(address indexed sender, address indexed reward, uint amount);
     event DistributeReward(address indexed sender, address indexed gauge, uint amount);
     event Attach(address indexed owner, address indexed gauge, uint tokenId);

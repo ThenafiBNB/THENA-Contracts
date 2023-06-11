@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.11;
+pragma solidity 0.8.13;
 
 import "./interfaces/IMinter.sol";
 import "./interfaces/IVoter.sol";
@@ -434,9 +434,9 @@ contract Bribe is ReentrancyGuard {
 
     /* ========== EVENTS ========== */
 
-    event RewardAdded(address rewardToken, uint256 reward, uint256 startTimestamp);
+    event RewardAdded(address indexed rewardToken, uint256 reward, uint256 startTimestamp);
     event Staked(uint256 indexed tokenId, uint256 amount);
     event Withdrawn(uint256 indexed tokenId, uint256 amount);
     event RewardPaid(address indexed user,address indexed rewardsToken,uint256 reward);
-    event Recovered(address token, uint256 amount);
+    event Recovered(address indexed token, uint256 amount);
 }

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.11;
-
+pragma solidity 0.8.13;
 
 /*
     This contract handles the accesses to the various Thena contracts.
