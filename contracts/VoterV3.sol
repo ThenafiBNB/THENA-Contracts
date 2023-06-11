@@ -299,6 +299,9 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(isAlive[_gauge], "gauge already dead");
         isAlive[_gauge] = false;
         claimable[_gauge] = 0;
+        uint _time = _epochTimestamp();
+        totWeightsPerEpoch[_time] -= weightsPerEpoch[_time][poolForGauge[_gauge]]; 
+
         emit GaugeKilled(_gauge);
     }
 
@@ -310,27 +313,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         isAlive[_gauge] = true;
         emit GaugeRevived(_gauge);
     }
-    
-    /// @notice Kill a malicious gauge completly
-    /// @param  _gauge gauge to kill
-    function killGaugeTotally(address _gauge) external Governance {
-        require(isAlive[_gauge], "gauge already dead");
-
-        delete isAlive[_gauge];
-        delete internal_bribes[_gauge];
-        delete external_bribes[_gauge];
-        delete poolForGauge[_gauge];
-        delete isGauge[_gauge];
-        delete claimable[_gauge];
-        delete supplyIndex[_gauge];
-
-        address _pool = poolForGauge[_gauge];
-        gauges[_pool] = address(0);
-        
-
-        emit GaugeKilled(_gauge);
-    }
-
+   
     /* -----------------------------------------------------------------------------
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
@@ -360,7 +343,6 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
             uint256 _votes = votes[_tokenId][_pool];
 
             if (_votes != 0) {
-                _updateFor(gauges[_pool]);
 
                 // if user last vote is < than epochTimestamp then votes are 0! IF not underflow occur
                 if(lastVoted[_tokenId] > _epochTimestamp()) weightsPerEpoch[_time][_pool] -= _votes;
@@ -370,7 +352,9 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
                 if (_votes > 0) {
                     IBribe(internal_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
                     IBribe(external_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
-                    _totalWeight += _votes;
+
+                    // if is alive remove _votes, else don't because we already done it in killGauge()
+                    if(isAlive[gauges[_pool]]) _totalWeight += _votes;
                 }
                 
                 emit Abstained(_tokenId, _votes);
@@ -432,11 +416,10 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
             address _pool = _poolVote[i];
             address _gauge = gauges[_pool];
 
-            if (isGauge[_gauge]) {
+            if (isGauge[_gauge] && isAlive[_gauge]) {
                 uint256 _poolWeight = _weights[i] * _weight / _totalVoteWeight;
                 require(votes[_tokenId][_pool] == 0);
                 require(_poolWeight != 0);
-                _updateFor(_gauge);
 
                 poolVote[_tokenId].push(_pool);
                 weightsPerEpoch[_time][_pool] += _poolWeight;
@@ -611,7 +594,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         pools.push(_pool);
 
         // update index
-        _updateFor(_gauge);
+        supplyIndex[_gauge] = index; // new gauges are set to the default global state
 
         emit GaugeCreated(_gauge, msg.sender, _internal_bribe, _external_bribe, _pool);
     }
@@ -771,49 +754,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     --------------------------------------------------------------------------------
     --------------------------------------------------------------------------------
     ----------------------------------------------------------------------------- */
-    
-    /// @notice update info for given gauges
-    function updateFor(address[] memory _gauges) external {
-        for (uint i = 0; i < _gauges.length; i++) {
-            _updateFor(_gauges[i]);
-        }
-    }
-
-    /// @notice update gauge info from start to end
-    function updateForRange(uint start, uint end) public {
-        for (uint i = start; i < end; i++) {
-            _updateFor(gauges[pools[i]]);
-        }
-    }
-
-    /// @notice update info for ALL gauges
-    function updateAll() external {
-        updateForRange(0, pools.length);
-    }
-
-    /// @notice update info for gauges
-    /// @dev    this function track the gauge index to emit the correct $the amount
-    function _updateFor(address _gauge) internal {
-        address _pool = poolForGauge[_gauge];
-        uint256 _time = _epochTimestamp();
-        uint256 _supplied = weightsPerEpoch[_time][_pool];
-
-        if (_supplied > 0) {
-            uint _supplyIndex = supplyIndex[_gauge];
-            uint _index = index; // get global index0 for accumulated distro
-            supplyIndex[_gauge] = _index; // update _gauge current position to global position
-            uint _delta = _index - _supplyIndex; // see if there is any difference that need to be accrued
-            if (_delta > 0) {
-                uint _share = uint(_supplied) * _delta / 1e18; // add accrued difference for each supplied token
-                if (isAlive[_gauge]) {
-                    claimable[_gauge] += _share;
-                }
-            }
-        } else {
-            supplyIndex[_gauge] = index; // new users are set to the default global state
-        }
-    }
-
+ 
+  
     /// @notice update info for gauges
     /// @dev    this function track the gauge index to emit the correct $the amount after the distribution
     function _updateForAfterDistribution(address _gauge) private {
