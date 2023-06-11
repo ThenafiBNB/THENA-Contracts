@@ -56,7 +56,7 @@ contract GaugeExtraRewarder is Ownable {
 
     address private immutable GAUGE;
 
-    event LogOnReward(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
+    event OnReward(address indexed user, uint256 LPBalance, uint256 rewardAmount, address indexed to);
 
     constructor (IERC20 _rewardToken, address gauge) {
         rewardToken = _rewardToken;
@@ -80,6 +80,8 @@ contract GaugeExtraRewarder is Ownable {
         }
         user.amount = lpToken;
         user.rewardDebt = int256(lpToken.mul(pool.accRewardPerShare) / ACC_TOKEN_PRECISION);
+
+        emit OnReward(_user, lpToken, pending, to);
     }
 
 
