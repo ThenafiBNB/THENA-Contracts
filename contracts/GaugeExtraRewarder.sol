@@ -36,7 +36,6 @@ contract GaugeExtraRewarder is Ownable {
     }
 
     /// @notice Struct of pool info
-   
     struct PoolInfo {
         uint256 accRewardPerShare;
         uint256 lastRewardTime;
@@ -67,8 +66,13 @@ contract GaugeExtraRewarder is Ownable {
         GAUGE = gauge;
     }
 
-
-    function onReward(uint256 /*pid*/, address _user, address to, uint256 /*extraData*/, uint256 lpToken) onlyGauge external {
+    /// @notice Call onReward from gauge, it saves the new user balance and get any available reward
+    /// @param pid      PID of the pool if used
+    /// @param _user    user address
+    /// @param to       where to send rewards
+    /// @param extraData extra data for future upgrade
+    /// @param lpToken  the balance of LP in gauge
+    function onReward(uint256 pid, address _user, address to, uint256 extraData, uint256 lpToken) onlyGauge external {
         if(stop) return;
         PoolInfo memory pool = updatePool();
         UserInfo storage user = userInfo[_user];
@@ -115,7 +119,7 @@ contract GaugeExtraRewarder is Ownable {
         rewardPerSecond = _rewardPerSecond;
     }
 
-
+    /// @notice Set the distribution rate for a given distributePeriod. Rewards needs to be sent before calling setDistributionRate
     function setDistributionRate(uint256 amount) public onlyOwner {
         updatePool();
         require(IERC20(rewardToken).balanceOf(address(this)) >= amount);
@@ -150,7 +154,7 @@ contract GaugeExtraRewarder is Ownable {
         }
     }
 
-
+    /// @notice Recover any ERC20 available
     function recoverERC20(uint amount, address token) external onlyOwner {
         require(amount > 0);
         require(token != address(0));
