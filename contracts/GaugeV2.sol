@@ -116,7 +116,6 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
 
     ///@notice set gauge rewarder address
     function setGaugeRewarder(address _gaugeRewarder) external onlyOwner {
-        require(_gaugeRewarder != address(0), "zero addr");
         require(_gaugeRewarder != gaugeRewarder, "same addr");
         gaugeRewarder = _gaugeRewarder;
     }
