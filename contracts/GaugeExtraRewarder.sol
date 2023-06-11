@@ -63,7 +63,7 @@ contract GaugeExtraRewarder is Ownable {
     }
 
 
-    function onReward(address _user, address to, uint256 lpToken) onlyGauge external {
+    function onReward(address _user, address to, uint256 userBalance) onlyGauge external {
         if(stop) return;
         PoolInfo memory pool = updatePool();
         UserInfo storage user = userInfo[_user];
@@ -73,10 +73,10 @@ contract GaugeExtraRewarder is Ownable {
             pending = user.amount * accRewardPerShare / ACC_TOKEN_PRECISION - user.rewardDebt;
             rewardToken.safeTransfer(to, pending);
         }
-        user.amount = lpToken;
-        user.rewardDebt = (lpToken * (pool.accRewardPerShare) / ACC_TOKEN_PRECISION);
+        user.amount = userBalance;
+        user.rewardDebt = (userBalance * (pool.accRewardPerShare) / ACC_TOKEN_PRECISION);
 
-        emit OnReward(_user, lpToken, pending, to);
+        emit OnReward(_user, userBalance, pending, to);
     }
 
 

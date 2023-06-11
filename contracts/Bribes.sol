@@ -358,18 +358,18 @@ contract Bribe is ReentrancyGuard {
     /* ========== RESTRICTED FUNCTIONS ========== */
 
     /// @notice add rewards tokens
-    function addRewards(address[] memory _rewardsToken) public onlyAllowed {
+    function addRewardTokens(address[] memory _rewardsToken) public onlyAllowed {
         uint i = 0;
         for(i; i < _rewardsToken.length; i++){
-           _addReward(_rewardsToken[i]);
+           _addRewardToken(_rewardsToken[i]);
         }
     }
 
     /// @notice add a single reward token
-    function addReward(address _rewardsToken) public onlyAllowed {
-        _addReward(_rewardsToken);
+    function addRewardToken(address _rewardsToken) public onlyAllowed {
+        _addRewardToken(_rewardsToken);
     }
-    function _addReward(address _rewardsToken) internal {
+    function _addRewardToken(address _rewardsToken) internal {
         if(!isRewardToken[_rewardsToken]){
             isRewardToken[_rewardsToken] = true;
             rewardTokens.push(_rewardsToken);
@@ -420,11 +420,6 @@ contract Bribe is ReentrancyGuard {
 
 
     /* ========== MODIFIERS ========== */
-
-    modifier onlyOwner() {
-        require(owner == msg.sender);
-        _;
-    }
 
     modifier onlyAllowed() {
         require( (msg.sender == owner || msg.sender == bribeFactory), "permission is denied!" );

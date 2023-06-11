@@ -7,10 +7,10 @@ pragma solidity 0.8.13;
 
 contract PermissionsRegistry {
 
-    /// @notice Control this contract 
+    /// @notice Control this contract. This is the main multisig 4/6
     address public thenaMultisig;
 
-    /// @notice Control this contract 
+    /// @notice This is the thena team multisig 2/2
     address public thenaTeamMultisig;
 
     /// @notice Control emergency functions (set to multisig)

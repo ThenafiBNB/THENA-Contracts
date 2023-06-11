@@ -14,7 +14,7 @@ interface IRewarder {
     function onReward(
         address user,
         address recipient,
-        uint256 newLpAmount
+        uint256 userBalance
     ) external;
 }
 
