@@ -491,23 +491,6 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         }
     }    
 
-    /// @notice attach a veNFT tokenID to a gauge. This is used for boost farming 
-    /// @dev boost not available in Thena. Keep the function in case we need it for future updates. 
-    function attachTokenToGauge(uint256 tokenId, address account) external {
-        require(isGauge[msg.sender]);
-        require(isAlive[msg.sender]); // killed gauges cannot attach tokens to themselves
-        if (tokenId > 0) IVotingEscrow(_ve).attach(tokenId);
-        emit Attach(account, msg.sender, tokenId);
-    }
-
-    
-    /// @notice detach a veNFT tokenID to a gauge. This is used for boost farming 
-    /// @dev boost not available in Thena. Keep the function in case we need it for future updates. 
-    function detachTokenFromGauge(uint256 tokenId, address account) external {
-        require(isGauge[msg.sender]);
-        if (tokenId > 0) IVotingEscrow(_ve).detach(tokenId);
-        emit Detach(account, msg.sender, tokenId);
-    }
 
     /// @notice check if user can vote
     function _voteDelay(uint256 _tokenId) internal view {
