@@ -30,7 +30,6 @@ contract GaugeExtraRewarder is Ownable {
     }
 
     /// @notice Struct of pool info
-   
     struct PoolInfo {
         uint256 accRewardPerShare;
         uint256 lastRewardTime;
@@ -71,13 +70,16 @@ contract GaugeExtraRewarder is Ownable {
         UserInfo storage user = userInfo[_user];
         uint256 pending;
         if (user.amount > 0) {
+
             pending = _pendingReward(_user);
+
             rewardToken.safeTransfer(to, pending);
         }
         user.amount = userBalance;
         user.rewardDebt = (userBalance * (pool.accRewardPerShare) / ACC_TOKEN_PRECISION);
 
         emit OnReward(_user, userBalance, pending, to);
+
     }
 
 
@@ -106,6 +108,7 @@ contract GaugeExtraRewarder is Ownable {
             uint256 reward = time.mul(rewardPerSecond);
             accRewardPerShare = accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION) / lpSupply );
         }
+        
         pending =  (user.amount * (accRewardPerShare) / ACC_TOKEN_PRECISION)  - (user.rewardDebt);
     }
 
@@ -117,13 +120,16 @@ contract GaugeExtraRewarder is Ownable {
 
 
 
+
+    /// @notice Set the distribution rate for a given distributePeriod. Rewards needs to be sent before calling setDistributionRate
     function setDistributionRate(uint256 amount) public onlyOwner {
         updatePool();
-        require(IERC20(rewardToken).balanceOf(address(this)) >= amount);
+        require(IERC20(rewardToken).balanceOf(address(this)) >= amount, "not enough");
         uint256 notDistributed;
-        if (lastDistributedTime > 0 && block.timestamp < lastDistributedTime) {
+        if (block.timestamp < lastDistributedTime) {
             uint256 timeLeft = lastDistributedTime - (block.timestamp);
             notDistributed = rewardPerSecond * (timeLeft);
+
         }
 
         amount = amount + (notDistributed);
@@ -163,10 +169,11 @@ contract GaugeExtraRewarder is Ownable {
     }
 
 
-    function recoverERC20(uint256 amount, address token) external onlyOwner {
-        require(amount > 0);
-        require(token != address(0));
-        require(IERC20(token).balanceOf(address(this)) >= amount);
+    /// @notice Recover any ERC20 available
+    function recoverERC20(uint amount, address token) external onlyOwner {
+        require(amount > 0, "amount > 0");
+        require(token != address(0), "addr0");
+        require(IERC20(token).balanceOf(address(this)) >= amount, "not enough");
         IERC20(token).safeTransfer(msg.sender, amount);
     }
 

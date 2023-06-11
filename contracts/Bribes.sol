@@ -9,12 +9,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 
-
-interface IERC20Ext {
-    function name() external returns(string memory);
-    function symbol() external returns(string memory);
-}
-
 contract Bribe is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -182,10 +176,7 @@ contract Bribe is ReentrancyGuard {
         uint256 _endTimestamp = IMinter(minter).active_period(); // claim until current epoch
         uint256 _userLastTime = userTimestamp[_owner][_rewardToken];
         
-        if(_endTimestamp == _userLastTime){
-            return (0, _userLastTime);
-        }
-
+        
         // if user first time then set it to first bribe - week to avoid any timestamp problem
         if(_userLastTime < firstBribeTimestamp){
             _userLastTime = firstBribeTimestamp - WEEK;
@@ -412,9 +403,11 @@ contract Bribe is ReentrancyGuard {
     }
 
     /// @notice Set a new Owner
+    event SetOwner(address indexed _owner);
     function setOwner(address _owner) external onlyAllowed {
         require(_owner != address(0));
         owner = _owner;
+        emit SetOwner(_owner);
     }
 
 
