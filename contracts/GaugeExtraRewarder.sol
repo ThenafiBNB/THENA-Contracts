@@ -68,7 +68,7 @@ contract GaugeExtraRewarder is Ownable {
     }
 
 
-    function onReward(uint256 /*pid*/, address _user, address to, uint256 /*extraData*/, uint256 lpToken) onlyGauge external {
+    function onReward(address _user, address to, uint256 lpToken) onlyGauge external {
         if(stop) return;
         PoolInfo memory pool = updatePool();
         UserInfo storage user = userInfo[_user];

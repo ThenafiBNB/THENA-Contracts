@@ -14,10 +14,8 @@ import "./libraries/Math.sol";
 
 interface IRewarder {
     function onReward(
-        uint256 pid,
         address user,
         address recipient,
-        uint256 amount,
         uint256 newLpAmount
     ) external;
 }
@@ -40,7 +38,6 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     address public internal_bribe;
     address public external_bribe;
 
-    uint256 public rewarderPid;
     uint256 public DURATION;
     uint256 public periodFinish;
     uint256 public rewardRate;
@@ -121,12 +118,6 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         gaugeRewarder = _gaugeRewarder;
     }
 
-    ///@notice set extra rewarder pid
-    function setRewarderPid(uint256 _pid) external onlyOwner {
-        require(_pid >= 0, "zero");
-        require(_pid != rewarderPid, "same pid");
-        rewarderPid = _pid;
-    }
 
     ///@notice set new internal bribe contract (where to send fees)
     function setInternalBribe(address _int) external onlyOwner {
@@ -222,7 +213,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         TOKEN.safeTransferFrom(account, address(this), amount);
 
         if (address(gaugeRewarder) != address(0)) {
-            IRewarder(gaugeRewarder).onReward(rewarderPid, account, account, 0, _balances[account]);
+            IRewarder(gaugeRewarder).onReward(account, account, _balances[account]);
         }
 
         emit Deposit(account, amount);
@@ -248,7 +239,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         _balances[msg.sender] = _balances[msg.sender].sub(amount);
 
         if (address(gaugeRewarder) != address(0)) {
-            IRewarder(gaugeRewarder).onReward(rewarderPid, msg.sender, msg.sender, 0, _balances[msg.sender]);
+            IRewarder(gaugeRewarder).onReward(msg.sender, msg.sender,_balances[msg.sender]);
         }
 
         TOKEN.safeTransfer(msg.sender, amount);
@@ -290,7 +281,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         }
 
         if (gaugeRewarder != address(0)) {
-            IRewarder(gaugeRewarder).onReward(rewarderPid, _user, _user, reward, _balances[_user]);
+            IRewarder(gaugeRewarder).onReward(_user, _user, _balances[_user]);
         }
     }
 
@@ -304,7 +295,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         }
 
         if (gaugeRewarder != address(0)) {
-            IRewarder(gaugeRewarder).onReward(rewarderPid, msg.sender, msg.sender, reward, _balances[msg.sender]);
+            IRewarder(gaugeRewarder).onReward(msg.sender, msg.sender, _balances[msg.sender]);
         }
     }
 
