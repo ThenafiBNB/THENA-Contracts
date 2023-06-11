@@ -300,7 +300,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         emit GaugeKilled(_gauge);
     }
 
-    /// @notice Revive a malicious gauge 
+    /// @notice Revive a killed gauge 
     /// @param  _gauge gauge to revive
     function reviveGauge(address _gauge) external Governance {
         require(!isAlive[_gauge], "gauge already alive");

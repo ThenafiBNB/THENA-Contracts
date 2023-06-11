@@ -102,7 +102,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     --------------------------------------------------------------------------------
     ----------------------------------------------------------------------------- */
 
-    ///@notice set distribution address (should be GaugeProxyL2)
+    ///@notice set distribution address (should be voter)
     function setDistribution(address _distribution) external onlyOwner {
         require(_distribution != address(0), "zero addr");
         require(_distribution != DISTRIBUTION, "same addr");
