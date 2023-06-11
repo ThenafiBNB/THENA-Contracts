@@ -43,10 +43,10 @@ contract GaugeExtraRewarder is Ownable {
     /// @notice Info of each user that stakes tokens.
     mapping(address => UserInfo) public userInfo;
 
-    uint public lastDistributedTime;
-    uint public rewardPerSecond;
-    uint public immutable distributePeriod;
-    uint public immutable ACC_TOKEN_PRECISION = 1e12;
+    uint256 public lastDistributedTime;
+    uint256 public rewardPerSecond;
+    uint256 public immutable distributePeriod;
+    uint256 public immutable ACC_TOKEN_PRECISION = 1e12;
 
 
     address private immutable GAUGE;
@@ -149,7 +149,7 @@ contract GaugeExtraRewarder is Ownable {
     }
 
 
-    function recoverERC20(uint amount, address token) external onlyOwner {
+    function recoverERC20(uint256 amount, address token) external onlyOwner {
         require(amount > 0);
         require(token != address(0));
         require(IERC20(token).balanceOf(address(this)) >= amount);

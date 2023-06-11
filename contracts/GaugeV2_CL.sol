@@ -49,8 +49,8 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
 
-    uint public fees0;
-    uint public fees1;
+    uint256 public fees0;
+    uint256 public fees1;
 
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
@@ -62,7 +62,7 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     event Deposit(address indexed user, uint256 amount);
     event Withdraw(address indexed user, uint256 amount);
     event Harvest(address indexed user, uint256 reward);
-    event ClaimFees(address indexed from, uint claimed0, uint claimed1);
+    event ClaimFees(address indexed from, uint256 claimed0, uint256 claimed1);
 
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
@@ -331,7 +331,7 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
 
 
     /// @dev Receive rewards from distribution
-    function notifyRewardAmount(address token, uint reward) external nonReentrant isNotEmergency onlyDistribution updateReward(address(0)) {
+    function notifyRewardAmount(address token, uint256 reward) external nonReentrant isNotEmergency onlyDistribution updateReward(address(0)) {
         require(token == address(rewardToken));
         rewardToken.safeTransferFrom(DISTRIBUTION, address(this), reward);
 
@@ -356,18 +356,18 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     }
 
 
-    function claimFees() external nonReentrant returns (uint claimed0, uint claimed1) {
+    function claimFees() external nonReentrant returns (uint256 claimed0, uint256 claimed1) {
         return _claimFees();
     }
 
-     function _claimFees() internal returns (uint claimed0, uint claimed1) {
+     function _claimFees() internal returns (uint256 claimed0, uint256 claimed1) {
 
         address _token = address(TOKEN);
         (claimed0, claimed1) = IFeeVault(feeVault).claimFees();
 
         if (claimed0 > 0 || claimed1 > 0) {
-            uint _fees0 = fees0 + claimed0;
-            uint _fees1 = fees1 + claimed1;
+            uint256 _fees0 = fees0 + claimed0;
+            uint256 _fees1 = fees1 + claimed1;
             (address _token0) = IPairInfo(_token).token0();
             (address _token1) = IPairInfo(_token).token1();
             if (_fees0  > 0) {

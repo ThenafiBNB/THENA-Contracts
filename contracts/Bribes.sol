@@ -64,12 +64,12 @@ contract Bribe is ReentrancyGuard {
     }
 
     /// @notice get the current epoch 
-    function getEpochStart() public view returns(uint){
+    function getEpochStart() public view returns(uint256){
         return IMinter(minter).active_period();
     }
 
     /// @notice get next epoch (where bribes are saved)
-    function getNextEpochStart() public view returns(uint){
+    function getNextEpochStart() public view returns(uint256){
         return getEpochStart() + WEEK;
     }
 
@@ -120,8 +120,8 @@ contract Bribe is ReentrancyGuard {
 
     /// @notice Read earned amount given a tokenID and _rewardToken
     function earned(uint256 tokenId, address _rewardToken) public view returns(uint256){
-        uint k = 0;
-        uint reward = 0;
+        uint256 k = 0;
+        uint256 reward = 0;
         uint256 _endTimestamp = IMinter(minter).active_period(); // claim until current epoch
         address _owner = IVotingEscrow(ve).ownerOf(tokenId);
         uint256 _userLastTime = userTimestamp[_owner][_rewardToken];
@@ -149,8 +149,8 @@ contract Bribe is ReentrancyGuard {
 
     /// @notice read earned amounts given an address and the reward token
     function earned(address _owner, address _rewardToken) public view returns(uint256){
-        uint k = 0;
-        uint reward = 0;
+        uint256 k = 0;
+        uint256 reward = 0;
         uint256 _endTimestamp = IMinter(minter).active_period(); // claim until current epoch
         uint256 _userLastTime = userTimestamp[_owner][_rewardToken];
         
@@ -177,8 +177,8 @@ contract Bribe is ReentrancyGuard {
 
     /// @notice Read earned amount given address and reward token, returns the rewards and the last user timestamp (used in case user do not claim since 50+epochs)
     function earnedWithTimestamp(address _owner, address _rewardToken) private view returns(uint256,uint256){
-        uint k = 0;
-        uint reward = 0;
+        uint256 k = 0;
+        uint256 reward = 0;
         uint256 _endTimestamp = IMinter(minter).active_period(); // claim until current epoch
         uint256 _userLastTime = userTimestamp[_owner][_rewardToken];
         
@@ -359,7 +359,7 @@ contract Bribe is ReentrancyGuard {
 
     /// @notice add rewards tokens
     function addRewardTokens(address[] memory _rewardsToken) public onlyAllowed {
-        uint i = 0;
+        uint256 i = 0;
         for(i; i < _rewardsToken.length; i++){
            _addRewardToken(_rewardsToken[i]);
         }
