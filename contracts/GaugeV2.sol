@@ -42,8 +42,6 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
 
-    uint256 public fees0;
-    uint256 public fees1;
 
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
@@ -55,7 +53,10 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     event Deposit(address indexed user, uint256 amount);
     event Withdraw(address indexed user, uint256 amount);
     event Harvest(address indexed user, uint256 reward);
-    event ClaimFees(address indexed from, uint256 claimed0, uint256 claimed1);
+
+    event ClaimFees(address indexed from, uint claimed0, uint claimed1);
+    event EmergencyActivated(address indexed gauge, uint timestamp);
+    event EmergencyDeactivated(address indexed gauge, uint timestamp);
 
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
@@ -73,7 +74,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     }
 
     modifier isNotEmergency() {
-        require(emergency == false);
+        require(emergency == false, "emergency");
         _;
     }
 
@@ -124,13 +125,15 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     }
 
     function activateEmergencyMode() external onlyOwner {
-        require(emergency == false);
+        require(emergency == false, "emergency");
         emergency = true;
+        emit EmergencyActivated(address(this), block.timestamp);
     }
 
     function stopEmergencyMode() external onlyOwner {
-        require(emergency == false);
+        require(emergency == false, "emergency");
         emergency = false;
+        emit EmergencyDeactivated(address(this), block.timestamp);
     }
 
 
@@ -208,11 +211,11 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         _balances[account] = _balances[account] + amount;
         _totalSupply = _totalSupply + amount;
 
-        TOKEN.safeTransferFrom(account, address(this), amount);
-
         if (address(gaugeRewarder) != address(0)) {
             IRewarder(gaugeRewarder).onReward(account, account, _balances[account]);
         }
+
+        TOKEN.safeTransferFrom(account, address(this), amount);
 
         emit Deposit(account, amount);
     }
@@ -245,7 +248,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
     }
 
     function emergencyWithdraw() external nonReentrant {
-        require(emergency);
+        require(emergency, "emergency");
         require(_balances[msg.sender] > 0, "no balances");
         uint256 _amount = _balances[msg.sender];
         _totalSupply = _totalSupply - _amount;
@@ -254,8 +257,10 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         emit Withdraw(msg.sender, _amount);
     }
     function emergencyWithdrawAmount(uint256 _amount) external nonReentrant {
-        require(emergency);
+
+        require(emergency, "emergency");
         _totalSupply = _totalSupply - _amount;
+
         _balances[msg.sender] = _balances[msg.sender] - _amount;
         TOKEN.safeTransfer(msg.sender, _amount);
         emit Withdraw(msg.sender, _amount);
@@ -282,7 +287,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         }
     }
 
-     ///@notice User harvest function
+    ///@notice User harvest function
     function getReward() public nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
@@ -313,8 +318,9 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
 
 
     /// @dev Receive rewards from distribution
-    function notifyRewardAmount(address token, uint256 reward) external nonReentrant isNotEmergency onlyDistribution updateReward(address(0)) {
-        require(token == address(rewardToken));
+
+    function notifyRewardAmount(address token, uint reward) external nonReentrant isNotEmergency onlyDistribution updateReward(address(0)) {
+        require(token == address(rewardToken), "not rew token");
         rewardToken.safeTransferFrom(DISTRIBUTION, address(this), reward);
 
         if (block.timestamp >= _periodFinish) {
@@ -349,26 +355,22 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         address _token = address(TOKEN);
         (claimed0, claimed1) = IPair(_token).claimFees();
         if (claimed0 > 0 || claimed1 > 0) {
-            uint256 _fees0 = fees0 + claimed0;
-            uint256 _fees1 = fees1 + claimed1;
+
+            uint _fees0 = claimed0;
+            uint _fees1 = claimed1;
+
             (address _token0, address _token1) = IPair(_token).tokens();
 
             if (_fees0  > 0) {
-                fees0 = 0;
                 IERC20(_token0).approve(internal_bribe, 0);
                 IERC20(_token0).approve(internal_bribe, _fees0);
                 IBribe(internal_bribe).notifyRewardAmount(_token0, _fees0);
-            } else {
-                fees0 = _fees0;
-            }
+            } 
             if (_fees1  > 0) {
-                fees1 = 0;
                 IERC20(_token1).approve(internal_bribe, 0);
                 IERC20(_token1).approve(internal_bribe, _fees1);
                 IBribe(internal_bribe).notifyRewardAmount(_token1, _fees1);
-            } else {
-                fees1 = _fees1;
-            }
+            } 
             emit ClaimFees(msg.sender, claimed0, claimed1);
         }
     }
