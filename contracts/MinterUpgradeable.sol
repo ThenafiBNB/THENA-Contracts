@@ -143,7 +143,7 @@ contract MinterUpgradeable is IMinter, OwnableUpgradeable {
     }
 
     // calculate inflation and adjust ve balances accordingly
-    function calculate_rebate(uint _weeklyMint) public view returns (uint) {
+    function calculate_rebase(uint _weeklyMint) public view returns (uint) {
         uint _veTotal = _thena.balanceOf(address(_ve));
         uint _thenaTotal = _thena.totalSupply();
         
@@ -168,7 +168,7 @@ contract MinterUpgradeable is IMinter, OwnableUpgradeable {
                 isFirstMint = false;
             }
 
-            uint _rebase = calculate_rebate(weekly);
+            uint _rebase = calculate_rebase(weekly);
             uint _teamEmissions = weekly * teamRate / PRECISION;
             uint _required = weekly;
 

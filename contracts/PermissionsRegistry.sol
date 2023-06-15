@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.11;
-
+pragma solidity 0.8.13;
 
 /*
     This contract handles the accesses to the various Thena contracts.
@@ -8,10 +7,10 @@ pragma solidity ^0.8.11;
 
 contract PermissionsRegistry {
 
-    /// @notice Control this contract 
+    /// @notice Control this contract. This is the main multisig 4/6
     address public thenaMultisig;
 
-    /// @notice Control this contract 
+    /// @notice This is the thena team multisig 2/2
     address public thenaTeamMultisig;
 
     /// @notice Control emergency functions (set to multisig)
@@ -208,12 +207,12 @@ contract PermissionsRegistry {
     *************************************************************/
 
     /// @notice Helper function to get bytes from a string
-    function __helper_stringToBytes(string memory _input) public pure returns(bytes memory){
+    function helper_stringToBytes(string memory _input) public pure returns(bytes memory){
         return bytes(_input);
     }
 
     /// @notice Helper function to get string from bytes
-    function __helper_bytesToString(bytes memory _input) public pure returns(string memory){
+    function helper_bytesToString(bytes memory _input) public pure returns(string memory){
         return string(_input);
     }
 
