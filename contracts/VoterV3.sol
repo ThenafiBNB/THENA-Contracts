@@ -80,6 +80,14 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     event Whitelisted(address indexed whitelister, address indexed token);
     event Blacklisted(address indexed blacklister, address indexed token);
 
+    event SetMinter(address indexed old, address indexed latest);
+    event SetBribeFactory(address indexed old, address indexed latest);
+    event SetPairFactory(address indexed old, address indexed latest);
+    event SetPermissionRegistry(address indexed old, address indexed latest);
+    event SetGaugeFactory(address indexed old, address indexed latest);
+    event SetBribeFor(bool isInternal, address indexed old, address indexed latest, address indexed gauge);
+    event SetVoteDelay(uint old, uint latest);
+
     constructor() {}
 
     function initialize(address __ve, address _factory, address  _gauges, address _bribes) initializer public {
@@ -152,6 +160,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function setVoteDelay(uint _delay) external VoterAdmin {
         require(_delay != VOTE_DELAY, "already set");
         require(_delay <= MAX_VOTE_DELAY, "max delay");
+        emit SetVoteDelay(VOTE_DELAY, _delay);
         VOTE_DELAY = _delay;
     }
 
@@ -159,6 +168,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function setMinter(address _minter) external VoterAdmin {
         require(_minter != address(0), "addr0");
         require(_minter.code.length > 0, "!contract");
+        emit SetMinter(minter, _minter);
         minter = _minter;
     }
 
@@ -166,6 +176,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function setBribeFactory(address _bribeFactory) external VoterAdmin {
         require(_bribeFactory.code.length > 0, "!contract");
         require(_bribeFactory != address(0), "addr0");
+        emit SetBribeFactory(bribefactory, _bribeFactory);
         bribefactory = _bribeFactory;
     }
 
@@ -173,6 +184,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function setGaugeFactory(address _gaugeFactory) external VoterAdmin {
         require(_gaugeFactory.code.length > 0, "!contract");
         require(_gaugeFactory != address(0), "addr0");
+        emit SetGaugeFactory(gaugefactory, _gaugeFactory);
         gaugefactory = _gaugeFactory;
     }
 
@@ -180,6 +192,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function setPairFactory(address _factory) external VoterAdmin {
         require(_factory.code.length > 0, "!contract");
         require(_factory != address(0), "addr0");
+        emit SetPairFactory(factory, _factory);
         factory = _factory;
     }
 
@@ -187,6 +200,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function setPermissionsRegistry(address _permissionRegistry) external VoterAdmin {
         require(_permissionRegistry.code.length > 0, "!contract");
         require(_permissionRegistry != address(0), "addr0");
+        emit SetPermissionRegistry(permissionRegistry, _permissionRegistry);
         permissionRegistry = _permissionRegistry;
     }
 
@@ -212,11 +226,13 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     function _setInternalBribe(address _gauge, address _internal) private {
         require(_internal.code.length > 0, "!contract");
+        emit SetBribeFor(true, internal_bribes[_gauge], _internal, _gauge);
         internal_bribes[_gauge] = _internal;
     }
 
     function _setExternalBribe(address _gauge, address _external) private {
         require(_external.code.length > 0, "!contract");
+        emit SetBribeFor(false, internal_bribes[_gauge], _external, _gauge);
         external_bribes[_gauge] = _external;
     }
     
@@ -245,11 +261,13 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         address oldGF = gaugeFactories[_pos];
         isFactory[oldPF] = false;
         isGaugeFactory[oldGF] = false;
-
         factories[_pos] = (_pairFactory);
         gaugeFactories[_pos] = (_gaugeFactory);
         isFactory[_pairFactory] = true;
         isGaugeFactory[_gaugeFactory] = true;
+
+        emit SetGaugeFactory(oldGF, _gaugeFactory);
+        emit SetPairFactory(oldPF, _pairFactory);
     }
 
     function removeFactory(uint256 _pos) external VoterAdmin {
@@ -261,6 +279,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         gaugeFactories[_pos] = address(0);
         isFactory[oldPF] = false;
         isGaugeFactory[oldGF] = false;
+        emit SetGaugeFactory(oldGF, address(0));
+        emit SetPairFactory(oldPF, address(0));
     }
     
     
