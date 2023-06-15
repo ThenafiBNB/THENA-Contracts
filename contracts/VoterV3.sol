@@ -415,8 +415,9 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 _usedWeight = 0;
         uint256 _time = _epochTimestamp();
 
-        for (uint256 i = 0; i < _poolCnt; i++) {
-            _totalVoteWeight += _weights[i];
+
+        for (uint i = 0; i < _poolCnt; i++) {
+            if(isAlive[gauges[_poolVote[i]]]) _totalVoteWeight += _weights[i];
         }
 
         for (uint256 i = 0; i < _poolCnt; i++) {

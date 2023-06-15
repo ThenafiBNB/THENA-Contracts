@@ -173,8 +173,19 @@ contract GaugeExtraRewarder is Ownable {
     function recoverERC20(uint amount, address token) external onlyOwner {
         require(amount > 0, "amount > 0");
         require(token != address(0), "addr0");
-        require(IERC20(token).balanceOf(address(this)) >= amount, "not enough");
+        uint balance = IERC20(token).balanceOf(address(this));
+        require(balance >= amount, "not enough tokens");
+
+        // if token is = reward and there are some (rps > 0), allow withdraw only for remaining rewards and then set new rewPerSec
+        if(token == address(rewardToken) && rewardPerSecond != 0){
+            updatePool();
+            uint timeleft = lastDistributedTime - block.timestamp;
+            uint notDistributed = rewardPerSecond * timeleft;
+            require(amount <= notDistributed, 'too many rewardToken');
+            rewardPerSecond = (balance - amount) / timeleft;
+        }
         IERC20(token).safeTransfer(msg.sender, amount);
+
     }
 
 
