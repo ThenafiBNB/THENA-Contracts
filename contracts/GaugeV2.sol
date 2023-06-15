@@ -329,7 +329,7 @@ contract GaugeV2 is ReentrancyGuard, Ownable {
         } else {
             uint256 remaining = _periodFinish - block.timestamp;
             uint256 leftover = remaining * rewardRate;
-            rewardRate = reward + leftover / DURATION;
+            rewardRate = (reward + leftover) / DURATION;
         }
 
         // Ensure the provided reward amount is not more than the balance in the contract.
