@@ -99,6 +99,19 @@ contract PermissionsRegistry {
                 break; 
             }
         }
+
+        address[] memory rta = _roleToAddresses[bytes(role)];
+        for(uint i = 0; i < rta.length; i++){
+            hasRole[bytes(role)][rta[i]] = false;
+            bytes[] memory __roles = _addressToRoles[rta[i]];
+            for(uint k = 0; k < __roles.length; k++){
+                if(keccak256(__roles[k]) == keccak256(bytes(role))){
+                    _addressToRoles[rta[i]][k] = _roles[_roles.length -1];
+                    _addressToRoles[rta[i]].pop();
+                }
+            }
+        }
+
     }
 
 
