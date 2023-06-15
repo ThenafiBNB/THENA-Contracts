@@ -654,7 +654,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         return IMinter(minter).active_period();
     }
 
-    function ve() public view returns(address) {
+    function ve() external view returns(address) {
         return _ve;
     }
     /* -----------------------------------------------------------------------------

@@ -56,7 +56,7 @@ contract Bribe is ReentrancyGuard {
         voter = _voter;
         bribeFactory = _bribeFactory;
         firstBribeTimestamp = 0;
-        ve = IVoter(_voter)._ve();
+        ve = IVoter(_voter).ve();
         minter = IVoter(_voter).minter();
         require(minter != address(0));
         owner = _owner;
@@ -246,7 +246,7 @@ contract Bribe is ReentrancyGuard {
 
     /// @notice User votes withdrawal 
     /// @dev    called on voter.reset()
-    function withdraw(uint256 amount, uint256 tokenId) public nonReentrant {
+    function withdraw(uint256 amount, uint256 tokenId) external nonReentrant {
         require(amount > 0, "Cannot withdraw 0");
         require(msg.sender == voter);
         uint256 _startTimestamp = IMinter(minter).active_period() + WEEK; 
