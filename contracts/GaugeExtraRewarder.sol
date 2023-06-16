@@ -182,7 +182,7 @@ contract GaugeExtraRewarder is Ownable {
             uint timeleft = lastDistributedTime - block.timestamp;
             uint notDistributed = rewardPerSecond * timeleft;
             require(amount <= notDistributed, 'too many rewardToken');
-            rewardPerSecond = (balance - amount) / timeleft;
+            rewardPerSecond = (notDistributed - amount) / timeleft;
         }
         IERC20(token).safeTransfer(msg.sender, amount);
 
