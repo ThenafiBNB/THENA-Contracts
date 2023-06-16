@@ -87,6 +87,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     event SetGaugeFactory(address indexed old, address indexed latest);
     event SetBribeFor(bool isInternal, address indexed old, address indexed latest, address indexed gauge);
     event SetVoteDelay(uint old, uint latest);
+    event AddFactories(address indexed pairfactory, address indexed gaugefactory);
 
     constructor() {}
 
@@ -250,6 +251,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         gaugeFactories.push(_gaugeFactory);
         isFactory[_pairFactory] = true;
         isGaugeFactory[_gaugeFactory] = true;
+        emit AddFactories(_pairFactory, _gaugeFactory);
     }
 
     function replaceFactory(address _pairFactory, address _gaugeFactory, uint256 _pos) external VoterAdmin {
