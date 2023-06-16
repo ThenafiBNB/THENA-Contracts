@@ -2,7 +2,7 @@
 pragma solidity 0.8.13;
 
 interface IVoter {
-    function _ve() external view returns (address);
+    function ve() external view returns (address);
     function gauges(address _pair) external view returns (address);
     function isGauge(address _gauge) external view returns (bool);
     function poolForGauge(address _gauge) external view returns (address);
