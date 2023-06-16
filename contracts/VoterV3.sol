@@ -72,8 +72,6 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     event Abstained(uint256 tokenId, uint256 weight);
     event NotifyReward(address indexed sender, address indexed reward, uint256 amount);
     event DistributeReward(address indexed sender, address indexed gauge, uint256 amount);
-    event Attach(address indexed owner, address indexed gauge, uint256 tokenId);
-    event Detach(address indexed owner, address indexed gauge, uint256 tokenId);
     event Whitelisted(address indexed whitelister, address indexed token);
     event Blacklisted(address indexed blacklister, address indexed token);
 
@@ -187,7 +185,7 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     /// @notice Set a new bribes for a given gauge
     function setNewBribes(address _gauge, address _internal, address _external) external VoterAdmin {
-        require(isGauge[_gauge] == true, "not a gauge");
+        require(isGauge[_gauge], "!gauge");
         require(_gauge.code.length > 0, "!contract");
         _setInternalBribe(_gauge, _internal);
         _setExternalBribe(_gauge, _external);
@@ -195,13 +193,13 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     /// @notice Set a new internal bribe for a given gauge
     function setInternalBribeFor(address _gauge, address _internal) external VoterAdmin {
-        require(isGauge[_gauge], "not a gauge");
+        require(isGauge[_gauge], "!gauge");
         _setInternalBribe(_gauge, _internal);
     }
 
     /// @notice Set a new External bribe for a given gauge
     function setExternalBribeFor(address _gauge, address _external) external VoterAdmin {
-        require(isGauge[_gauge], "not a gauge");
+        require(isGauge[_gauge], "!gauge");
         _setExternalBribe(_gauge, _external);
     }
 
@@ -222,8 +220,8 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function addFactory(address _pairFactory, address _gaugeFactory) external VoterAdmin {
         require(_pairFactory != address(0), 'addr0');
         require(_gaugeFactory != address(0), 'addr0');
-        require(!isFactory[_pairFactory], 'fact in');
-        require(!isGaugeFactory[_gaugeFactory], 'g.fact true');
+        require(!isFactory[_pairFactory], 'fact');
+        require(!isGaugeFactory[_gaugeFactory], 'gFact');
         require(_pairFactory.code.length > 0, "!contract");
         require(_gaugeFactory.code.length > 0, "!contract");
 
@@ -237,13 +235,12 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function replaceFactory(address _pairFactory, address _gaugeFactory, uint256 _pos) external VoterAdmin {
         require(_pairFactory != address(0), 'addr0');
         require(_gaugeFactory != address(0), 'addr0');
-        require(isFactory[_pairFactory], 'fact in');
-        require(isGaugeFactory[_gaugeFactory], 'g.fact false');
+        require(isFactory[_pairFactory], '!fact');
+        require(isGaugeFactory[_gaugeFactory], '!gFact');
         address oldPF = _factories[_pos];
         address oldGF = _gaugeFactories[_pos];
         isFactory[oldPF] = false;
         isGaugeFactory[oldGF] = false;
-
 
         _factories[_pos] = (_pairFactory);
         _gaugeFactories[_pos] = (_gaugeFactory);
@@ -260,8 +257,8 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         address oldPF = _factories[_pos];
         address oldGF = _gaugeFactories[_pos];
 
-        require(isFactory[oldPF], 'fact in');
-        require(isGaugeFactory[oldGF], 'g.fact false');
+        require(isFactory[oldPF], '!fact');
+        require(isGaugeFactory[oldGF], '!gFact');
         _factories[_pos] = address(0);
         _gaugeFactories[_pos] = address(0);
         isFactory[oldPF] = false;
@@ -494,24 +491,7 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         }
     }    
 
-    /// @notice attach a veNFT tokenID to a gauge. This is used for boost farming 
-    /// @dev boost not available in Thena. Keep the function in case we need it for future updates. 
-    function attachTokenToGauge(uint256 tokenId, address account) external {
-        require(isGauge[msg.sender], "not a gauge");
-        require(isAlive[msg.sender], "not alive"); // killed gauges cannot attach tokens to themselves
-        if (tokenId > 0) IVotingEscrow(_ve).attach(tokenId);
-        emit Attach(account, msg.sender, tokenId);
-    }
-
-    
-    /// @notice detach a veNFT tokenID to a gauge. This is used for boost farming 
-    /// @dev boost not available in Thena. Keep the function in case we need it for future updates. 
-    function detachTokenFromGauge(uint256 tokenId, address account) external {
-        require(isGauge[msg.sender], "not a gauge");
-        if (tokenId > 0) IVotingEscrow(_ve).detach(tokenId);
-        emit Detach(account, msg.sender, tokenId);
-    }
-
+  
     /// @notice check if user can vote
     function _voteDelay(uint256 _tokenId) internal view {
         require(block.timestamp > lastVoted[_tokenId] + VOTE_DELAY, "ERR: VOTE_DELAY");
@@ -800,23 +780,5 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
             supplyIndex[_gauge] = index; // new users are set to the default global state
         }
     }
-
- 
-
-    
-    /* -----------------------------------------------------------------------------
-    --------------------------------------------------------------------------------
-    --------------------------------------------------------------------------------
-                                    PROXY UPDATES
-    --------------------------------------------------------------------------------
-    --------------------------------------------------------------------------------
-    ----------------------------------------------------------------------------- */
-
-    /// @notice Fix wrong timestamp of a tokenId
-    /// @dev    this is used only if a user weight is saved into the wrong timestamp in weightsPerEpoch [fix 28/04/2023]
-    function forceResetTo(uint256 _tokenId) external VoterAdmin {
-        lastVoted[_tokenId] = _epochTimestamp() - 86400;
-    }
-
     
 }
