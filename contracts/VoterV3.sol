@@ -33,10 +33,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     bool internal initflag;
 
     address public _ve;                                         // the ve token that governs these contracts
-    address public factory;                                     // classic stable and volatile Pair Factory
     address[] public factories;                                 // Array with all the pair factories
     address internal base;                                      // $the token
-    address public gaugefactory;                                // gauge factory
     address[] public gaugeFactories;                            // array with all the gauge factories
     address public bribefactory;                                // bribe factory (internal and external)
     address public minter;                                      // minter mints $the each epoch
@@ -91,20 +89,18 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     constructor() {}
 
-    function initialize(address __ve, address _factory, address  _gauges, address _bribes) initializer public {
+    function initialize(address __ve, address _pairFactory, address  _gaugeFactory, address _bribes) initializer public {
         __Ownable_init();
         __ReentrancyGuard_init();
 
         _ve = __ve;
         base = IVotingEscrow(__ve).token();
 
-        factory = _factory;
-        factories.push(factory);
-        isFactory[factory] = true;
+        factories.push(_pairFactory);
+        isFactory[_pairFactory] = true;
 
-        gaugefactory = _gauges;
-        gaugeFactories.push(_gauges);
-        isGaugeFactory[_gauges] = true;
+        gaugeFactories.push(_gaugeFactory);
+        isGaugeFactory[_gaugeFactory] = true;
 
         bribefactory = _bribes;
 
@@ -179,22 +175,6 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(_bribeFactory != address(0), "addr0");
         emit SetBribeFactory(bribefactory, _bribeFactory);
         bribefactory = _bribeFactory;
-    }
-
-    /// @notice Set a new Gauge Factory
-    function setGaugeFactory(address _gaugeFactory) external VoterAdmin {
-        require(_gaugeFactory.code.length > 0, "!contract");
-        require(_gaugeFactory != address(0), "addr0");
-        emit SetGaugeFactory(gaugefactory, _gaugeFactory);
-        gaugefactory = _gaugeFactory;
-    }
-
-    /// @notice Set a new Pair Factory
-    function setPairFactory(address _factory) external VoterAdmin {
-        require(_factory.code.length > 0, "!contract");
-        require(_factory != address(0), "addr0");
-        emit SetPairFactory(factory, _factory);
-        factory = _factory;
     }
 
     /// @notice Set a new PermissionRegistry
