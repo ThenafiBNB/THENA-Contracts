@@ -10,7 +10,6 @@ import './interfaces/IERC20.sol';
 import './interfaces/IMinter.sol';
 import './interfaces/IPairInfo.sol';
 import './interfaces/IPairFactory.sol';
-import './interfaces/IVoter.sol';
 import './interfaces/IVotingEscrow.sol';
 import './interfaces/IPermissionsRegistry.sol';
 import './interfaces/IAlgebraFactory.sol';
@@ -26,7 +25,7 @@ interface IHypervisor {
     function pool() external view returns(address);
 }
 
-contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     using SafeERC20Upgradeable for IERC20Upgradeable;
     
@@ -85,6 +84,15 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     event SetGaugeFactory(address indexed old, address indexed latest);
     event SetBribeFor(bool isInternal, address indexed old, address indexed latest, address indexed gauge);
     event SetVoteDelay(uint256 old, uint256 latest);
+    event AddFactories(address indexed pairfactory, address indexed gaugefactory);
+
+    event SetMinter(address indexed old, address indexed latest);
+    event SetBribeFactory(address indexed old, address indexed latest);
+    event SetPairFactory(address indexed old, address indexed latest);
+    event SetPermissionRegistry(address indexed old, address indexed latest);
+    event SetGaugeFactory(address indexed old, address indexed latest);
+    event SetBribeFor(bool isInternal, address indexed old, address indexed latest, address indexed gauge);
+    event SetVoteDelay(uint old, uint latest);
     event AddFactories(address indexed pairfactory, address indexed gaugefactory);
 
     constructor() {}
@@ -177,6 +185,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         bribefactory = _bribeFactory;
     }
 
+
     /// @notice Set a new PermissionRegistry
     function setPermissionsRegistry(address _permissionRegistry) external VoterAdmin {
         require(_permissionRegistry.code.length > 0, "!contract");
@@ -243,8 +252,10 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         address oldGF = gaugeFactories[_pos];
         isFactory[oldPF] = false;
         isGaugeFactory[oldGF] = false;
-        factories[_pos] = (_pairFactory);
-        gaugeFactories[_pos] = (_gaugeFactory);
+
+
+        _factories[_pos] = (_pairFactory);
+        _gaugeFactories[_pos] = (_gaugeFactory);
         isFactory[_pairFactory] = true;
         isGaugeFactory[_gaugeFactory] = true;
 
@@ -253,8 +264,11 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     }
 
     function removeFactory(uint256 _pos) external VoterAdmin {
-        address oldPF = factories[_pos];
-        address oldGF = gaugeFactories[_pos];
+
+
+        address oldPF = _factories[_pos];
+        address oldGF = _gaugeFactories[_pos];
+
         require(isFactory[oldPF], 'fact in');
         require(isGaugeFactory[oldGF], 'g.fact false');
         factories[_pos] = address(0);
@@ -310,8 +324,10 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(isAlive[_gauge], "killed");
         isAlive[_gauge] = false;
         claimable[_gauge] = 0;
-        uint256 _time = _epochTimestamp();
-        totWeightsPerEpoch[_time] -= weightsPerEpoch[_time][poolForGauge[_gauge]]; 
+
+        uint _time = _epochTimestamp();
+        totalWeightsPerEpoch[_time] -= weightsPerEpoch[_time][poolForGauge[_gauge]]; 
+
 
         emit GaugeKilled(_gauge);
     }
@@ -360,8 +376,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
                 votes[_tokenId][_pool] -= _votes;
                 
-                IBribe(internal_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
-                IBribe(external_bribes[gauges[_pool]])._withdraw(uint256(_votes), _tokenId);
+                IBribe(internal_bribes[gauges[_pool]]).withdraw(uint256(_votes), _tokenId);
+                IBribe(external_bribes[gauges[_pool]]).withdraw(uint256(_votes), _tokenId);
 
                 // if is alive remove _votes, else don't because we already done it in killGauge()
                 if(isAlive[gauges[_pool]]) _totalWeight += _votes;
@@ -416,7 +432,10 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 _usedWeight = 0;
         uint256 _time = _epochTimestamp();
 
-        for (uint256 i = 0; i < _poolCnt; i++) {
+
+
+        for (uint i = 0; i < _poolCnt; i++) {
+
             if(isAlive[gauges[_poolVote[i]]]) _totalVoteWeight += _weights[i];
         }
 
@@ -679,7 +698,10 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function notifyRewardAmount(uint256 amount) external {
         require(msg.sender == minter, "!minter");
         IERC20Upgradeable(base).safeTransferFrom(msg.sender, address(this), amount);
-        uint256 _totalWeight = totalWeightAt(_epochTimestamp() - 604800);   // minter call notify after updates active_period, loads votes - 1 week
+
+
+        uint256 _totalWeight = totalWeightAt(_epochTimestamp() - 1 weeks);   // minter call notify after updates active_period, loads votes - 1 week
+
         uint256 _ratio = 0;
 
         if(_totalWeight > 0) _ratio = amount * 1e18 / _totalWeight;     // 1e18 adjustment is removed during claim

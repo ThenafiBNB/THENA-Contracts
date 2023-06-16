@@ -100,13 +100,13 @@ contract GaugeExtraRewarder is Ownable {
             uint _tempTimestamp;
             if( block.timestamp >= lastDistributedTime){
                 // if lastRewardTime is > than LastDistributedTime then set tempTimestamp to 0 to avoid underflow
-                _tempTimestamp = pool.lastRewardTime > lastDistributedTime ?  0 : lastDistributedTime.sub(pool.lastRewardTime);
+                _tempTimestamp = pool.lastRewardTime > lastDistributedTime ?  0 : lastDistributedTime - pool.lastRewardTime;
             } else {
-                _tempTimestamp = block.timestamp.sub(pool.lastRewardTime);
+                _tempTimestamp = block.timestamp - pool.lastRewardTime;
             } 
             uint256 time = _tempTimestamp;
-            uint256 reward = time.mul(rewardPerSecond);
-            accRewardPerShare = accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION) / lpSupply );
+            uint256 reward = time * (rewardPerSecond);
+            accRewardPerShare = accRewardPerShare + ( reward * (ACC_TOKEN_PRECISION) / lpSupply );
         }
         
         pending =  (user.amount * (accRewardPerShare) / ACC_TOKEN_PRECISION)  - (user.rewardDebt);
@@ -153,14 +153,14 @@ contract GaugeExtraRewarder is Ownable {
                 uint _tempTimestamp;
                 if( block.timestamp >= lastDistributedTime){
                     // if lastRewardTime is > than LastDistributedTime then set tempTimestamp to 0 to avoid underflow
-                    _tempTimestamp = pool.lastRewardTime > lastDistributedTime ?  0 : lastDistributedTime.sub(pool.lastRewardTime);
+                    _tempTimestamp = pool.lastRewardTime > lastDistributedTime ?  0 : lastDistributedTime - (pool.lastRewardTime);
                 } else {
-                    _tempTimestamp = block.timestamp.sub(pool.lastRewardTime);
+                    _tempTimestamp = block.timestamp - (pool.lastRewardTime);
                 } 
 
                 uint256 time = _tempTimestamp;
-                uint256 reward = time.mul(rewardPerSecond);
-                pool.accRewardPerShare = pool.accRewardPerShare.add( reward.mul(ACC_TOKEN_PRECISION).div(lpSupply) );
+                uint256 reward = time * (rewardPerSecond);
+                pool.accRewardPerShare = pool.accRewardPerShare + ( reward * (ACC_TOKEN_PRECISION) / (lpSupply) );
 
             }
             pool.lastRewardTime = block.timestamp;
@@ -173,8 +173,19 @@ contract GaugeExtraRewarder is Ownable {
     function recoverERC20(uint amount, address token) external onlyOwner {
         require(amount > 0, "amount > 0");
         require(token != address(0), "addr0");
-        require(IERC20(token).balanceOf(address(this)) >= amount, "not enough");
+        uint balance = IERC20(token).balanceOf(address(this));
+        require(balance >= amount, "not enough tokens");
+
+        // if token is = reward and there are some (rps > 0), allow withdraw only for remaining rewards and then set new rewPerSec
+        if(token == address(rewardToken) && rewardPerSecond != 0){
+            updatePool();
+            uint timeleft = lastDistributedTime - block.timestamp;
+            uint notDistributed = rewardPerSecond * timeleft;
+            require(amount <= notDistributed, 'too many rewardToken');
+            rewardPerSecond = (balance - amount) / timeleft;
+        }
         IERC20(token).safeTransfer(msg.sender, amount);
+
     }
 
 
