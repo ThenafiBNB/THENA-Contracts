@@ -32,9 +32,9 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     bool internal initflag;
 
     address public _ve;                                         // the ve token that governs these contracts
-    address[] public factories;                                 // Array with all the pair factories
+    address[] internal _factories;                                 // Array with all the pair factories
     address internal base;                                      // $the token
-    address[] public gaugeFactories;                            // array with all the gauge factories
+    address[] internal _gaugeFactories;                            // array with all the gauge factories
     address public bribefactory;                                // bribe factory (internal and external)
     address public minter;                                      // minter mints $the each epoch
     address public permissionRegistry;                          // registry to check accesses
@@ -57,7 +57,7 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     mapping(uint256 => mapping(address => uint256)) public votes;  // nft      => pool     => votes
     mapping(uint256 => address[]) public poolVote;                 // nft      => pools
     mapping(uint256 => mapping(address => uint256)) internal weightsPerEpoch; // timestamp => pool => weights
-    mapping(uint256 => uint256) internal totWeightsPerEpoch;         // timestamp => total weights
+    mapping(uint256 => uint256) internal totalWeightsPerEpoch;         // timestamp => total weights
     mapping(uint256 => uint256) public lastVoted;                     // nft      => timestamp of last vote
     mapping(address => bool) public isGauge;                    // gauge    => boolean [is a gauge?]
     mapping(address => bool) public isWhitelisted;              // token    => boolean [is an allowed token?]
@@ -86,15 +86,6 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     event SetVoteDelay(uint256 old, uint256 latest);
     event AddFactories(address indexed pairfactory, address indexed gaugefactory);
 
-    event SetMinter(address indexed old, address indexed latest);
-    event SetBribeFactory(address indexed old, address indexed latest);
-    event SetPairFactory(address indexed old, address indexed latest);
-    event SetPermissionRegistry(address indexed old, address indexed latest);
-    event SetGaugeFactory(address indexed old, address indexed latest);
-    event SetBribeFor(bool isInternal, address indexed old, address indexed latest, address indexed gauge);
-    event SetVoteDelay(uint old, uint latest);
-    event AddFactories(address indexed pairfactory, address indexed gaugefactory);
-
     constructor() {}
 
     function initialize(address __ve, address _pairFactory, address  _gaugeFactory, address _bribes) initializer public {
@@ -104,10 +95,10 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         _ve = __ve;
         base = IVotingEscrow(__ve).token();
 
-        factories.push(_pairFactory);
+        _factories.push(_pairFactory);
         isFactory[_pairFactory] = true;
 
-        gaugeFactories.push(_gaugeFactory);
+        _gaugeFactories.push(_gaugeFactory);
         isGaugeFactory[_gaugeFactory] = true;
 
         bribefactory = _bribes;
@@ -236,8 +227,8 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(_pairFactory.code.length > 0, "!contract");
         require(_gaugeFactory.code.length > 0, "!contract");
 
-        factories.push(_pairFactory);
-        gaugeFactories.push(_gaugeFactory);
+        _factories.push(_pairFactory);
+        _gaugeFactories.push(_gaugeFactory);
         isFactory[_pairFactory] = true;
         isGaugeFactory[_gaugeFactory] = true;
         emit AddFactories(_pairFactory, _gaugeFactory);
@@ -248,8 +239,8 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(_gaugeFactory != address(0), 'addr0');
         require(isFactory[_pairFactory], 'fact in');
         require(isGaugeFactory[_gaugeFactory], 'g.fact false');
-        address oldPF = factories[_pos];
-        address oldGF = gaugeFactories[_pos];
+        address oldPF = _factories[_pos];
+        address oldGF = _gaugeFactories[_pos];
         isFactory[oldPF] = false;
         isGaugeFactory[oldGF] = false;
 
@@ -271,8 +262,8 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
         require(isFactory[oldPF], 'fact in');
         require(isGaugeFactory[oldGF], 'g.fact false');
-        factories[_pos] = address(0);
-        gaugeFactories[_pos] = address(0);
+        _factories[_pos] = address(0);
+        _gaugeFactories[_pos] = address(0);
         isFactory[oldPF] = false;
         isGaugeFactory[oldGF] = false;
         emit SetGaugeFactory(oldGF, address(0));
@@ -390,7 +381,7 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         // if user last vote is < than epochTimestamp then _totalWeight is 0! IF not underflow occur
         if(lastVoted[_tokenId] < _time) _totalWeight = 0;
         
-        totWeightsPerEpoch[_time] -= _totalWeight;
+        totalWeightsPerEpoch[_time] -= _totalWeight;
         delete poolVote[_tokenId];
     }
 
@@ -454,8 +445,8 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
                 votes[_tokenId][_pool] += _poolWeight;
 
-                IBribe(internal_bribes[_gauge])._deposit(uint256(_poolWeight), _tokenId);
-                IBribe(external_bribes[_gauge])._deposit(uint256(_poolWeight), _tokenId);
+                IBribe(internal_bribes[_gauge]).deposit(uint256(_poolWeight), _tokenId);
+                IBribe(external_bribes[_gauge]).deposit(uint256(_poolWeight), _tokenId);
                 
                 _usedWeight += _poolWeight;
                 _totalWeight += _poolWeight;
@@ -463,7 +454,7 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
             }
         }
         if (_usedWeight > 0) IVotingEscrow(_ve).voting(_tokenId);
-        totWeightsPerEpoch[_time] += _totalWeight;
+        totalWeightsPerEpoch[_time] += _totalWeight;
     }
 
     /// @notice claim LP gauge rewards
@@ -562,13 +553,13 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     ///         Make sure to use the corrcet gaugeType or it will fail
 
     function _createGauge(address _pool, uint256 _gaugeType) internal returns (address _gauge, address _internal_bribe, address _external_bribe) {
-        require(_gaugeType < factories.length, "gaugetype");
+        require(_gaugeType < _factories.length, "gaugetype");
         require(gauges[_pool] == address(0x0), "!exists");
         require(_pool.code.length > 0, "!contract");
 
         bool isPair;
-        address _factory = factories[_gaugeType];
-        address _gaugeFactory = gaugeFactories[_gaugeType];
+        address _factory = _factories[_gaugeType];
+        address _gaugeFactory = _gaugeFactories[_gaugeType];
         require(_factory != address(0), "addr0");
         require(_gaugeFactory != address(0), "addr0");
         
@@ -647,20 +638,20 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         return poolVote[tokenId].length;
     }
 
-    function _factories() external view returns(address[] memory){
-        return factories;
+    function factories() external view returns(address[] memory){
+        return _factories;
     }
     
     function factoryLength() external view returns(uint256){
-        return factories.length;
+        return _factories.length;
     }
     
-    function _gaugeFactories() external view returns(address[] memory){
-        return gaugeFactories;
+    function gaugeFactories() external view returns(address[] memory){
+        return _gaugeFactories;
     }
     
     function gaugeFactoriesLength() external view returns(uint256) {
-        return gaugeFactories.length;
+        return _gaugeFactories.length;
     }
 
     function weights(address _pool) public view returns(uint256) {
@@ -674,11 +665,11 @@ contract VoterV3 is OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     function totalWeight() public view returns(uint256) {
         uint256 _time = _epochTimestamp();
-        return totWeightsPerEpoch[_time];
+        return totalWeightsPerEpoch[_time];
     }
 
     function totalWeightAt(uint256 _time) public view returns(uint256) {
-        return totWeightsPerEpoch[_time];
+        return totalWeightsPerEpoch[_time];
     }
 
     function _epochTimestamp() public view returns(uint256) {

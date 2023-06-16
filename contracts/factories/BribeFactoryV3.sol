@@ -54,10 +54,10 @@ contract BribeFactoryV3 is OwnableUpgradeable {
 
         Bribe lastBribe = new Bribe(_owner,voter,address(this), _type);
 
-        if(_token0 != address(0)) lastBribe.addReward(_token0);  
-        if(_token1 != address(0)) lastBribe.addReward(_token1); 
+        if(_token0 != address(0)) lastBribe.addRewardToken(_token0);  
+        if(_token1 != address(0)) lastBribe.addRewardToken(_token1); 
 
-        lastBribe.addRewards(defaultRewardToken);      
+        lastBribe.addRewardTokens(defaultRewardToken);      
          
         last_bribe = address(lastBribe);
         _bribes.push(last_bribe);

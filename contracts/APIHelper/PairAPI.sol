@@ -114,7 +114,7 @@ contract PairAPI is Initializable {
         voter = IVoter(_voter);
 
         pairFactory = IPairFactory(voter.factory());
-        underlyingToken = IVotingEscrow(voter._ve()).token();
+        underlyingToken = IVotingEscrow(voter.ve()).token();
 
         algebraFactory = IAlgebraFactory(address(0x306F06C147f064A010530292A1EB6737c3e378e4));
         
@@ -317,7 +317,7 @@ contract PairAPI is Initializable {
         
         // update variable depending on voter
         pairFactory = IPairFactory(voter.factory());
-        underlyingToken = IVotingEscrow(voter._ve()).token();
+        underlyingToken = IVotingEscrow(voter.ve()).token();
 
         emit Voter(_oldVoter, _voter);
     }
