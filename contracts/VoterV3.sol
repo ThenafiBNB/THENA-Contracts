@@ -44,24 +44,24 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     address[] public pools;                                     // all pools viable for incentives
 
 
-    uint internal index;                                        // gauge index
-    uint internal constant DURATION = 7 days;                   // rewards are released over 7 days
-    uint public VOTE_DELAY;                                     // delay between votes in seconds
-    uint public constant MAX_VOTE_DELAY = 7 days;               // Max vote delay allowed
+    uint256 internal index;                                        // gauge index
+    uint256 internal constant DURATION = 7 days;                   // rewards are released over 7 days
+    uint256 public VOTE_DELAY;                                     // delay between votes in seconds
+    uint256 public constant MAX_VOTE_DELAY = 7 days;               // Max vote delay allowed
 
 
-    mapping(address => uint) internal supplyIndex;              // gauge    => index
-    mapping(address => uint) public claimable;                  // gauge    => claimable $the
+    mapping(address => uint256) internal supplyIndex;              // gauge    => index
+    mapping(address => uint256) public claimable;                  // gauge    => claimable $the
     mapping(address => address) public gauges;                  // pool     => gauge
-    mapping(address => uint) public gaugesDistributionTimestmap;// gauge    => last Distribution Time
+    mapping(address => uint256) public gaugesDistributionTimestmap;// gauge    => last Distribution Time
     mapping(address => address) public poolForGauge;            // gauge    => pool
     mapping(address => address) public internal_bribes;         // gauge    => internal bribe (only fees)
     mapping(address => address) public external_bribes;         // gauge    => external bribe (real bribes)
-    mapping(uint => mapping(address => uint256)) public votes;  // nft      => pool     => votes
-    mapping(uint => address[]) public poolVote;                 // nft      => pools
-    mapping(uint => mapping(address => uint)) internal weightsPerEpoch; // timestamp => pool => weights
-    mapping(uint => uint) internal totWeightsPerEpoch;         // timestamp => total weights
-    mapping(uint => uint) public lastVoted;                     // nft      => timestamp of last vote
+    mapping(uint256 => mapping(address => uint256)) public votes;  // nft      => pool     => votes
+    mapping(uint256 => address[]) public poolVote;                 // nft      => pools
+    mapping(uint256 => mapping(address => uint256)) internal weightsPerEpoch; // timestamp => pool => weights
+    mapping(uint256 => uint256) internal totWeightsPerEpoch;         // timestamp => total weights
+    mapping(uint256 => uint256) public lastVoted;                     // nft      => timestamp of last vote
     mapping(address => bool) public isGauge;                    // gauge    => boolean [is a gauge?]
     mapping(address => bool) public isWhitelisted;              // token    => boolean [is an allowed token?]
     mapping(address => bool) public isAlive;                    // gauge    => boolean [is the gauge alive?]
@@ -71,12 +71,12 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     event GaugeCreated(address indexed gauge, address creator, address internal_bribe, address indexed external_bribe, address indexed pool);
     event GaugeKilled(address indexed gauge);
     event GaugeRevived(address indexed gauge);
-    event Voted(address indexed voter, uint tokenId, uint256 weight);
-    event Abstained(uint tokenId, uint256 weight);
-    event NotifyReward(address indexed sender, address indexed reward, uint amount);
-    event DistributeReward(address indexed sender, address indexed gauge, uint amount);
-    event Attach(address indexed owner, address indexed gauge, uint tokenId);
-    event Detach(address indexed owner, address indexed gauge, uint tokenId);
+    event Voted(address indexed voter, uint256 tokenId, uint256 weight);
+    event Abstained(uint256 tokenId, uint256 weight);
+    event NotifyReward(address indexed sender, address indexed reward, uint256 amount);
+    event DistributeReward(address indexed sender, address indexed gauge, uint256 amount);
+    event Attach(address indexed owner, address indexed gauge, uint256 tokenId);
+    event Detach(address indexed owner, address indexed gauge, uint256 tokenId);
     event Whitelisted(address indexed whitelister, address indexed token);
     event Blacklisted(address indexed blacklister, address indexed token);
 
@@ -86,7 +86,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     event SetPermissionRegistry(address indexed old, address indexed latest);
     event SetGaugeFactory(address indexed old, address indexed latest);
     event SetBribeFor(bool isInternal, address indexed old, address indexed latest, address indexed gauge);
-    event SetVoteDelay(uint old, uint latest);
+    event SetVoteDelay(uint256 old, uint256 latest);
     event AddFactories(address indexed pairfactory, address indexed gaugefactory);
 
     constructor() {}
@@ -141,7 +141,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function _init(address[] memory _tokens, address _permissionsRegistry, address _minter) external {
         require(msg.sender == minter || IPermissionsRegistry(permissionRegistry).hasRole("VOTER_ADMIN",msg.sender));
         require(!initflag);
-        for (uint i = 0; i < _tokens.length; i++) {
+        for (uint256 i = 0; i < _tokens.length; i++) {
             _whitelist(_tokens[i]);
         }
         minter = _minter;
@@ -158,7 +158,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     ----------------------------------------------------------------------------- */
 
     /// @notice set vote delay in seconds
-    function setVoteDelay(uint _delay) external VoterAdmin {
+    function setVoteDelay(uint256 _delay) external VoterAdmin {
         require(_delay != VOTE_DELAY, "already set");
         require(_delay <= MAX_VOTE_DELAY, "max delay");
         emit SetVoteDelay(VOTE_DELAY, _delay);
@@ -330,7 +330,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         require(isAlive[_gauge], "killed");
         isAlive[_gauge] = false;
         claimable[_gauge] = 0;
-        uint _time = _epochTimestamp();
+        uint256 _time = _epochTimestamp();
         totWeightsPerEpoch[_time] -= weightsPerEpoch[_time][poolForGauge[_gauge]]; 
 
         emit GaugeKilled(_gauge);
@@ -355,7 +355,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     
     /// @notice Reset the votes of a given TokenID
-    function reset(uint _tokenId) external nonReentrant {
+    function reset(uint256 _tokenId) external nonReentrant {
         _voteDelay(_tokenId);
         require(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, _tokenId), "!approved/Owner");
         _reset(_tokenId);
@@ -363,13 +363,13 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         lastVoted[_tokenId] = _epochTimestamp() + 1;
     }
 
-    function _reset(uint _tokenId) internal {
+    function _reset(uint256 _tokenId) internal {
         address[] storage _poolVote = poolVote[_tokenId];
-        uint _poolVoteCnt = _poolVote.length;
+        uint256 _poolVoteCnt = _poolVote.length;
         uint256 _totalWeight = 0;
         uint256 _time = _epochTimestamp();
 
-        for (uint i = 0; i < _poolVoteCnt; i ++) {
+        for (uint256 i = 0; i < _poolVoteCnt; i ++) {
             address _pool = _poolVote[i];
             uint256 _votes = votes[_tokenId][_pool];
 
@@ -399,14 +399,14 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     }
 
     /// @notice Recast the saved votes of a given TokenID
-    function poke(uint _tokenId) external nonReentrant {
+    function poke(uint256 _tokenId) external nonReentrant {
         _voteDelay(_tokenId);
         require(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, _tokenId), "!approved/Owner");
         address[] memory _poolVote = poolVote[_tokenId];
-        uint _poolCnt = _poolVote.length;
+        uint256 _poolCnt = _poolVote.length;
         uint256[] memory _weights = new uint256[](_poolCnt);
 
-        for (uint i = 0; i < _poolCnt; i ++) {
+        for (uint256 i = 0; i < _poolCnt; i ++) {
             _weights[i] = votes[_tokenId][_poolVote[i]];
         }
 
@@ -419,7 +419,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// @param  _tokenId    veNFT tokenID used to vote
     /// @param  _poolVote   array of LPs addresses to vote  (eg.: [sAMM usdc-usdt   , sAMM busd-usdt, vAMM wbnb-the ,...])
     /// @param  _weights    array of weights for each LPs   (eg.: [10               , 90            , 45             ,...])  
-    function vote(uint _tokenId, address[] calldata _poolVote, uint256[] calldata _weights) external nonReentrant {
+    function vote(uint256 _tokenId, address[] calldata _poolVote, uint256[] calldata _weights) external nonReentrant {
         _voteDelay(_tokenId);
         require(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, _tokenId), "!approved/Owner");
         require(_poolVote.length == _weights.length, "Pool/Weights length !=");
@@ -427,20 +427,20 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         lastVoted[_tokenId] = _epochTimestamp() + 1;
     }
     
-    function _vote(uint _tokenId, address[] memory _poolVote, uint256[] memory _weights) internal {
+    function _vote(uint256 _tokenId, address[] memory _poolVote, uint256[] memory _weights) internal {
         _reset(_tokenId);
-        uint _poolCnt = _poolVote.length;
+        uint256 _poolCnt = _poolVote.length;
         uint256 _weight = IVotingEscrow(_ve).balanceOfNFT(_tokenId);
         uint256 _totalVoteWeight = 0;
         uint256 _totalWeight = 0;
         uint256 _usedWeight = 0;
         uint256 _time = _epochTimestamp();
 
-        for (uint i = 0; i < _poolCnt; i++) {
+        for (uint256 i = 0; i < _poolCnt; i++) {
             if(isAlive[gauges[_poolVote[i]]]) _totalVoteWeight += _weights[i];
         }
 
-        for (uint i = 0; i < _poolCnt; i++) {
+        for (uint256 i = 0; i < _poolCnt; i++) {
             address _pool = _poolVote[i];
             address _gauge = gauges[_pool];
 
@@ -469,44 +469,44 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     /// @notice claim LP gauge rewards
     function claimRewards(address[] memory _gauges) external {
-        for (uint i = 0; i < _gauges.length; i++) {
+        for (uint256 i = 0; i < _gauges.length; i++) {
             IGauge(_gauges[i]).getReward(msg.sender);
         }
     }
 
     /// @notice claim bribes rewards given a TokenID
-    function claimBribes(address[] memory _bribes, address[][] memory _tokens, uint _tokenId) external {
+    function claimBribes(address[] memory _bribes, address[][] memory _tokens, uint256 _tokenId) external {
         require(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, _tokenId), "!approved/Owner");
-        for (uint i = 0; i < _bribes.length; i++) {
+        for (uint256 i = 0; i < _bribes.length; i++) {
             IBribe(_bribes[i]).getRewardForOwner(_tokenId, _tokens[i]);
         }
     }
 
     /// @notice claim fees rewards given a TokenID
-    function claimFees(address[] memory _fees, address[][] memory _tokens, uint _tokenId) external {
+    function claimFees(address[] memory _fees, address[][] memory _tokens, uint256 _tokenId) external {
         require(IVotingEscrow(_ve).isApprovedOrOwner(msg.sender, _tokenId), "!approved/Owner");
-        for (uint i = 0; i < _fees.length; i++) {
+        for (uint256 i = 0; i < _fees.length; i++) {
             IBribe(_fees[i]).getRewardForOwner(_tokenId, _tokens[i]);
         }
     }
 
     /// @notice claim bribes rewards given an address
     function claimBribes(address[] memory _bribes, address[][] memory _tokens) external {
-        for (uint i = 0; i < _bribes.length; i++) {
+        for (uint256 i = 0; i < _bribes.length; i++) {
             IBribe(_bribes[i]).getRewardForAddress(msg.sender, _tokens[i]);
         }
     }
 
     /// @notice claim fees rewards given an address
     function claimFees(address[] memory _bribes, address[][] memory _tokens) external {
-        for (uint i = 0; i < _bribes.length; i++) {
+        for (uint256 i = 0; i < _bribes.length; i++) {
             IBribe(_bribes[i]).getRewardForAddress(msg.sender, _tokens[i]);
         }
     }    
 
     /// @notice attach a veNFT tokenID to a gauge. This is used for boost farming 
     /// @dev boost not available in Thena. Keep the function in case we need it for future updates. 
-    function attachTokenToGauge(uint tokenId, address account) external {
+    function attachTokenToGauge(uint256 tokenId, address account) external {
         require(isGauge[msg.sender], "not a gauge");
         require(isAlive[msg.sender], "not alive"); // killed gauges cannot attach tokens to themselves
         if (tokenId > 0) IVotingEscrow(_ve).attach(tokenId);
@@ -516,14 +516,14 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     
     /// @notice detach a veNFT tokenID to a gauge. This is used for boost farming 
     /// @dev boost not available in Thena. Keep the function in case we need it for future updates. 
-    function detachTokenFromGauge(uint tokenId, address account) external {
+    function detachTokenFromGauge(uint256 tokenId, address account) external {
         require(isGauge[msg.sender], "not a gauge");
         if (tokenId > 0) IVotingEscrow(_ve).detach(tokenId);
         emit Detach(account, msg.sender, tokenId);
     }
 
     /// @notice check if user can vote
-    function _voteDelay(uint _tokenId) internal view {
+    function _voteDelay(uint256 _tokenId) internal view {
         require(block.timestamp > lastVoted[_tokenId] + VOTE_DELAY, "ERR: VOTE_DELAY");
     }
 
@@ -544,7 +544,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         address[] memory _int = new address[](_pool.length);
         address[] memory _ext = new address[](_pool.length);
 
-        uint i = 0;
+        uint256 i = 0;
         for(i; i < _pool.length; i++){
             (_gauge[i], _int[i], _ext[i]) = _createGauge(_pool[i], _gaugeTypes[i]);
         }
@@ -612,7 +612,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         _gauge = IGaugeFactory(_gaugeFactory).createGaugeV2(base, _ve, _pool, address(this), _internal_bribe, _external_bribe, isPair);
      
         // approve spending for $the
-        IERC20(base).approve(_gauge, type(uint).max);
+        IERC20(base).approve(_gauge, type(uint256).max);
 
         // save data
         internal_bribes[_gauge] = _internal_bribe;
@@ -639,12 +639,12 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     ----------------------------------------------------------------------------- */
 
     /// @notice view the total length of the pools
-    function length() external view returns (uint) {
+    function length() external view returns (uint256) {
         return pools.length;
     }
 
     /// @notice view the total length of the voted pools given a tokenId
-    function poolVoteLength(uint tokenId) external view returns(uint) { 
+    function poolVoteLength(uint256 tokenId) external view returns(uint256) { 
         return poolVote[tokenId].length;
     }
 
@@ -652,7 +652,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         return factories;
     }
     
-    function factoryLength() external view returns(uint){
+    function factoryLength() external view returns(uint256){
         return factories.length;
     }
     
@@ -660,29 +660,29 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         return gaugeFactories;
     }
     
-    function gaugeFactoriesLength() external view returns(uint) {
+    function gaugeFactoriesLength() external view returns(uint256) {
         return gaugeFactories.length;
     }
 
-    function weights(address _pool) public view returns(uint) {
-        uint _time = _epochTimestamp();
+    function weights(address _pool) public view returns(uint256) {
+        uint256 _time = _epochTimestamp();
         return weightsPerEpoch[_time][_pool];
     }
 
-    function weightsAt(address _pool, uint _time) public view returns(uint) {
+    function weightsAt(address _pool, uint256 _time) public view returns(uint256) {
         return weightsPerEpoch[_time][_pool];
     }
 
-    function totalWeight() public view returns(uint) {
-        uint _time = _epochTimestamp();
+    function totalWeight() public view returns(uint256) {
+        uint256 _time = _epochTimestamp();
         return totWeightsPerEpoch[_time];
     }
 
-    function totalWeightAt(uint _time) public view returns(uint) {
+    function totalWeightAt(uint256 _time) public view returns(uint256) {
         return totWeightsPerEpoch[_time];
     }
 
-    function _epochTimestamp() public view returns(uint) {
+    function _epochTimestamp() public view returns(uint256) {
         return IMinter(minter).active_period();
     }
     /* -----------------------------------------------------------------------------
@@ -696,10 +696,10 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// @notice notify reward amount for gauge
     /// @dev    the function is called by the minter each epoch. Anyway anyone can top up some extra rewards.
     /// @param  amount  amount to distribute
-    function notifyRewardAmount(uint amount) external {
+    function notifyRewardAmount(uint256 amount) external {
         require(msg.sender == minter, "!minter");
         IERC20Upgradeable(base).safeTransferFrom(msg.sender, address(this), amount);
-        uint _totalWeight = totalWeightAt(_epochTimestamp() - 604800);   // minter call notify after updates active_period, loads votes - 1 week
+        uint256 _totalWeight = totalWeightAt(_epochTimestamp() - 604800);   // minter call notify after updates active_period, loads votes - 1 week
         uint256 _ratio = 0;
 
         if(_totalWeight > 0) _ratio = amount * 1e18 / _totalWeight;     // 1e18 adjustment is removed during claim
@@ -715,7 +715,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// @param  _gauges  gauge address where to claim the fees 
     /// @dev    the gauge is the owner of the LPs so it has to claim
     function distributeFees(address[] memory _gauges) external {
-        for (uint i = 0; i < _gauges.length; i++) {
+        for (uint256 i = 0; i < _gauges.length; i++) {
             if (isGauge[_gauges[i]] && isAlive[_gauges[i]]){
                 IGauge(_gauges[i]).claimFees();
             }
@@ -728,8 +728,8 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         
         IMinter(minter).update_period();
 
-        uint x = 0;
-        uint stop = pools.length;
+        uint256 x = 0;
+        uint256 stop = pools.length;
         for (x; x < stop; x++) {
             _distribute(gauges[pools[x]]);
         }
@@ -739,9 +739,9 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// @param  start   start index point of the pools array
     /// @param  finish  finish index point of the pools array
     /// @dev    this function is used in case we have too many pools and gasLimit is reached
-    function distribute(uint start, uint finish) public nonReentrant {
+    function distribute(uint256 start, uint256 finish) public nonReentrant {
         IMinter(minter).update_period();
-        for (uint x = start; x < finish; x++) {
+        for (uint256 x = start; x < finish; x++) {
             _distribute(gauges[pools[x]]);
         }
     }
@@ -750,7 +750,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// @dev    this function is used in case some distribution fails
     function distribute(address[] memory _gauges) external nonReentrant {
         IMinter(minter).update_period();
-        for (uint x = 0; x < _gauges.length; x++) {
+        for (uint256 x = 0; x < _gauges.length; x++) {
             _distribute(_gauges[x]);
         }
     }
@@ -758,12 +758,12 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     /// @notice distribute the emission
     function _distribute(address _gauge) internal {
 
-        uint lastTimestamp = gaugesDistributionTimestmap[_gauge];
-        uint currentTimestamp = _epochTimestamp();
+        uint256 lastTimestamp = gaugesDistributionTimestmap[_gauge];
+        uint256 currentTimestamp = _epochTimestamp();
         if(lastTimestamp < currentTimestamp){
             _updateForAfterDistribution(_gauge); // should set claimable to 0 if killed
 
-            uint _claimable = claimable[_gauge];
+            uint256 _claimable = claimable[_gauge];
 
             // distribute only if claimable is > 0, currentEpoch != lastepoch and gauge is alive
             if (_claimable > 0 && isAlive[_gauge]) {
@@ -793,12 +793,12 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 _supplied = weightsPerEpoch[_time][_pool];
 
         if (_supplied > 0) {
-            uint _supplyIndex = supplyIndex[_gauge];
-            uint _index = index; // get global index0 for accumulated distro
+            uint256 _supplyIndex = supplyIndex[_gauge];
+            uint256 _index = index; // get global index0 for accumulated distro
             supplyIndex[_gauge] = _index; // update _gauge current position to global position
-            uint _delta = _index - _supplyIndex; // see if there is any difference that need to be accrued
+            uint256 _delta = _index - _supplyIndex; // see if there is any difference that need to be accrued
             if (_delta > 0) {
-                uint _share = _supplied * _delta / 1e18; // add accrued difference for each supplied token
+                uint256 _share = _supplied * _delta / 1e18; // add accrued difference for each supplied token
                 if (isAlive[_gauge]) {
                     claimable[_gauge] += _share;
                 }
@@ -821,7 +821,7 @@ contract VoterV3 is IVoter, OwnableUpgradeable, ReentrancyGuardUpgradeable {
 
     /// @notice Fix wrong timestamp of a tokenId
     /// @dev    this is used only if a user weight is saved into the wrong timestamp in weightsPerEpoch [fix 28/04/2023]
-    function forceResetTo(uint _tokenId) external VoterAdmin {
+    function forceResetTo(uint256 _tokenId) external VoterAdmin {
         lastVoted[_tokenId] = _epochTimestamp() - 86400;
     }
 

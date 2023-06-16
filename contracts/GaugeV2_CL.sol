@@ -61,8 +61,8 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
     event Withdraw(address indexed user, uint256 amount);
     event Harvest(address indexed user, uint256 reward);
     event ClaimFees(address indexed from, uint256 claimed0, uint256 claimed1);
-    event EmergencyActivated(address indexed gauge, uint timestamp);
-    event EmergencyDeactivated(address indexed gauge, uint timestamp);
+    event EmergencyActivated(address indexed gauge, uint256 timestamp);
+    event EmergencyDeactivated(address indexed gauge, uint256 timestamp);
 
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
@@ -334,7 +334,7 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
 
     /// @dev Receive rewards from distribution
 
-    function notifyRewardAmount(address token, uint reward) external nonReentrant isNotEmergency onlyDistribution updateReward(address(0)) {
+    function notifyRewardAmount(address token, uint256 reward) external nonReentrant isNotEmergency onlyDistribution updateReward(address(0)) {
         require(token == address(rewardToken), "not rew token");
         rewardToken.safeTransferFrom(DISTRIBUTION, address(this), reward);
 
@@ -370,8 +370,8 @@ contract GaugeV2_CL is ReentrancyGuard, Ownable {
 
         if (claimed0 > 0 || claimed1 > 0) {
 
-            uint _fees0 = claimed0;
-            uint _fees1 = claimed1;
+            uint256 _fees0 = claimed0;
+            uint256 _fees1 = claimed1;
 
             (address _token0) = IPairInfo(_token).token0();
             (address _token1) = IPairInfo(_token).token1();

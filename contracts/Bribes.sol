@@ -23,7 +23,7 @@ contract Bribe is ReentrancyGuard {
         uint256 lastUpdateTime; 
     }
 
-    mapping(address => mapping(uint => Reward)) public rewardData;  // token -> startTimestamp -> Reward
+    mapping(address => mapping(uint256 => Reward)) public rewardData;  // token -> startTimestamp -> Reward
     mapping(address => bool) public isRewardToken;
     address[] public rewardTokens;
     address public voter;
@@ -255,7 +255,7 @@ contract Bribe is ReentrancyGuard {
     }
 
     /// @notice Claim the TOKENID rewards
-    function getReward(uint tokenId, address[] memory tokens) external nonReentrant  {
+    function getReward(uint256 tokenId, address[] memory tokens) external nonReentrant  {
         require(IVotingEscrow(ve).isApprovedOrOwner(msg.sender, tokenId));
         uint256 _userLastTime;
         uint256 reward = 0;
@@ -290,7 +290,7 @@ contract Bribe is ReentrancyGuard {
     }
 
     /// @notice Claim rewards from voter
-    function getRewardForOwner(uint tokenId, address[] memory tokens) public nonReentrant  {
+    function getRewardForOwner(uint256 tokenId, address[] memory tokens) public nonReentrant  {
         require(msg.sender == voter);
         uint256 _userLastTime;
         uint256 reward = 0;
