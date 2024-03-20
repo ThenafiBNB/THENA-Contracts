@@ -1,11 +1,9 @@
-
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
 
-import '../libraries/Math.sol';
 import '../interfaces/IBribeAPI.sol';
-import '../interfaces/IERC20.sol';
+import '../interfaces/IERC20Full.sol';
 import '../interfaces/IPair.sol';
 import '../interfaces/IPairFactory.sol';
 import '../interfaces/IVoter.sol';
@@ -14,16 +12,14 @@ import '../interfaces/IRewardsDistributor.sol';
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import "hardhat/console.sol";
 
+import "hardhat/console.sol";
 interface IPairAPI {
-    struct pairInfo {
+    struct PairInfo {
         // pair info
         address pair_address; 			// pair contract address
-        string symbol; 				    // pair symbol
-        string name;                    // pair name
         uint decimals; 			        // pair decimals
-        bool stable; 				    // pair pool type (stable = false, means it's a variable type of pool)
+        PoolType pooltype; 				// pair pool type 
         uint total_supply; 			    // pair tokens supply
     
         // token pair info
@@ -31,13 +27,11 @@ interface IPairAPI {
         string token0_symbol; 			// pair 1st token symbol
         uint token0_decimals; 		    // pair 1st token decimals
         uint reserve0; 			        // pair 1st token reserves (nr. of tokens in the contract)
-        uint claimable0;                // claimable 1st token from fees (for unstaked positions)
 
         address token1; 				// pair 2nd token address
         string token1_symbol;           // pair 2nd token symbol
         uint token1_decimals;    		// pair 2nd token decimals
         uint reserve1; 			        // pair 2nd token reserves (nr. of tokens in the contract)
-        uint claimable1; 			    // claimable 2nd token from fees (for unstaked positions)
 
         // pairs gauge
         address gauge; 				    // pair gauge address
@@ -48,16 +42,10 @@ interface IPairAPI {
         address emissions_token; 		// pair emissions token address
         uint emissions_token_decimals; 	// pair emissions token decimals
 
-        // User deposit
-        uint account_lp_balance; 		// account LP tokens balance
-        uint account_token0_balance; 	// account 1st token balance
-        uint account_token1_balance; 	// account 2nd token balance
-        uint account_gauge_balance;     // account pair staked in gauge balance
-        uint account_gauge_earned; 		// account earned emissions for this pair
     }
-
-    function getPair(address _pair, address _account) external view returns(pairInfo memory _pairInfo);
-
+    
+    enum PoolType {STABLE, VOLATILE, CL}
+    function getPairSingle(address _pair) external view returns(PairInfo memory _PairInfo);
     function pair_factory() external view returns(address);
 }
 
@@ -91,16 +79,9 @@ contract veNFTAPI is Initializable {
 
     struct Reward {
         
-        uint256 id;
-        uint256 amount;  
         uint8 decimals;
-        
-        address pair;
+        uint256 amount;
         address token;
-        address fee;
-        address bribe;
-
-        string symbol;
     }
    
     uint256 constant public MAX_RESULTS = 1000;
@@ -133,7 +114,7 @@ contract veNFTAPI is Initializable {
         voter = IVoter(_voter);
         rewardDisitributor = IRewardsDistributor(_rewarddistro);
 
-        require(rewardDisitributor.voting_escrow() == voter.ve(), 've!=ve');
+        require(rewardDisitributor.voting_escrow() == voter._ve(), 've!=ve');
         
         ve = IVotingEscrow( rewardDisitributor.voting_escrow() );
         underlyingToken = IVotingEscrow(ve).token();
@@ -239,101 +220,98 @@ contract veNFTAPI is Initializable {
                 break;
             }
             _pair = pairFactory.allPairs(i);
-            rewards[i].rewards = _pairReward(_pair, id);
+            rewards[i].rewards = _pairReward(_pair, id, address(0));
         }
     }
 
-    function singlePairReward(uint256 id, address _pair) external view returns(Reward[] memory _reward){
-        return _pairReward(_pair, id);
+    function singlePairRewardId(uint256 id, address _pair) external view returns(Reward[] memory _reward){
+        return _pairReward(_pair, id, address(0));
+    }
+
+    function singlePairRewardAddress(address user, address _pair) external view returns(Reward[] memory _reward){
+        return _pairReward(_pair, 0, user);
     }
 
 
-    function _pairReward(address _pair, uint256 id) internal view returns(Reward[] memory _reward){
+    function _pairReward(address _pair, uint256 id, address user) internal view returns(Reward[] memory _reward){
 
         if(_pair == address(0)){
             return _reward;
         }
 
         
-        IPairAPI.pairInfo memory _pairApi = IPairAPI(pairAPI).getPair(_pair, address(0));
+        IPairAPI.PairInfo memory _pairApi = IPairAPI(pairAPI).getPairSingle(_pair);
                
         address externalBribe = _pairApi.bribe;
         
         uint256 totBribeTokens = (externalBribe == address(0)) ? 0 : IBribeAPI(externalBribe).rewardsListLength();
         
         uint bribeAmount;
-
-        _reward = new Reward[](2 + totBribeTokens);
+        bool exists = false;
+        _reward = new Reward[](2+totBribeTokens);
 
         address _gauge = (voter.gauges(_pair));
         
         if(_gauge == address(0)){
-            return _reward; 
+            return new Reward[](0); 
         }
        
-
+        {
         address t0 = _pairApi.token0;
         address t1 = _pairApi.token1;
-        uint256 _feeToken0 = IBribeAPI(_pairApi.fee).earned(id, t0);
-        uint256 _feeToken1 = IBribeAPI(_pairApi.fee).earned(id, t1);
-
+        uint256 _feeToken0 = 0;
+        uint256 _feeToken1 = 0;
+        if(user == address(0)){
+            _feeToken0 = IBribeAPI(_pairApi.fee).earned(id, t0);
+            _feeToken1 = IBribeAPI(_pairApi.fee).earned(id, t1);
+        } 
+        else if(id == 0){
+            _feeToken0 = IBribeAPI(_pairApi.fee).earned(user, t0);
+            _feeToken1 = IBribeAPI(_pairApi.fee).earned(user, t1);
+        }
+        else {
+            return _reward;
+        }
         
-
         if(_feeToken0 > 0){
             _reward[0] = Reward({
-                id: id,
-                pair: _pair,
                 amount: _feeToken0,
                 token: t0,
-                symbol: IERC20(t0).symbol(),
-                decimals: IERC20(t0).decimals(),
-                fee: _pairApi.fee,
-                bribe: address(0)
+                decimals: IERC20(t0).decimals()
             });
+            exists = true;
         }
 
         
         if(_feeToken1 > 0){
             _reward[1] = Reward({
-                id: id,
-                pair: _pair,
                 amount: _feeToken1,
                 token: t1,
-                symbol: IERC20(t1).symbol(),
-                decimals: IERC20(t1).decimals(),
-                fee: _pairApi.fee,
-                bribe: address(0)
+                decimals: IERC20(t1).decimals()
             });
+            exists = true;
         }
-        
-
-        //externalBribe point to Bribes.sol
-        if(externalBribe == address(0)){
-            return _reward;
         }
 
         uint k = 0;
         address _token;      
-
-        for(k; k < totBribeTokens; k++){
-            _token = IBribeAPI(externalBribe).rewardTokens(k);
-            bribeAmount = IBribeAPI(externalBribe).earned(id, _token);
-
-            _reward[2 + k] = Reward({
-                id: id,
-                pair: _pair,
-                amount: bribeAmount,
-                token: _token,
-                symbol: IERC20(_token).symbol(),
-                decimals: IERC20(_token).decimals(),
-                fee: address(0),
-                bribe: externalBribe
-            });
-            
+        if(externalBribe != address(0)) {
+            for(k; k < totBribeTokens; k++){
+                _token = IBribeAPI(externalBribe).rewardTokens(k);
+                bribeAmount = user == address(0) ? IBribeAPI(externalBribe).earned(id, _token) : IBribeAPI(externalBribe).earned(user,_token);
+                if(bribeAmount > 0) {
+                    _reward[2+k] = Reward({
+                        amount: bribeAmount,
+                        token: _token,
+                        decimals: IERC20(_token).decimals()
+                    });
+                    if(!exists) exists = true;
+                }
+            }  
         }   
-        
 
-        return _reward;
+        if(!exists) return new Reward[](0);
+
     }
     
 
@@ -358,7 +336,7 @@ contract veNFTAPI is Initializable {
         require(msg.sender == owner);
         
         rewardDisitributor = IRewardsDistributor(_rewarddistro);
-        require(rewardDisitributor.voting_escrow() == voter.ve(), 've!=ve');
+        require(rewardDisitributor.voting_escrow() == voter._ve(), 've!=ve');
 
         ve = IVotingEscrow( rewardDisitributor.voting_escrow() );
         underlyingToken = IVotingEscrow(ve).token();

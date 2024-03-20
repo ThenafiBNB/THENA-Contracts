@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.13;
+pragma solidity >=0.8.0;
 
 interface IVotingEscrow {
 
@@ -15,6 +15,8 @@ interface IVotingEscrow {
         uint end;
     }
 
+    function setVoter(address voter) external ;
+
     function create_lock_for(uint _value, uint _lock_duration, address _to) external returns (uint);
 
     function locked(uint id) external view returns(LockedBalance memory);
@@ -26,6 +28,7 @@ interface IVotingEscrow {
     function point_history(uint loc) external view returns (Point memory);
     function user_point_history(uint tokenId, uint loc) external view returns (Point memory);
     function user_point_epoch(uint tokenId) external view returns (uint);
+    function get_last_user_slope(uint _tokenId) external view returns (int128);
 
     function ownerOf(uint) external view returns (address);
     function isApprovedOrOwner(address, uint) external view returns (bool);
@@ -42,10 +45,10 @@ interface IVotingEscrow {
     function deposit_for(uint tokenId, uint value) external;
 
     function balanceOfNFT(uint _id) external view returns (uint);
+    function balanceOfNFTAt(uint _tokenId, uint _t) external view returns (uint);
+    function balanceOfAtNFT(uint _tokenId, uint _block) external view returns (uint);
     function balanceOf(address _owner) external view returns (uint);
     function totalSupply() external view returns (uint);
     function supply() external view returns (uint);
-
-
     function decimals() external view returns(uint8);
 }

@@ -2,11 +2,10 @@
 pragma solidity 0.8.13;
 
 
-import '../libraries/Math.sol';
 import '../interfaces/IBribeAPI.sol';
 import '../interfaces/IGaugeAPI.sol';
 import '../interfaces/IGaugeFactory.sol';
-import '../interfaces/IERC20.sol';
+import '../interfaces/IERC20Full.sol';
 import '../interfaces/IMinter.sol';
 import '../interfaces/IPair.sol';
 import '../interfaces/IPairInfo.sol';
@@ -14,14 +13,18 @@ import '../interfaces/IPairFactory.sol';
 import '../interfaces/IVoter.sol';
 import '../interfaces/IVotingEscrow.sol';
 
-
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import "hardhat/console.sol";
 
 interface IHypervisor{
     function pool() external view returns(address);
     function getTotalAmounts() external view returns(uint tot0,uint tot1);
+}
+
+
+
+interface IDefiEdgeFactory{
+    function isValidStrategy(address) external view returns(bool);
 }
 
 interface IAlgebraFactory{
@@ -31,13 +34,11 @@ interface IAlgebraFactory{
 contract PairAPI is Initializable {
 
 
-    struct pairInfo {
+    struct PairInfo {
         // pair info
         address pair_address; 			// pair contract address
-        string symbol; 				    // pair symbol
-        string name;                    // pair name
         uint decimals; 			        // pair decimals
-        bool stable; 				    // pair pool type (stable = false, means it's a variable type of pool)
+        PoolType pooltype; 				// pair pool type 
         uint total_supply; 			    // pair tokens supply
     
         // token pair info
@@ -45,13 +46,11 @@ contract PairAPI is Initializable {
         string token0_symbol; 			// pair 1st token symbol
         uint token0_decimals; 		    // pair 1st token decimals
         uint reserve0; 			        // pair 1st token reserves (nr. of tokens in the contract)
-        uint claimable0;                // claimable 1st token from fees (for unstaked positions)
 
         address token1; 				// pair 2nd token address
         string token1_symbol;           // pair 2nd token symbol
         uint token1_decimals;    		// pair 2nd token decimals
         uint reserve1; 			        // pair 2nd token reserves (nr. of tokens in the contract)
-        uint claimable1; 			    // claimable 2nd token from fees (for unstaked positions)
 
         // pairs gauge
         address gauge; 				    // pair gauge address
@@ -62,10 +61,16 @@ contract PairAPI is Initializable {
         address emissions_token; 		// pair emissions token address
         uint emissions_token_decimals; 	// pair emissions token decimals
 
+    }
+
+    struct UserInfo {
+        
         // User deposit
+        
+        address pair_address; 			// pair contract address
+        uint claimable0;                // claimable 1st token from fees (for unstaked positions)
+        uint claimable1; 			    // claimable 2nd token from fees (for unstaked positions)
         uint account_lp_balance; 		// account LP tokens balance
-        uint account_token0_balance; 	// account 1st token balance
-        uint account_token1_balance; 	// account 2nd token balance
         uint account_gauge_balance;     // account pair staked in gauge balance
         uint account_gauge_earned; 		// account earned emissions for this pair
     }
@@ -86,6 +91,9 @@ contract PairAPI is Initializable {
         tokenBribe[] bribes;
     }
 
+    // stable/volatile classic x*y=k, CL = conc. liquidity algebra
+    enum PoolType {STABLE, VOLATILE, CL}
+
     uint256 public constant MAX_PAIRS = 1000;
     uint256 public constant MAX_EPOCHS = 200;
     uint256 public constant MAX_REWARDS = 16;
@@ -97,6 +105,7 @@ contract PairAPI is Initializable {
     IVoter public voter;
 
     address public underlyingToken;
+    address[] public defiEdgeFactory;
 
     address public owner;
 
@@ -104,6 +113,9 @@ contract PairAPI is Initializable {
     event Owner(address oldOwner, address newOwner);
     event Voter(address oldVoter, address newVoter);
     event WBF(address oldWBF, address newWBF);
+
+    
+
 
     constructor() {}
 
@@ -114,20 +126,24 @@ contract PairAPI is Initializable {
         voter = IVoter(_voter);
 
         pairFactory = IPairFactory(voter.factory());
-        underlyingToken = IVotingEscrow(voter.ve()).token();
+        underlyingToken = IVotingEscrow(voter._ve()).token();
 
         algebraFactory = IAlgebraFactory(address(0x306F06C147f064A010530292A1EB6737c3e378e4));
+        defiEdgeFactory.push(0xB4B715a85B552381a82570a0bb4392d2c77bA883);
+        defiEdgeFactory.push(0x0d190eD9033dFA2d6F3340f77A2068D92443BFfE);
+        defiEdgeFactory.push(0x77E8526f3399f8C9e1125CCc893512D7F6b85709);
+        defiEdgeFactory.push(0x3D823753B00DaEC603Ea7c1358F91641DC8E14B2);
         
     }
 
 
     // valid only for sAMM and vAMM
-    function getAllPair(address _user, uint _amounts, uint _offset) external view returns(pairInfo[] memory Pairs){
+    function getAllPair(uint _amounts, uint _offset) external view returns(PairInfo[] memory Pairs){
 
         
         require(_amounts <= MAX_PAIRS, 'too many pair');
 
-        Pairs = new pairInfo[](_amounts);
+        Pairs = new PairInfo[](_amounts);
         
         uint i = _offset;
         uint totPairs = pairFactory.allPairsLength();
@@ -139,42 +155,42 @@ contract PairAPI is Initializable {
                 break;
             }
             _pair = pairFactory.allPairs(i);
-            Pairs[i - _offset] = _pairAddressToInfo(_pair, _user);
+            Pairs[i - _offset] = _pairAddressToInfo(_pair);
         }
-
-
     }
 
-    function getPair(address _pair, address _account) external view returns(pairInfo memory _pairInfo){
-        return _pairAddressToInfo(_pair, _account);
+    function getMultiplePair(address[] calldata pairs) external view returns(PairInfo[] memory Pairs){
+        require(pairs.length <= MAX_PAIRS, 'too many pair');
+        Pairs = new PairInfo[](pairs.length );
+        address _pair;
+        for(uint256 i = 0; i < pairs.length; i++){
+            _pair = pairs[i];
+            Pairs[i] = _pairAddressToInfo(_pair);
+        }
     }
 
-    function _pairAddressToInfo(address _pair, address _account) internal view returns(pairInfo memory _pairInfo) {
+
+    function getPairAccount(address _pair, address _account) external view returns(UserInfo memory _UserInfo){
+        return _pairAddressForAccount(_pair, _account);
+    }
+
+    // backward compatibility
+    function getPair(address _pair, address /*account*/) external view returns(PairInfo memory _PairInfo){
+        return _pairAddressToInfo(_pair);
+    }
+
+    function getPairSingle(address _pair) external view returns(PairInfo memory _PairInfo){
+        return _pairAddressToInfo(_pair);
+    }
+
+    function _pairAddressForAccount(address _pair, address _account) internal view returns(UserInfo memory _UserInfo) {
 
         IPair ipair = IPair(_pair); 
-        
-        address token_0 = ipair.token0();
-        address token_1 = ipair.token1();
-        uint r0;
-        uint r1;
-
-        // checkout is v2 or v3? if v3 then load algebra pool 
-        bool _type = IPairFactory(pairFactory).isPair(_pair);
-        
-        if(_type == false){
-            // hypervisor totalAmounts = algebra.pool + gamma.unused
-            (r0,r1) = IHypervisor(_pair).getTotalAmounts();
-        } else {
-            (r0,r1,) = ipair.getReserves();
-        }
-
+         
         IGaugeAPI _gauge = IGaugeAPI(voter.gauges(_pair));
         uint accountGaugeLPAmount = 0;
         uint earned = 0;
-        uint gaugeTotalSupply = 0;
-        uint emissions = 0;
         
-
         if(address(_gauge) != address(0)){
             if(_account != address(0)){
                 accountGaugeLPAmount = _gauge.balanceOf(_account);
@@ -183,53 +199,99 @@ contract PairAPI is Initializable {
                 accountGaugeLPAmount = 0;
                 earned = 0;
             }
+        }
+
+        // checkout is v2 or v3? if v3 then load algebra pool 
+        bool _type = IPairFactory(pairFactory).isPair(_pair);
+        
+        // Account Info
+        _UserInfo.pair_address = _pair;
+        _UserInfo.claimable0 = _type == false ? 0 : ipair.claimable0(_account);
+        _UserInfo.claimable1 = _type == false ? 0 : ipair.claimable1(_account);
+        _UserInfo.account_lp_balance = IERC20(_pair).balanceOf(_account);
+        _UserInfo.account_gauge_balance = accountGaugeLPAmount;
+        _UserInfo.account_gauge_earned = earned;
+        
+    }
+
+    function _pairAddressToInfo(address _pair) internal view returns(PairInfo memory _PairInfo) {
+
+        IPair ipair = IPair(_pair); 
+        address token_0 = ipair.token0();
+        address token_1 = ipair.token1();
+        uint r0;
+        uint r1;
+        
+
+        // checkout is v2 or v3? if v3 then load algebra pool 
+        bool _type = IPairFactory(pairFactory).isPair(_pair);
+        PoolType _pooltype;
+        
+        if(_type == false){
+            
+            // not a solidly pool, check wheter is Gamma or DefiEdge
+            // hypervisor totalAmounts = algebra.pool + gamma.unused
+            // DeFiEdge is reserve 0 and reserve 1
+            bool status;
+            for(uint i = 0; i < defiEdgeFactory.length; i++){
+                status = IDefiEdgeFactory(defiEdgeFactory[i]).isValidStrategy(_pair);
+                if(status) break;
+            } 
+
+            if(status == false) (r0,r1) = IHypervisor(_pair).getTotalAmounts();
+            else {
+                r0 = IPairInfo(_pair).reserve0();
+                r1 = IPairInfo(_pair).reserve1();
+            } 
+            _pooltype = PoolType(2);
+        } else {
+            (r0,r1,) = ipair.getReserves();
+            _pooltype = ipair.isStable() == true ? PoolType(0) : PoolType(1);
+        }
+
+        IGaugeAPI _gauge = IGaugeAPI(voter.gauges(_pair));
+        uint gaugeTotalSupply = 0;
+        uint emissions = 0;
+        
+
+        if(address(_gauge) != address(0)){
             gaugeTotalSupply = _gauge.totalSupply();
             emissions = _gauge.rewardRate();
         }
         
 
         // Pair General Info
-        _pairInfo.pair_address = _pair;
-        _pairInfo.symbol = ipair.symbol();
-        _pairInfo.name = ipair.name();
-        _pairInfo.decimals = ipair.decimals();
-        _pairInfo.stable = _type == false ? false : ipair.isStable();
-        _pairInfo.total_supply = ipair.totalSupply();        
+        _PairInfo.pair_address = _pair;
+        _PairInfo.decimals = ipair.decimals();
+        _PairInfo.pooltype = _pooltype;
+        _PairInfo.total_supply = ipair.totalSupply();        
         
         // Token0 Info
-        _pairInfo.token0 = token_0;
-        _pairInfo.token0_decimals = IERC20(token_0).decimals();
-        _pairInfo.token0_symbol = IERC20(token_0).symbol();
-        _pairInfo.reserve0 = r0;
-        _pairInfo.claimable0 = _type == false ? 0 : ipair.claimable0(_account);
+        _PairInfo.token0 = token_0;
+        _PairInfo.token0_decimals = IERC20(token_0).decimals();
+        _PairInfo.token0_symbol = IERC20(token_0).symbol();
+        _PairInfo.reserve0 = r0;
 
         // Token1 Info
-        _pairInfo.token1 = token_1;
-        _pairInfo.token1_decimals = IERC20(token_1).decimals();
-        _pairInfo.token1_symbol = IERC20(token_1).symbol();
-        _pairInfo.reserve1 = r1;
-        _pairInfo.claimable1 = _type == false ? 0 : ipair.claimable1(_account);
+        _PairInfo.token1 = token_1;
+        _PairInfo.token1_decimals = IERC20(token_1).decimals();
+        _PairInfo.token1_symbol = IERC20(token_1).symbol();
+        _PairInfo.reserve1 = r1;
 
-        
         // Pair's gauge Info
-        _pairInfo.gauge = address(_gauge);
-        _pairInfo.gauge_total_supply = gaugeTotalSupply;
-        _pairInfo.emissions = emissions;
-        _pairInfo.emissions_token = underlyingToken;
-        _pairInfo.emissions_token_decimals = IERC20(underlyingToken).decimals();
+        _PairInfo.gauge = address(_gauge);
+        _PairInfo.gauge_total_supply = gaugeTotalSupply;
+        _PairInfo.emissions = emissions;
+        _PairInfo.emissions_token = underlyingToken;
+        _PairInfo.emissions_token_decimals = IERC20(underlyingToken).decimals();
         
         // external address
-        _pairInfo.fee = voter.internal_bribes(address(_gauge)); 				    
-        _pairInfo.bribe = voter.external_bribes(address(_gauge)); 				    
+        _PairInfo.fee = voter.internal_bribes(address(_gauge)); 				    
+        _PairInfo.bribe = voter.external_bribes(address(_gauge)); 				    
 
-        // Account Info
-        _pairInfo.account_lp_balance = IERC20(_pair).balanceOf(_account);
-        _pairInfo.account_token0_balance = IERC20(token_0).balanceOf(_account);
-        _pairInfo.account_token1_balance = IERC20(token_1).balanceOf(_account);
-        _pairInfo.account_gauge_balance = accountGaugeLPAmount;
-        _pairInfo.account_gauge_earned = earned;
         
     }
+
 
     function getPairBribe(uint _amounts, uint _offset, address _pair) external view returns(pairBribeEpoch[] memory _pairEpoch){
 
@@ -317,19 +379,14 @@ contract PairAPI is Initializable {
         
         // update variable depending on voter
         pairFactory = IPairFactory(voter.factory());
-        underlyingToken = IVotingEscrow(voter.ve()).token();
+        underlyingToken = IVotingEscrow(voter._ve()).token();
 
         emit Voter(_oldVoter, _voter);
     }
 
-    function left(address _pair, address _token) external view returns(uint256 _rewPerEpoch){
-        address _gauge = voter.gauges(_pair);
-        IBribeAPI bribe  = IBribeAPI(voter.internal_bribes(_gauge));
-        
-        uint256 _ts = bribe.getEpochStart();
-        IBribeAPI.Reward memory _reward = bribe.rewardData(_token, _ts);
-        _rewPerEpoch = _reward.rewardsPerEpoch;
-    
+    function pushdefiedgefactory(address factory) external {
+        require(msg.sender == owner, 'not owner');
+        defiEdgeFactory.push(factory);
     }
 
 

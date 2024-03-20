@@ -2,17 +2,13 @@
 
 pragma solidity 0.8.13;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./libraries/SignedSafeMath.sol";
 
 contract MasterChef is Ownable {
-    using SafeMath for uint256;
     using SafeERC20 for IERC20;
-    using SignedSafeMath for int256;
 
     struct UserInfo {
         uint256 amount;
@@ -26,8 +22,8 @@ contract MasterChef is Ownable {
         uint256 lastRewardTime;
     }
 
-    /// @notice Address of WBNB contract.
-    IERC20 public WBNB;
+    /// @notice Address of reward token contract.
+    IERC20 public TOKEN;
     /// @notice Address of the NFT token for each MCV2 pool.
     IERC721 public NFT;
 
@@ -44,7 +40,7 @@ contract MasterChef is Ownable {
     mapping(address => bool) public isKeeper;
 
     uint256 public rewardPerSecond;
-    uint256 private ACC_WBNB_PRECISION;
+    uint256 private ACC_TOKEN_PRECISION;
 
     uint256 public distributePeriod;
     uint256 public lastDistributedTime;
@@ -65,11 +61,11 @@ contract MasterChef is Ownable {
         _;
     }
 
-    constructor(IERC20 _WBNB, IERC721 _NFT) {
-        WBNB = _WBNB;
+    constructor(IERC20 _TOKEN, IERC721 _NFT) {
+        TOKEN = _TOKEN;
         NFT = _NFT;
         distributePeriod = 1 weeks;
-        ACC_WBNB_PRECISION = 1e12;
+        ACC_TOKEN_PRECISION = 1e12;
         poolInfo = PoolInfo({
             lastRewardTime: block.timestamp,
             accRewardPerShare: 0
@@ -77,7 +73,7 @@ contract MasterChef is Ownable {
     }
 
     /// @notice add keepers
-    function addKeeper(address[] memory _keepers) external onlyOwner {
+    function addKeeper(address[] calldata _keepers) external onlyOwner {
         uint256 i = 0;
         uint256 len = _keepers.length;
 
@@ -90,7 +86,7 @@ contract MasterChef is Ownable {
     }
 
     /// @notice remove keepers
-    function removeKeeper(address[] memory _keepers) external onlyOwner {
+    function removeKeeper(address[] calldata _keepers) external onlyOwner {
         uint256 i = 0;
         uint256 len = _keepers.length;
 
@@ -115,49 +111,39 @@ contract MasterChef is Ownable {
         updatePool();
         uint256 notDistributed;
         if (lastDistributedTime > 0 && block.timestamp < lastDistributedTime) {
-            uint256 timeLeft = lastDistributedTime.sub(block.timestamp);
-            notDistributed = rewardPerSecond.mul(timeLeft);
+            uint256 timeLeft = lastDistributedTime - block.timestamp;
+            notDistributed = rewardPerSecond * timeLeft;
         }
 
-        amount = amount.add(notDistributed);
-        uint256 _rewardPerSecond = amount.div(distributePeriod);
+        amount = amount + notDistributed;
+        uint256 _rewardPerSecond = amount / distributePeriod;
         rewardPerSecond = _rewardPerSecond;
-        lastDistributedTime = block.timestamp.add(distributePeriod);
+        lastDistributedTime = block.timestamp + distributePeriod;
         emit LogRewardPerSecond(_rewardPerSecond);
     }
 
-    /// @notice View function to see pending WBNB on frontend.
+    /// @notice View function to see pending TOKEN on frontend.
     /// @param _user Address of user.
-    /// @return pending WBNB reward for a given user.
-    function pendingReward(address _user)
-        external
-        view
-        returns (uint256 pending)
-    {
+    /// @return pending TOKEN reward for a given user.
+    function pendingReward(address _user) external view returns (uint256 pending) {
         PoolInfo memory pool = poolInfo;
         UserInfo storage user = userInfo[_user];
         uint256 accRewardPerShare = pool.accRewardPerShare;
         uint256 nftSupply = NFT.balanceOf(address(this));
         if (block.timestamp > pool.lastRewardTime && nftSupply != 0) {
-            uint256 time = block.timestamp.sub(pool.lastRewardTime);
-            uint256 reward = time.mul(rewardPerSecond);
-            accRewardPerShare = accRewardPerShare.add(
-                reward.mul(ACC_WBNB_PRECISION) / nftSupply
-            );
+            uint256 time = block.timestamp - pool.lastRewardTime;
+            uint256 reward = time * rewardPerSecond;
+            accRewardPerShare = accRewardPerShare + ( reward * ACC_TOKEN_PRECISION / nftSupply );
         }
-        pending = int256(
-            user.amount.mul(accRewardPerShare) / ACC_WBNB_PRECISION
-        ).sub(user.rewardDebt).toUInt256();
+        pending = uint256( int256( user.amount * accRewardPerShare / ACC_TOKEN_PRECISION ) - user.rewardDebt );
     }
 
-    /// @notice View function to see token Ids on frontend.
+   
+
+    /// @notice View function to see TOKEN Ids on frontend.
     /// @param _user Address of user.
     /// @return tokenIds Staked Token Ids for a given user.
-    function stakedTokenIds(address _user)
-        external
-        view
-        returns (uint256[] memory tokenIds)
-    {
+    function stakedTokenIds(address _user) external view returns (uint256[] memory tokenIds) {
         tokenIds = userInfo[_user].tokenIds;
     }
 
@@ -168,34 +154,29 @@ contract MasterChef is Ownable {
         if (block.timestamp > pool.lastRewardTime) {
             uint256 nftSupply = NFT.balanceOf(address(this));
             if (nftSupply > 0) {
-                uint256 time = block.timestamp.sub(pool.lastRewardTime);
-                uint256 reward = time.mul(rewardPerSecond);
-                pool.accRewardPerShare = pool.accRewardPerShare.add(
-                    reward.mul(ACC_WBNB_PRECISION).div(nftSupply)
-                );
+                uint256 time = block.timestamp - pool.lastRewardTime;
+                uint256 reward = time * rewardPerSecond;
+                pool.accRewardPerShare = pool.accRewardPerShare + reward * ACC_TOKEN_PRECISION / nftSupply;
             }
             pool.lastRewardTime = block.timestamp;
             poolInfo = pool;
-            emit LogUpdatePool(
-                pool.lastRewardTime,
-                nftSupply,
-                pool.accRewardPerShare
-            );
+
+            emit LogUpdatePool(pool.lastRewardTime,nftSupply,pool.accRewardPerShare);
         }
     }
 
-    /// @notice Deposit nft tokens to MCV2 for WBNB allocation.
+    /// @notice Deposit nft tokens to MCV2 for token allocation.
     /// @param tokenIds NFT tokenIds to deposit.
     function deposit(uint256[] calldata tokenIds) public {
         PoolInfo memory pool = updatePool();
         UserInfo storage user = userInfo[msg.sender];
 
         // Effects
-        user.amount = user.amount.add(tokenIds.length);
-        user.rewardDebt = user.rewardDebt.add( int256(tokenIds.length.mul(pool.accRewardPerShare) / ACC_WBNB_PRECISION) );
+        user.amount = user.amount + tokenIds.length;
+        user.rewardDebt = user.rewardDebt + int256(tokenIds.length * pool.accRewardPerShare / ACC_TOKEN_PRECISION);
 
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            require(NFT.ownerOf(tokenIds[i]) == msg.sender, "This NTF does not belong to address");
+            require(NFT.ownerOf(tokenIds[i]) == msg.sender, "CHEF: !NFT Owner");
 
             user.tokenIndices[tokenIds[i]] = user.tokenIds.length;
             user.tokenIds.push(tokenIds[i]);
@@ -214,18 +195,11 @@ contract MasterChef is Ownable {
         UserInfo storage user = userInfo[msg.sender];
 
         // Effects
-        user.rewardDebt = user.rewardDebt.sub(
-            int256(
-                tokenIds.length.mul(pool.accRewardPerShare) / ACC_WBNB_PRECISION
-            )
-        );
-        user.amount = user.amount.sub(tokenIds.length);
+        user.rewardDebt = user.rewardDebt - int256(tokenIds.length * (pool.accRewardPerShare) / ACC_TOKEN_PRECISION);
+        user.amount = user.amount - tokenIds.length;
 
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            require(
-                tokenOwner[tokenIds[i]] == msg.sender,
-                "Nft Staking System: user must be the owner of the staked nft"
-            );
+            require(tokenOwner[tokenIds[i]] == msg.sender, "CHEF: !NFT Owner");
             NFT.transferFrom(address(this), msg.sender, tokenIds[i]);
             uint256 lastTokenId = user.tokenIds[user.tokenIds.length - 1];
             user.tokenIds[user.tokenIndices[tokenIds[i]]] = lastTokenId;
@@ -242,19 +216,15 @@ contract MasterChef is Ownable {
     function harvest() public {
         PoolInfo memory pool = updatePool();
         UserInfo storage user = userInfo[msg.sender];
-        int256 accumulatedReward = int256(
-            user.amount.mul(pool.accRewardPerShare) / ACC_WBNB_PRECISION
-        );
-        uint256 _pendingReward = accumulatedReward
-            .sub(user.rewardDebt)
-            .toUInt256();
+        int256 accumulatedReward = int256( user.amount * (pool.accRewardPerShare) / ACC_TOKEN_PRECISION);
+        uint256 _pendingReward = uint256(accumulatedReward - user.rewardDebt);
 
         // Effects
         user.rewardDebt = accumulatedReward;
 
         // Interactions
         if (_pendingReward != 0) {
-            WBNB.safeTransfer(msg.sender, _pendingReward);
+            TOKEN.safeTransfer(msg.sender, _pendingReward);
         }
 
         emit Harvest(msg.sender, _pendingReward);
